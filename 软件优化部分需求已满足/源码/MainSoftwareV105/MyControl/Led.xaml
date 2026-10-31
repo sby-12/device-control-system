@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="MainSoftwareV100.MyControl.Led"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MainSoftwareV100.MyControl"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Viewbox>
+        <Grid Width="1000" Height="1000">
+            <Ellipse Name="mLed" Width="1000" Height="1000" Stroke="White" StrokeThickness="10">
+                <Ellipse.Fill>
+                    <RadialGradientBrush RadiusX="1" RadiusY="1" GradientOrigin="0.3,0.3">
+                        <GradientStop Color="White" Offset="0"/>
+                        <GradientStop Color="Lime" Offset="0.5"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+        </Grid>
+    </Viewbox>
+</UserControl>

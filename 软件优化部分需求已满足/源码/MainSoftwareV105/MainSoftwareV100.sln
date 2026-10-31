@@ -1,0 +1,76 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainSoftwareV100", "MainSoftwareV100.csproj", "{31B1883D-8119-4E49-8BAE-7F0174A41EB5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E3D88DA6-00F4-4D74-8ECD-0C4530D94216} = {E3D88DA6-00F4-4D74-8ECD-0C4530D94216}
+		{7C7EF9DD-C6C9-4CDF-8F47-3A9588169452} = {7C7EF9DD-C6C9-4CDF-8F47-3A9588169452}
+		{E5BEE8B2-4A01-4383-A483-20190CD25EC2} = {E5BEE8B2-4A01-4383-A483-20190CD25EC2}
+		{B2F3A1C4-7D8E-4F6A-9B1C-3E5D7A9F2046} = {B2F3A1C4-7D8E-4F6A-9B1C-3E5D7A9F2046}
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E01} = {C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E01}
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E02} = {C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E02}
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E03} = {C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E03}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValueSourceN2410ClassLibrary", "..\库文件设计\ValueSourceN2410ClassLibrary\ValueSourceN2410ClassLibrary.csproj", "{E3D88DA6-00F4-4D74-8ECD-0C4530D94216}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OscilloscopeClassLibrary", "..\库文件设计\OscilloscopeClassLibrary\OscilloscopeClassLibrary.csproj", "{7C7EF9DD-C6C9-4CDF-8F47-3A9588169452}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingalClassLibrary", "..\库文件设计\SingalClassLibrary\SingalClassLibrary.csproj", "{E5BEE8B2-4A01-4383-A483-20190CD25EC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentInterfaceLibrary", "..\库文件设计\InstrumentInterfaceLibrary\InstrumentInterfaceLibrary.csproj", "{B2F3A1C4-7D8E-4F6A-9B1C-3E5D7A9F2046}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeCroyScopeLibrary", "..\库文件设计\LeCroyScopeLibrary\LeCroyScopeLibrary.csproj", "{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "It16000dLibrary", "..\库文件设计\It16000dLibrary\It16000dLibrary.csproj", "{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sdg6000xLibrary", "..\库文件设计\Sdg6000xLibrary\Sdg6000xLibrary.csproj", "{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E03}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31B1883D-8119-4E49-8BAE-7F0174A41EB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31B1883D-8119-4E49-8BAE-7F0174A41EB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31B1883D-8119-4E49-8BAE-7F0174A41EB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31B1883D-8119-4E49-8BAE-7F0174A41EB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3D88DA6-00F4-4D74-8ECD-0C4530D94216}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3D88DA6-00F4-4D74-8ECD-0C4530D94216}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3D88DA6-00F4-4D74-8ECD-0C4530D94216}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3D88DA6-00F4-4D74-8ECD-0C4530D94216}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C7EF9DD-C6C9-4CDF-8F47-3A9588169452}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C7EF9DD-C6C9-4CDF-8F47-3A9588169452}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C7EF9DD-C6C9-4CDF-8F47-3A9588169452}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C7EF9DD-C6C9-4CDF-8F47-3A9588169452}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5BEE8B2-4A01-4383-A483-20190CD25EC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5BEE8B2-4A01-4383-A483-20190CD25EC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5BEE8B2-4A01-4383-A483-20190CD25EC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5BEE8B2-4A01-4383-A483-20190CD25EC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2F3A1C4-7D8E-4F6A-9B1C-3E5D7A9F2046}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2F3A1C4-7D8E-4F6A-9B1C-3E5D7A9F2046}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2F3A1C4-7D8E-4F6A-9B1C-3E5D7A9F2046}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2F3A1C4-7D8E-4F6A-9B1C-3E5D7A9F2046}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4E5D2F7-8A1B-4C3D-9E2F-1A3B5C7D9E03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A9F8EF3F-2594-427E-837B-C53231A62309}
+	EndGlobalSection
+EndGlobal

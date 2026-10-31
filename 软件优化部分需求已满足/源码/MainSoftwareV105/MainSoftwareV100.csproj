@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{31B1883D-8119-4E49-8BAE-7F0174A41EB5}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>MainSoftwareV100</RootNamespace>
+    <AssemblyName>MainSoftwareV100</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EPPlus, Version=5.8.14.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>packages\EPPlus.5.8.14\lib\net45\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IO.RecyclableMemoryStream, Version=1.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.IO.RecyclableMemoryStream.1.4.1\lib\net46\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+    </Reference>
+    <Reference Include="OscilloscopeClassLibrary">
+      <HintPath>..\库文件设计\OscilloscopeClassLibrary\bin\Debug\OscilloscopeClassLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot, Version=2.2.0.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
+      <HintPath>packages\OxyPlot.Core.2.2.0\lib\net462\OxyPlot.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot.Wpf, Version=2.2.0.0, Culture=neutral, PublicKeyToken=75e952ba404cdbb0, processorArchitecture=MSIL">
+      <HintPath>packages\OxyPlot.Wpf.2.2.0\lib\net462\OxyPlot.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot.Wpf.Shared, Version=2.2.0.0, Culture=neutral, PublicKeyToken=75e952ba404cdbb0, processorArchitecture=MSIL">
+      <HintPath>packages\OxyPlot.Wpf.Shared.2.2.0\lib\net462\OxyPlot.Wpf.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="ReachFramework" />
+    <Reference Include="SingalClassLibrary">
+      <HintPath>..\库文件设计\SingalClassLibrary\bin\Debug\SingalClassLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Printing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="ValueSourceN2410ClassLibrary">
+      <HintPath>..\库文件设计\ValueSourceN2410ClassLibrary\bin\Debug\ValueSourceN2410ClassLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="InstrumentInterfaceLibrary">
+      <HintPath>..\库文件设计\InstrumentInterfaceLibrary\bin\Debug\InstrumentInterfaceLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="LeCroyScopeLibrary">
+      <HintPath>..\库文件设计\LeCroyScopeLibrary\bin\Debug\LeCroyScopeLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="It16000dLibrary">
+      <HintPath>..\库文件设计\It16000dLibrary\bin\Debug\It16000dLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Sdg6000xLibrary">
+      <HintPath>..\库文件设计\Sdg6000xLibrary\bin\Debug\Sdg6000xLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="ConnectInit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectInit.xaml.cs">
+      <DependentUpon>ConnectInit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DeviceFactory.cs" />
+    <Compile Include="MainViewModel.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="MyControl\Led.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MyControl\MyTime.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MyControl\Led.xaml.cs" />
+    <Compile Include="MyControl\MyTime.xaml.cs" />
+    <Compile Include="MyControl\NumberBox.cs" />
+    <Compile Include="MyControl\NumericUpDown.cs" />
+    <Compile Include="IpStorage.cs" />
+    <Compile Include="Toast.cs" />
+    <Compile Include="AiAssistant\AiAgent.cs" />
+    <Compile Include="AiAssistant\AiConfig.cs" />
+    <Compile Include="AiAssistant\AiTools.cs" />
+    <Compile Include="AiAssistant\KnowledgeBase.cs" />
+    <Compile Include="AiAssistant\WaveSnapshot.cs" />
+    <Compile Include="DptAnalysis\DptMath.cs" />
+    <Compile Include="DptAnalysis\DptSwitching.cs" />
+    <Compile Include="DptAnalysis\DptRecovery.cs" />
+    <Compile Include="DptAnalysis\DptGateCharge.cs" />
+    <Compile Include="DptAnalysis\DptAvalanche.cs" />
+    <Compile Include="DptAnalysis\DptShortCircuit.cs" />
+    <Page Include="AiAssistant\AiAssistantWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="AiAssistant\AiAssistantWindow.xaml.cs">
+      <DependentUpon>AiAssistant\AiAssistantWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="DptAnalysis\DptAnalysisWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="DptAnalysis\DptAnalysisWindow.xaml.cs">
+      <DependentUpon>DptAnalysis\DptAnalysisWindow.xaml</DependentUpon>
+    </Compile>
+    <Content Include="IP Storage.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="AI Config.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!--2026-10-31：01/02/03 三个重复文档已删除（内容并入 08-动态参数分析与判读.md），条目随之移除。
+        01 的条目原来散在上面，02~08 集中在下方 ItemGroup，统一改成通配符后不再逐条登记。-->
+    <Compile Include="PlotSeriesViewModel1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="HD.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assest\connect.png" />
+    <Resource Include="Assest\discon.png" />
+    <Resource Include="Assest\Setting.png" />
+    <Resource Include="Assest\仪器仪表.jpg" />
+    <Resource Include="Assest\保存.jpg" />
+    <Resource Include="Assest\停止.jpg" />
+    <Resource Include="Assest\启动.jpg" />
+    <Resource Include="Assest\打开文件.jpg" />
+    <Resource Include="Assest\最大化.png" />
+    <Resource Include="Assest\最小化.jpg" />
+    <Resource Include="Assest\退出.png" />
+  </ItemGroup>
+  <!--AI知识库：编译后自动复制到exe旁边（PreserveNewest=只复制有改动的）。
+      2026-10-31 改为通配符：以后往"AI知识库"文件夹里加/删 .md 文档即可，
+      不用再改本工程文件（原来逐条登记，删文件忘删条目就会编译报错）。
+      用MSBuild托管复制而不是xcopy批处理，避开中文路径的cmd编码问题。-->
+  <ItemGroup>
+    <Content Include="AI知识库\*.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="packages\Microsoft.NETFramework.ReferenceAssemblies.net48.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net48.targets" Condition="Exists('packages\Microsoft.NETFramework.ReferenceAssemblies.net48.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net48.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.NETFramework.ReferenceAssemblies.net48.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net48.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.NETFramework.ReferenceAssemblies.net48.1.0.2\build\Microsoft.NETFramework.ReferenceAssemblies.net48.targets'))" />
+  </Target>
+</Project>

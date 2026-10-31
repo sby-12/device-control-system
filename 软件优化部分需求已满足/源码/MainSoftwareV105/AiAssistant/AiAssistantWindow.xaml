@@ -1,0 +1,44 @@
+<Window x:Class="MainSoftwareV100.AiAssistantWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AI助手" Height="640" Width="520"
+        WindowStartupLocation="CenterOwner"
+        Background="#FFF5F7FA" FontFamily="Microsoft YaHei">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--顶部状态条：显示AI正在做的事情-->
+        <Border Grid.Row="0" Background="#FF2D5078" CornerRadius="4" Padding="10,6" Margin="0,0,0,6">
+            <TextBlock x:Name="StatusText" Text="就绪" Foreground="White" FontSize="13"/>
+        </Border>
+
+        <!--聊天记录区-->
+        <Border Grid.Row="1" Background="White" CornerRadius="4" Padding="6">
+            <ScrollViewer x:Name="ChatScroll" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="ChatPanel"/>
+            </ScrollViewer>
+        </Border>
+
+        <!--输入区-->
+        <Grid Grid.Row="2" Margin="0,6,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="InputBox" Grid.Column="0" FontSize="14" Padding="8,6" KeyDown="InputBox_KeyDown"
+                     VerticalContentAlignment="Center"/>
+            <Button Grid.Column="1" Content="发送" Width="70" Margin="6,0,0,0" Background="#FF2D5078" Foreground="White"
+                    FontSize="14" Cursor="Hand" Click="Send_Click"/>
+            <Button Grid.Column="2" Content="导出" Width="60" Margin="6,0,0,0" Background="#FF3E7A5B" Foreground="White"
+                    FontSize="14" Cursor="Hand" Click="Export_Click" ToolTip="把对话记录保存为Markdown文件（可当实验记录）"/>
+            <Button Grid.Column="3" Content="清空" Width="60" Margin="6,0,0,0" Background="#FF7A7A7A" Foreground="White"
+                    FontSize="14" Cursor="Hand" Click="Clear_Click"/>
+        </Grid>
+    </Grid>
+</Window>

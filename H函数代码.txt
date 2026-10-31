@@ -1,0 +1,129 @@
+  private async Task HandleIncomingData()
+  {
+     
+      try
+      {
+          NetworkStream stream = _client.GetStream();
+          while (_client.Connected)
+          {
+              byte[] readBuffer = new byte[_client.Available];
+              int bytesRead = await stream.ReadAsync(readBuffer, 0, readBuffer.Length);
+              if (bytesRead != 0)
+              {
+                  string Recive = Encoding.UTF8.GetString(readBuffer);
+                 // reciveState(Recive);
+                  string[] ReciveDataString = Recive.Split(',');
+                  Console.WriteLine(ReciveDataString.Length);
+                  if (ReciveDataString.Length == 1)
+                  {
+                      ChannelName = ReciveDataString[0];
+                  }
+                  else if (ReciveDataString.Length >= 1000)
+                  {
+                      Line1Data = ConvertScientificToFloat(ReciveDataString);
+                      if (thisNetPublicTool != null)
+                      {
+                          if(Chnumber ==1)
+                          {
+                              thisNetPublicTool(Line1Data, 1);
+                              if ((CHANNum & 0x04) == 0x04)
+                              {
+                                  Chnumber = 2;
+                              }
+                              else if ((CHANNum & 0x08) == 0x08)
+                              {
+                                  Chnumber = 3;
+                              }
+                              else if ((CHANNum & 0x01) == 0x01)
+                              {
+                                  Chnumber = 0;
+                              }
+                              else
+                              {
+                                  Chnumber = 1;
+                              }
+                              EquipDataRead = true;
+                          }
+                          else if (Chnumber == 0)
+                          {
+                              thisNetPublicTool(Line1Data, 0);
+                              if((CHANNum & 0x02) == 0x02)
+                              {
+                                  Chnumber = 1;
+                              }
+                              else if((CHANNum & 0x04) == 0x04)
+                              {
+                                  Chnumber = 2;
+                              }
+                              else if((CHANNum & 0x08) == 0x08)
+                              { 
+                                  Chnumber = 3; 
+                              }
+                              else
+                              {
+                                  Chnumber = 0;
+                              }
+                              EquipDataRead = true;
+                          }
+                          else if (Chnumber == 2)
+                          {
+                              thisNetPublicTool(Line1Data, 2);
+                              if ((CHANNum & 0x08) == 0x08)
+                              {
+                                  Chnumber = 3;
+                              }
+                              else if ((CHANNum & 0x01) == 0x01)
+                              {
+                                  Chnumber = 0;
+                              }
+                              else if ((CHANNum & 0x02) == 0x02)
+                              {
+                                  Chnumber = 1;
+                              }
+                              else
+                              {
+                                  Chnumber = 2;
+                              }
+                              EquipDataRead = true;
+                          }
+                          else if (Chnumber == 3)
+                          {
+                              thisNetPublicTool(Line1Data, 3);
+                              if ((CHANNum & 0x01) == 0x01)
+                              {
+                                  Chnumber = 0;
+                              }
+                              else if ((CHANNum & 0x02) == 0x02)
+                              {
+                                  Chnumber = 1;
+                              }
+                              else if ((CHANNum & 0x03) == 0x03)
+                              {
+                                  Chnumber = 2;
+                              }
+                              else
+                              {
+                                  Chnumber = 3;
+                              }
+                              EquipDataRead = true;
+                          }
+
+                      }
+                         
+                  }
+
+              }
+              Thread.Sleep(2);
+             
+          }
+      }
+      catch (Exception ex)
+      {
+          //数据接收异常回调
+          Console.WriteLine($"Receive error: {ex.Message}");
+          if (reciveState != null)
+          {
+              reciveState("数据接收异常： " + $"Receive error: {ex.Message}",0,false);
+          }
+      }
+  }

@@ -1,0 +1,98 @@
+<Window x:Class="MainSoftwareV100.ConnectInit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MainSoftwareV100"
+        mc:Ignorable="d"
+        Title="绝缘耐压测试软件"
+        Height="300" Width="880"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        Background="Transparent" Icon="/HD.ico" Topmost="True"  >
+    <Border Style="{StaticResource widgetBorder}"  Margin="0" CornerRadius="0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.4*"/>
+                <ColumnDefinition Width="2.6*"/>
+                <ColumnDefinition Width="0.9*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="绝缘耐压测试软件" Grid.Column="0" Grid.ColumnSpan="2" FontSize="18" FontWeight="Bold" Height="30" Foreground="#FF000000" VerticalAlignment="Top" HorizontalAlignment="Center" Background="Transparent" BorderBrush="#FFA0A0A0" Margin="0,0,0,0"/>
+            <Image Source="/Assest/退出.png" Panel.ZIndex="1" Grid.ColumnSpan="3" Style="{StaticResource imgStyle}" Margin="0,4,4,4" MouseDown="Image_MouseDown"/>
+
+            <!-- 行1：电流源A（2026-10-30 改造：先选机型，再填IP端口） -->
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0">
+                <Label Content="电流源A：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <ComboBox x:Name="PowerAModel" Width="150" MinHeight="25" Foreground="#1E2E44" FontSize="14"
+                          VerticalContentAlignment="Center" IsEditable="False"/>
+            </WrapPanel>
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1">
+                <Label Content="IP地址：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="PowerAAddress" MinWidth="120" MinHeight="25" HorizontalContentAlignment="Center"
+             VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+                <Label Content="端口：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="PowerAPort" MinWidth="50" MinHeight="25" HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+            </WrapPanel>
+            <Button Style="{StaticResource buttonstyle}" Content="通信连接" FontSize="16" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Height="34" Margin="5,0,5,0" Click="PowerA_Connect"/>
+
+            <!-- 行2：电流源B -->
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0">
+                <Label Content="电流源B：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <ComboBox x:Name="PowerBModel" Width="150" MinHeight="25" Foreground="#1E2E44" FontSize="14"
+                          VerticalContentAlignment="Center" IsEditable="False"/>
+            </WrapPanel>
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="1">
+                <Label Content="IP地址：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="PowerBAddress" MinWidth="120" MinHeight="25" HorizontalContentAlignment="Center"
+             VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+                <Label Content="端口：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="PowerBPort" MinWidth="50" MinHeight="25" HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+            </WrapPanel>
+            <Button Style="{StaticResource buttonstyle}" Content="通信连接" FontSize="16" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Height="34" Margin="5,0,5,0" Click="PowerB_Connect"/>
+
+            <!-- 行3：示波器 -->
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0">
+                <Label Content="示波器：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <ComboBox x:Name="ScopeModel" Width="150" MinHeight="25" Foreground="#1E2E44" FontSize="14"
+                          VerticalContentAlignment="Center" IsEditable="False"/>
+            </WrapPanel>
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="3" Grid.Column="1">
+                <Label Content="IP地址：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="ScopeAddress" MinWidth="120" MinHeight="25" HorizontalContentAlignment="Center"
+             VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+                <Label Content="端口：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="ScopePort" MinWidth="50" MinHeight="25" HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+            </WrapPanel>
+            <Button Style="{StaticResource buttonstyle}" Content="通信连接" FontSize="16" Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" Height="34" Margin="5,0,5,0" Click="Scope_Connect"/>
+
+            <!-- 行4：信号源 -->
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0">
+                <Label Content="信号源：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <ComboBox x:Name="SignalModel" Width="150" MinHeight="25" Foreground="#1E2E44" FontSize="14"
+                          VerticalContentAlignment="Center" IsEditable="False"/>
+            </WrapPanel>
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" Grid.Column="1">
+                <Label Content="IP地址：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="SignalAddress" MinWidth="120" MinHeight="25" HorizontalContentAlignment="Center"
+             VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+                <Label Content="端口：" Foreground="#1E2E44" FontWeight="Bold"/>
+                <TextBox x:Name="SignalPort" MinWidth="50" MinHeight="25" HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center" IsUndoEnabled="False" Foreground="#1E2E44" FontWeight="Bold" FontSize="16"/>
+            </WrapPanel>
+            <Button Style="{StaticResource buttonstyle}" Content="通信连接" FontSize="16" Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" Height="34" Margin="5,0,5,0" Click="Signal_Connect"/>
+
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,808 @@
+<Window x:Class="MainSoftwareV100.DptAnalysisWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="器件开关参数提取" Height="700" Width="980"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
+        Background="#FFF5F7FA" FontFamily="Microsoft YaHei" MinHeight="620" MinWidth="900">
+    <!-- 2026-10-30 功能接线版：通道映射 + 提取参数按钮已接算法。
+         配色与主界面一致：浅灰底 #FFF5F7FA、文字 #1E2E44、按钮蓝 #FF2D5078。
+         数据来源：优先深度保存RAW波形，无深存则用实时快照（主窗口 GetAnalysisFrame）。 -->
+    <Window.Resources>
+        <!-- 参数名标签 -->
+        <Style x:Key="ParamName" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF1E2E44"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="110"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+        <!-- 参数值框（只读，算法填入） -->
+        <Style x:Key="ParamBox" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#FF1E2E44"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="BorderBrush" Value="#FFB9C4D4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
+        <!-- 单位标签 -->
+        <Style x:Key="ParamUnit" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF7A8699"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="8,0,20,0"/>
+        </Style>
+        <!-- 分区小标题 -->
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF1E2E44"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Margin" Value="20,10,0,8"/>
+        </Style>
+        <!-- 顶部工况标签 -->
+        <Style x:Key="CondLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF1E2E44"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="12,0,4,0"/>
+        </Style>
+        <!-- 顶部工况输入框 -->
+        <Style x:Key="CondBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#FF1E2E44"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="IsEditable" Value="True"/>
+        </Style>
+        <!-- 通道选择下拉框 -->
+        <Style x:Key="ChanBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#FF1E2E44"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Width" Value="68"/>
+            <Setter Property="Margin" Value="0,0,14,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <!-- 提取按钮（主界面同款蓝） -->
+        <Style x:Key="MainButton" TargetType="Button">
+            <Setter Property="Background" Value="#FF2D5078"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <!-- 占位显示区 -->
+        <Style x:Key="PlaceholderBorder" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFD5DCE6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="PlaceholderText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF9AA5B5"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <!-- 页签浅色化 -->
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#FFD5DCE6"/>
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="#FF1E2E44"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Padding" Value="14,7"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部标题+页签 -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="测量结果" Foreground="#FF1E2E44" FontSize="15" Margin="2,0,0,4"/>
+            <!-- 深存储数据状态条：有深存数据时显示，可一键丢弃退回实时快照 -->
+            <Border x:Name="DeepStatusBar" Background="#FFE8F4FD" BorderBrush="#FF99C8E0"
+                    BorderThickness="1" CornerRadius="4" Margin="0,0,0,6" Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal" Margin="8,4">
+                    <TextBlock x:Name="DeepStatusText" Foreground="#FF1E2E44" FontSize="14"
+                               VerticalAlignment="Center"/>
+                    <Button Content="丢弃深存数据" FontSize="13" Background="White"
+                            BorderBrush="#FF99C8E0" Foreground="#FF2D5078" Padding="10,2"
+                            Margin="12,0,0,0" Cursor="Hand" Click="ClearDeep_Click"/>
+                </StackPanel>
+            </Border>
+            <TabControl x:Name="MainTab">
+                <!-- ============ 1. 示波器截图 ============ -->
+                <TabItem Header="示波器截图">
+                    <Grid Margin="8">
+                        <Border Style="{StaticResource PlaceholderBorder}">
+                            <TextBlock Text="示波器截图显示区（后续接入：保存瞬间的波形截图）"
+                                       Style="{StaticResource PlaceholderText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- ============ 2. 开关-L ============ -->
+                <TabItem Header="开关-L">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- 工况输入行 -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,4">
+                            <TextBlock Text="Vds/Vce" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="100"/>
+                            <TextBlock Text="Id/Ic" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="5"/>
+                            <TextBlock Text="温度" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="0"/>
+                        </StackPanel>
+                        <!-- 通道映射行 -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="Vge通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="L_ChVge" Style="{StaticResource ChanBox}" SelectedIndex="0">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Vce通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="L_ChVce" Style="{StaticResource ChanBox}" SelectedIndex="1">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Ic通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="L_ChIc" Style="{StaticResource ChanBox}" SelectedIndex="2">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="对管Vge" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="L_ChOther" Style="{StaticResource ChanBox}" SelectedIndex="3">
+                                <ComboBoxItem Content="无"/>
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <Button Content="提取参数" Style="{StaticResource MainButton}"
+                                    Margin="10,0,0,0" Click="SwitchExtract_Click" Tag="L"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="测试结果" Style="{StaticResource SectionTitle}"/>
+                        <!-- 参数两列排布 -->
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- 左列 -->
+                            <StackPanel Grid.Column="0" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="td(on)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_TdOn" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="tr" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Tr" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="dv/dt(on)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_DvDtOn" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kV/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="td(off)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_TdOff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="tf" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Tf" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="dv/dt(off)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_DvDtOff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kV/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Vdsm" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Vdsm" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <!-- 右列 -->
+                            <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="ton" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Ton" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Eon" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Eon" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="uJ" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="di/dt(on)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_DiDtOn" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="toff" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Toff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Eoff" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Eoff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="uJ" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="di/dt(off)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_DiDtOff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Tz Time" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Tz" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="ΔVce过冲" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_DeltaVce" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Ls杂感" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Ls" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nH" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Pmax" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_Pmax" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kW" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="串扰+尖峰" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_XtalkMax" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="串扰-尖峰" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="L_XtalkMin" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- ============ 3. 开关-R ============ -->
+                <TabItem Header="开关-R">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,4">
+                            <TextBlock Text="Vds/Vce" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="100"/>
+                            <TextBlock Text="Id/Ic" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="5"/>
+                            <TextBlock Text="温度" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="Vge通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="R_ChVge" Style="{StaticResource ChanBox}" SelectedIndex="0">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Vce通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="R_ChVce" Style="{StaticResource ChanBox}" SelectedIndex="1">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Ic通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="R_ChIc" Style="{StaticResource ChanBox}" SelectedIndex="2">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="对管Vge" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="R_ChOther" Style="{StaticResource ChanBox}" SelectedIndex="0">
+                                <ComboBoxItem Content="无"/>
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <Button Content="提取参数" Style="{StaticResource MainButton}"
+                                    Margin="10,0,0,0" Click="SwitchExtract_Click" Tag="R"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="测试结果" Style="{StaticResource SectionTitle}"/>
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="td(on)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_TdOn" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="tr" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Tr" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="dv/dt(on)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_DvDtOn" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kV/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="td(off)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_TdOff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="tf" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Tf" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="dv/dt(off)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_DvDtOff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kV/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Vdsm" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Vdsm" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="ton" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Ton" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Eon" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Eon" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="uJ" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="di/dt(on)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_DiDtOn" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="toff" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Toff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Eoff" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Eoff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="uJ" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="di/dt(off)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_DiDtOff" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Tz Time" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Tz" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="ΔVce过冲" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_DeltaVce" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Ls杂感" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Ls" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nH" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Pmax" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_Pmax" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kW" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="串扰+尖峰" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_XtalkMax" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="串扰-尖峰" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="R_XtalkMin" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- ============ 4. RR 反向恢复 ============ -->
+                <TabItem Header="RR">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,4">
+                            <TextBlock Text="Vds/Vce" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="100"/>
+                            <TextBlock Text="Id/Ic" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="5"/>
+                            <TextBlock Text="温度" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="Vge通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="RR_ChVge" Style="{StaticResource ChanBox}" SelectedIndex="0">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Vce通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="RR_ChVce" Style="{StaticResource ChanBox}" SelectedIndex="1">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Ic通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="RR_ChIc" Style="{StaticResource ChanBox}" SelectedIndex="2">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <Button Content="提取参数" Style="{StaticResource MainButton}"
+                                    Margin="10,0,0,0" Click="RecoveryExtract_Click"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="反向恢复测试结果" Style="{StaticResource SectionTitle}"/>
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Irr" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_Irr" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Trr" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_Trr" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="ns" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Vrr" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_Vrr" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="dv/dt(RR)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_DvDt" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kV/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="di/dt(Irr)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_DiDt" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Err" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_Err" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="uJ" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Pdmax" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_Pdmax" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="kW" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Qrr" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="RR_Qrr" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="uC" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- ============ 5. QG-L 栅极电荷（左管） ============ -->
+                <TabItem Header="QG-L">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,4">
+                            <TextBlock Text="Ig(恒流)" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="1"/>
+                            <TextBlock Text="温度" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="Vge通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="QGL_ChVge" Style="{StaticResource ChanBox}" SelectedIndex="0">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Ig通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="QGL_ChIg" Style="{StaticResource ChanBox}" SelectedIndex="3">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <Button Content="提取参数" Style="{StaticResource MainButton}"
+                                    Margin="10,0,0,0" Click="GateChargeExtract_Click" Tag="QGL"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="栅极电荷测试结果" Style="{StaticResource SectionTitle}"/>
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Qg" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGL_Qg" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nC" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Qgs" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGL_Qgs" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nC" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Qgd" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGL_Qgd" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nC" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Vgp(米勒平台)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGL_Vgp" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- ============ 6. QG-R 栅极电荷（右管） ============ -->
+                <TabItem Header="QG-R">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,4">
+                            <TextBlock Text="Ig(恒流)" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="1"/>
+                            <TextBlock Text="温度" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="Vge通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="QGR_ChVge" Style="{StaticResource ChanBox}" SelectedIndex="0">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Ig通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="QGR_ChIg" Style="{StaticResource ChanBox}" SelectedIndex="3">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <Button Content="提取参数" Style="{StaticResource MainButton}"
+                                    Margin="10,0,0,0" Click="GateChargeExtract_Click" Tag="QGR"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="栅极电荷测试结果" Style="{StaticResource SectionTitle}"/>
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Qg" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGR_Qg" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nC" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Qgs" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGR_Qgs" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nC" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Qgd" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGR_Qgd" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="nC" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Vgp(米勒平台)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="QGR_Vgp" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- ============ 7. UIS 雪崩 ============ -->
+                <TabItem Header="UIS">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,4">
+                            <TextBlock Text="L(雪崩电感)" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="1"/>
+                            <TextBlock Text="温度" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="Vce通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="UIS_ChVce" Style="{StaticResource ChanBox}" SelectedIndex="1">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Ic通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="UIS_ChIc" Style="{StaticResource ChanBox}" SelectedIndex="2">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <Button Content="提取参数" Style="{StaticResource MainButton}"
+                                    Margin="10,0,0,0" Click="AvalancheExtract_Click"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="雪崩测试结果" Style="{StaticResource SectionTitle}"/>
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="IAS(雪崩电流)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="UIS_Ias" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="EAS(雪崩能量)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="UIS_Eas" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="mJ" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="tAV(雪崩时间)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="UIS_Tav" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="VAV(雪崩电压)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="UIS_Vav" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="di/dt(雪崩)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="UIS_DiDt" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A/us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- ============ 8. SC 短路 ============ -->
+                <TabItem Header="SC">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,4,0,4">
+                            <TextBlock Text="Vds/Vce" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="100"/>
+                            <TextBlock Text="栅压" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="15"/>
+                            <TextBlock Text="温度" Style="{StaticResource CondLabel}"/>
+                            <ComboBox Style="{StaticResource CondBox}" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="Vce通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="SC_ChVce" Style="{StaticResource ChanBox}" SelectedIndex="1">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <TextBlock Text="Ic通道" Style="{StaticResource CondLabel}"/>
+                            <ComboBox x:Name="SC_ChIc" Style="{StaticResource ChanBox}" SelectedIndex="2">
+                                <ComboBoxItem Content="CH1"/><ComboBoxItem Content="CH2"/>
+                                <ComboBoxItem Content="CH3"/><ComboBoxItem Content="CH4"/>
+                            </ComboBox>
+                            <Button Content="提取参数" Style="{StaticResource MainButton}"
+                                    Margin="10,0,0,0" Click="ShortCircuitExtract_Click"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="2" Text="短路测试结果" Style="{StaticResource SectionTitle}"/>
+                        <Grid Grid.Row="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Imax(短路电流)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="SC_Imax" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="A" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Tsc(短路时间)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="SC_Tsc" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Esc(短路能量)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="SC_Esc" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="mJ" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="20,4,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Vpeak(应力电压)" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="SC_Vpeak" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="V" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                    <TextBlock Text="Desat时间" Style="{StaticResource ParamName}"/>
+                                    <TextBox x:Name="SC_Desat" Style="{StaticResource ParamBox}"/>
+                                    <TextBlock Text="us" Style="{StaticResource ParamUnit}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </StackPanel>
+
+        <!-- 底部状态提示 -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#FFD5DCE6" BorderThickness="1"
+                Height="30" VerticalAlignment="Bottom" Margin="0,6,0,0">
+            <TextBlock x:Name="StatusText" Text="就绪：选择通道映射后点击各页签的「提取参数」（数据优先取深度保存波形）"
+                       Foreground="#FF7A8699" FontSize="13"
+                       VerticalAlignment="Center" Margin="8,0"/>
+        </Border>
+    </Grid>
+</Window>

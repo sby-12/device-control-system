@@ -1,0 +1,157 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace MainSoftwareV100
+{
+    /// <summary>
+    /// 参数提取的数学基础原语（C#移植自DPT开源项目的核心算法，参考IEC 60747-9定义）。
+    /// 全部以"采样点索引"为坐标（等间隔采样），需要时刻时用 索引×dt 换算。
+    /// 约定：电压单位伏特、电流单位安培、时间单位秒，能量由调用方换算uJ/mJ。
+    /// </summary>
+    public static class DptMath
+    {
+        //========== 平台电平估计 ==========
+
+        /// <summary>分位数（0~1）。先排序再线性插值，等价numpy.percentile。</summary>
+        public static double Percentile(double[] data, double pct)
+        {
+            if (data == null || data.Length == 0) return 0;
+            double[] s = (double[])data.Clone();
+            Array.Sort(s);
+            double pos = pct * (s.Length - 1);
+            int lo = (int)Math.Floor(pos), hi = (int)Math.Ceiling(pos);
+            if (lo == hi) return s[lo];
+            return s[lo] + (s[hi] - s[lo]) * (pos - lo);
+        }
+
+        /// <summary>数组某区间的分位数。</summary>
+        public static double Percentile(double[] data, int i0, int i1, double pct)
+        {
+            i0 = Math.Max(0, i0); i1 = Math.Min(data.Length - 1, i1);
+            if (i1 <= i0) return data[Math.Max(0, Math.Min(i0, data.Length - 1))];
+            double[] seg = new double[i1 - i0 + 1];
+            Array.Copy(data, i0, seg, 0, seg.Length);
+            return Percentile(seg, pct);
+        }
+
+        /// <summary>阈值电平：lo + pct×(hi−lo)。</summary>
+        public static double ThresholdValue(double lo, double hi, double pct)
+        {
+            return lo + pct * (hi - lo);
+        }
+
+        //========== 滤波 ==========
+
+        /// <summary>滑动平均平滑（等价uniform_filter1d），window为奇数采样点。</summary>
+        public static double[] Smooth(double[] y, int window)
+        {
+            if (window < 3) return (double[])y.Clone();
+            if (window % 2 == 0) window++;
+            int n = y.Length, h = window / 2;
+            double[] r = new double[n];
+            double sum = 0;
+            for (int i = 0; i < n; i++)
+            {
+                sum += y[i];
+                if (i - h - 1 >= 0) sum -= y[i - h - 1];
+                int cnt = Math.Min(i + h, n - 1) - Math.Max(0, i - h) + 1;
+                r[i] = sum / cnt;
+            }
+            return r;
+        }
+
+        /// <summary>按纳秒指定平滑窗宽，自动换算成采样点数。</summary>
+        public static double[] Smooth(double[] y, double dt, double windowNs)
+        {
+            int w = Math.Max(1, (int)(windowNs * 1e-9 / dt));
+            return Smooth(y, w);
+        }
+
+        //========== 阈值穿越（核心原语，线性插值） ==========
+
+        /// <summary>
+        /// 找波形穿越threshold的第一个时刻，返回双精度采样索引（可带小数，即线性插值结果）。
+        /// rising=true找上升穿越，false找下降穿越；startIdx指定从哪个点开始搜。
+        /// 找不到返回null。
+        /// </summary>
+        public static double? CrossingIndex(double[] y, double threshold, bool rising, int startIdx = 0)
+        {
+            for (int i = Math.Max(1, startIdx); i < y.Length; i++)
+            {
+                bool cross = rising ? (y[i - 1] <= threshold && y[i] > threshold)
+                                    : (y[i - 1] >= threshold && y[i] < threshold);
+                if (cross)
+                {
+                    double y0 = y[i - 1], y1 = y[i];
+                    if (Math.Abs(y1 - y0) < 1e-30) return (double)i;
+                    double frac = (threshold - y0) / (y1 - y0);
+                    return (i - 1) + frac;
+                }
+            }
+            return null;
+        }
+
+        //========== 数值积分/斜率 ==========
+
+        /// <summary>梯形法积分 ∫p dt，p与t等长，返回焦耳（当p为瓦特时）。</summary>
+        public static double Integrate(double[] t, double[] p, int i0, int i1)
+        {
+            i0 = Math.Max(0, i0); i1 = Math.Min(t.Length - 1, i1);
+            if (i1 <= i0) return 0;
+            double sum = 0;
+            for (int i = i0 + 1; i <= i1; i++)
+                sum += 0.5 * (p[i - 1] + p[i]) * (t[i] - t[i - 1]);
+            return sum;
+        }
+
+        /// <summary>
+        /// 两穿越点间斜率：(thB−thA)/(tB−tA)。
+        /// 在[i0,i1]内先找thA的穿越（从段内最值点开始），再找thB的穿越。
+        /// 返回每微秒变化量；找不到返回null。
+        /// </summary>
+        public static double? SlopeBetween(double[] y, double dt, int i0, int i1,
+                                           double thA, double thB, bool rising)
+        {
+            i0 = Math.Max(1, i0); i1 = Math.Min(y.Length - 1, i1);
+            if (i1 <= i0) return null;
+            //从最值点附近开始搜，避开前导扰动（DPT同款思路）
+            int start = i0;
+            if (rising)
+            {
+                int mn = i0; for (int i = i0; i <= i1; i++) if (y[i] < y[mn]) mn = i;
+                start = Math.Max(i0, mn - 1);
+            }
+            else
+            {
+                int mx = i0; for (int i = i0; i <= i1; i++) if (y[i] > y[mx]) mx = i;
+                start = Math.Max(i0, mx - 1);
+            }
+            double? idxA = CrossingIndex(y, thA, rising, start);
+            if (idxA == null) idxA = CrossingIndex(y, thA, rising, i0);
+            if (idxA == null) return null;
+            double? idxB = CrossingIndex(y, thB, rising, (int)Math.Ceiling(idxA.Value) + 1);
+            if (idxB == null || idxB <= idxA) return null;
+            double dtus = (idxB.Value - idxA.Value) * dt / 1e-6;   //微秒
+            if (Math.Abs(dtus) < 1e-12) return null;
+            return Math.Abs(thB - thA) / Math.Abs(dtus);           //每微秒
+        }
+
+        /// <summary>生成时间轴（秒）。</summary>
+        public static double[] TimeAxis(int n, double dt, double xOrigin)
+        {
+            double[] t = new double[n];
+            for (int i = 0; i < n; i++) t[i] = xOrigin + i * dt;
+            return t;
+        }
+
+        /// <summary>波形过零/过均值次数（用于粗略判断是否为脉冲类波形）。</summary>
+        public static int CountCrossings(double[] y, double level)
+        {
+            int c = 0;
+            for (int i = 1; i < y.Length; i++)
+                if ((y[i - 1] < level && y[i] >= level) || (y[i - 1] > level && y[i] <= level)) c++;
+            return c;
+        }
+    }
+}

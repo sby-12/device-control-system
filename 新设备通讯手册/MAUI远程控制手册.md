@@ -1,0 +1,11629 @@
+# maui-remote-control-and-automation-manual.pdf 文本提取
+（共 411 页，自动提取，公式/表格可能有排版损失，以原PDF为准）
+
+
+----- 第 1 页 -----
+
+Oscilloscopes
+RemoteControland
+AutomationManual
+
+----- 第 2 页 -----
+
+©2026TeledyneLeCroy,Inc.Allrightsreserved.
+Thisdocumentdoesnotcontainexport-controlledinformation.
+UnauthorizedduplicationofTeledyneLeCroydocumentationmaterialsisstrictlyprohibited.Customersare
+permittedtoduplicateanddistributeTeledyneLeCroydocumentationforinternaleducationalpurposes.
+TeledyneLeCroyisatrademarkofTeledyneLeCroy,Inc.Otherproductorbrandnamesaretrademarksor
+requestedtrademarksoftheirrespectiveholders.Informationinthispublicationsupersedesallearlierversions.
+Specificationsaresubjecttochangewithoutnotice.
+maui-remote-control-automation.pdf
+February2026
+
+----- 第 3 页 -----
+
+Introduction
+Introduction
+ThismanualdocumentstherequirementsforremotecontrolofTeledyneLeCroy'sMAUI™oscilloscopes
+usingeithertraditionalIEEE488.2(GPIB)commandsorWindows®ComponentObjectModel(COM)
+Automationcommands.
+Themanualisdividedintothefollowingsections:
+Part1:MakingtheRemoteConnectiondescribesallthemethodsforgainingaccesstoaMAUI
+oscilloscope(device)fromaremotecomputer(controller).Itdetailsthesoftwareandhardware
+requirementsforeachmethod.
+Part2:ControllingtheOscilloscopedescribesdifferentwaystosendremotecommands.
+Part3:AutomationProgrammingReferencedescribestheMAUICOMarchitectureandexplainshowto
+useAutomationtocontroltheoscilloscoperemotelyusingmanualmethodsorremotecontrolprograms.
+Part4:AutomationControlVariableReferencedetailstheMAUICOMarchitectureforconfiguringand
+controllingtheoscilloscope.Itismostusefulfordevelopersofremotecontrolapplications.
+Part5:AutomationResultInterfaceReferencedetailstheMAUICOMarchitectureforreadingbackdata
+fromtheoscilloscope.Itismostusefulfordevelopersofremotecontrolapplications.
+Part6:IEEE488.2ProgrammingReferencedescribestheLeCroylegacyremotecontrolimplementation
+andprovidesanoverviewofGPIBprogrammingconventions.Italsoprovidesinformationfor
+understandingMAUIwaveformtransferandthewaveformtemplate.
+Part7:IEEE488.2CommandReferencedetailsthelegacyremotecontrolcommandssupportedbyMAUI
+oscilloscopes.
+i
+
+----- 第 4 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Resources
+TeledyneLeCroyprovidesmanyfreeresourcestohelpyoureceivethegreatestvaluefromyour
+instrument.Mostofthesoftwareanddocumentationmentionedinthismanualcanbedownloadedfrom
+ourwebsite;linksareprovidedtoothersiteswhererelevant.Inaddition,manymanualsandcode
+examplesforfurtherreferenceareinstalledwhenyouinstalloursoftware.
+Software
+Downloadsoftwarefrom:teledynelecroy.com/support/softwaredownload.
+UnderOscilloscopeDownloads,clickthelinktoSoftwareUtilitiesandbrowsethelistoftools.
+Manuals
+Downloadmanuals,applicationnotes,andlabbriefsfrom:teledynelecroy.com/support/techlib.
+Usethesidebarattheleftofthepagetoselectthedocumentcategory,thenbrowsethelistoflinks.
+TechnicalSupport
+RegistereduserscancontacttheirlocalTeledyneLeCroyservicecenteratthenumberlistedonour
+website.
+YoucanalsosubmitTechnicalSupportrequestsviathewebsiteat:
+teledynelecroy.com/support/techhelp
+Selecttheoscilloscopemodelyouareusingandthecategoryintowhichyourquestionfalls.
+ii
+
+----- 第 5 页 -----
+
+NotationalConventions
+NotationalConventions
+NotationalSymbols
+Commandsshowninthisreferencemakeuseofthefollowingnotationalsymbols:
+Symbol Function Example
+<> Enclosesheaderpathsorplaceholders <channel>:VOLT_DIV<v_gain>
+:= Separatesaplaceholderfromadescriptionofthetype
+andrangeofvaluesthatmayreplaceit
+<v_gain>:=5.0mVto2.5V
+{ } Enclosesrequiredvalues,oneofwhichmustbeusedin
+thecommand
+TRMD{SINGLE,AUTO,NORM,STOP}
+[ ] Enclosesoptionalvalues
+… Indicatestheitemstoitsleftorrightcanberepeated
+anynumberoftimes
+Sources
+Thecharacternisusedtodenotethegreatestnumberofanoscilloscopeobject,suchasinputchannels
+ormathfunctiontraces,supportedbyyourinstrument.Onatwo-channeloscilloscope,C1throughCn
+shouldbetakentomeanC1andC2,whereasonaneight-channeloscilloscope,C1throughC8,andso
+forth.
+Thefollowingmnemonicsmaybeusedwhere<source>isindicatedincommands.
+Note:Thesearethesourcessupportedbylegacycommands.Othersourcesmaybeavailable
+withtheadditionofsoftwareoptions(Views,Streams,Histograms,etc.),dependingonthe
+operation.UseMAUIStudioBrowsertochecktheapplicationAutomationobjecthierarchy.
+Object Mnemonic Note
+AnalogChannels C1,C2,C3,C4,....Cn
+SensorChannels SE1,....SEn
+DigitalGroups Digital1,....Digital4
+MathFunctions F1,....Fn,
+TA,TB,TC,TD
+MathtracenamesTA,TB,TC,andTDusedonlegacyLeCroy
+instrumentshavebeenreplacedbyF1,F2,F3andF4,respect-
+ively.Existingprogramsthatutilizetheoldtracenameswill
+workwithMAUIoscilloscopes,butthesemnemonicsarenot
+returnedinqueryresponses.Instead,thequerywillreturnthe
+correspondingF1,F2,F3,andF4.
+User-DefinedParameters P1,....Pn
+CUST1,...CUST5
+ParameternamesCUST1throughCUST5usedonlegacy
+LeCroyinstrumentshavebeenreplacedbyP1,etc.Aswith
+mathtraces,thesemnemonicsmaybeusedinprogramsbut
+arenotreturnedbyqueries.
+Memories M1,...Mn
+Zooms Z1,....Zn
+iii
+
+----- 第 6 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Units
+Numericvaluescanbeexpressedincodeasnumericfixedpointorexponential.However,onlythefixed
+pointvalueisdisplayedintablesandondescriptorboxes.
+Note:ThismanualreflectstheunitssupportedinMAUIXStreamDSOsoftwarev.8.5.0.0andlater.
+Many,butnotall,oftheunitslistedherearesupportedinearlierversionsofXStreamDSO.
+TableofUnitMnemonics
+Unitsmaybeexpressedusingthefollowingmnemonics.
+Note:Specifyonlythebaseunitincode,donotaddprefixes.Unitsareautomaticallyscaledupor
+downwithinthelistofstandard,SIprefixes(attotoExa)basedontherelativesizeofthesource
+signal(s).Forexamplea1000Vreadingisshownas1kV,whilea.1Vreadingisshownas100
+mV.Whenthemultiplicationfactoris1V=1Pascal,a1millivolt(mV)readingisdisplayedas1
+mParatherthan.001Paor100e-3Pa.
+Note:TimeandDimensionlessunitsareavailableonlyforcertainmeasurementsandacquisition
+commands.
+Category Unit Mnemonic
+Mass gram G
+slug SLUG
+Volume liter L
+cubicmeter M3
+cubicinch IN3
+cubicfoot FT3
+cubicyard YARD3
+Angle radian RAD
+arcdegree DEG
+arcminute MNT
+arcsecond SEC
+cycle CYCLE
+revolution REV
+turn TURN
+iv
+
+----- 第 7 页 -----
+
+NotationalConventions
+Category Unit Mnemonic
+Force/Weight Newton N
+grain GR
+ounce OZ
+pound LB
+Velocity meter/second M/S
+inch/second IN/S
+foot/second FT/S
+yard/second YARD/S
+mile/second MILE/S
+Acceleration meter/second2 M/S2
+inch/second2 IN/S2
+foot/second2 FT/S2
+standardgravity GN
+Pressure Pascal PAL
+bar BAR
+atmosphere,technical AT
+atmosphere,standard ATM
+Torr TORR
+pound/squareinch PSI
+Temperature degreeKelvin K
+degreeCelsius CEL
+degreeFahrenheit FAR
+Energy Joule J
+BritishThermalUnit BTU
+calorie CAL
+v
+
+----- 第 8 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Category Unit Mnemonic
+RotatingMachine radian/second RADPS
+frequency(Hertz) HZ
+revolution/second RPS
+revolution/minute RPM
+torqueN•m NM
+torquein•oz INOZ
+torquein•lb INLB
+torqueft•lb FTLB
+power,mechanical(Watt) W
+horsepower HP
+Magnetic Weber WB
+Tesla T
+inductance(Henry) H
+magneticfieldstrength A/M
+permeability HENRYPM
+Electrical Ampere A
+Volt V
+Watt W
+power,apparent VA
+power,reactive VAR
+powerfactor PF
+capacitance(Farad) F
+Coulomb C
+Ohm OHM
+Siemen SIE
+electricalfieldstrength V/M
+electricaldisplacementfield CPM2
+permittivity FARADPM
+conductivity SIEPM
+Time second S
+minute MIN
+hour HOUR
+day DAY
+week WEEK
+vi
+
+----- 第 9 页 -----
+
+NotationalConventions
+Category Unit Mnemonic
+Dimensionless percent PCT
+percentmin-max PCTMNMX
+decibel DB
+decibelmilliwatt DBM
+decibelVolt DBV
+decibelmillivolt DBMV
+decibelmicrovolt DBUV
+decibelmicroampere DBUA
+decibelreferredtocarrier DBC
+decade DECADE
+unitinterval UI
+Q-scale Q
+bit BIT
+byte BYTE
+baud BAUD
+leastsignificantbit LSB
+poise POISE
+partspermillion PPM
+pixel PIXEL
+division DIV
+event EVENT
+sample SAMPLE
+segment SEG
+sweep SWEEP
+CombiningUnits
+SIunitsmaybecombinedfollowingtheserules:
+l Forthequotientoftwounits,usethecharacter"/"
+l Fortheproductoftwounits,usethecharacter"."
+l Forexponents,appendthedigittotheunitwithnospace(e.g.,"S2"forsecondssquared).
+Note:Someunitsareconvertedtosimpleunits(e.g.,"V.A"becomes"W").
+vii
+
+----- 第 10 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+viii
+
+----- 第 11 页 -----
+
+Part1:MakingtheRemoteConnection
+Part1:MakingtheRemoteConnection
+Youcanfullycontrolyourinstrumentremotelyusingeither:
+l COMAutomationcommands
+l IEEE488.2GeneralPurposeInterfaceBus(GPIB)commands
+TheremoteconnectioncanbemadeoveravarietyofphysicalinterfacessuchasENET,GPIB,LSIB,or
+USBTMC,usingseveralinterfacedriversandprotocols.
+Thissectiondescribesthesoftwaretoolsforremotecontrolandproceduresformakingtheremote
+connectionfromacontrollertoanoscilloscope.
+UnderstandingRemoteControlLayers 1-2
+SoftwareToolsforRemoteControl 1-3
+ConnectingviaENET 1-5
+ConnectingviaUSBTMC 1-10
+ConnectingviaGPIB 1-11
+ConnectingviaLSIB 1-12
+ConfiguringDCOMConnections 1-13
+TestingtheRemoteConnection 1-23
+RemoteControlAssistant 1-25
+1-1
+
+----- 第 12 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+UnderstandingRemoteControlLayers
+Itishelpfultounderstandsomehigh-levelconceptsregardinghowtheoscilloscopeisoperatedthrough
+remotecontrolandtheterminologyemployedthroughoutthissection.
+Frombottomtotop,thecomponentsinteractinthefollowingmanner:
+Thecableisthephysicalconduitbetweenthecontroller(usuallyaPC)andtheoscilloscope,connectedon
+eitherendtothehardwareinterface.InterfacesvarybasedonoscilloscopemodelandincludeENET
+(oftenlabeledLANontheoscilloscope),USBTMC,GPIB,andLSIB.
+Dependingontheinterfaceselected,youmayrequireaPCadapterinordertoconnectthecable.Thisis
+particularlytrueforLSIBandGPIB.ENETportsaretypicallystandardanddonotrequirespecialadapters.
+Theoscilloscopemayalsorequireanoscilloscopeadaptertomaketheconnection.
+Differentprotocolscanbeusedfortransmittingmessagesbetweenthecontrollerandtheoscilloscope.
+Thisselectionagaindependsonthehardwareinterface.AvailableprotocolsincludeVICP(basedon
+TCP/IP),VXI-11(fortheLXIstandard),USBTMC,GPIB,andLSIB.
+PCinstrumentdriversareprogramsthatenablethecontrollertointerfacewiththeoscilloscope,suchas
+ActiveDSO,VISAdrivers,IVIdriversandLabVIEWdrivers.Theyarethesoftwarecomplementtothe
+hardwareinterface.Theseprogramsdotheworkofencapsulatingyourprogramsmessagesintothe
+requisiteinterfacemessagesthatmanagetheexchangebetweendeviceandcontroller.
+TheoscilloscopeRemoteControlManagerincludesthedriversneededtomakethesoftwareinterface
+fromtheoscilloscopeside.TeledyneLeCroyoscilloscopesareshippedwitheverythingnecessaryfor
+remotecontrolfunctionalitypre-installed.Allyouhavetodotoisselectwhichprotocolyouwanttousefor
+remotecontrolfromtheinstrument'sRemotedialog.
+Theoscilloscopeapplication(XStreamDSO)istheprogramthatdisplays,transforms,andmeasures
+digitizedinputsignalsandenablesyoutocontroltheinstrument.Itisalsotheprogramthatexchanges
+informationwiththePCapplicationsovertheremoteconnection.
+PCapplicationsareprogramsresidingonthecontrollerthatexchangedatawiththeoscilloscope
+applicationorfunctionasaremotecommandconsole,suchasWaveStudio,LabVIEW,MATLAB,and
+customapplications.
+1-2
+
+----- 第 13 页 -----
+
+Part1:MakingtheRemoteConnection
+SoftwareToolsforRemoteControl
+Manyfreesoftwaretoolsareavailabletohelpyoumakeandmanagetheremoteconnection.See
+Resourcesfordownloadinformation.ThissoftwareistobeinstalledonthePC/controller.Teledyne
+LeCroyoscilloscopesarepre-installedwithallnecessarysoftwareforremotecontrol.
+InterfaceDrivers
+ActiveDSO
+BasedonMicrosoft'sActiveXtechnology,ActiveDSOsimplifiesprogrammingforTeledyneLeCroy
+oscilloscopeswithintheMicrosoftenvironment.ActiveDSOprovidesinterfacedriversandaclientlibrary
+tomaketheremoteconnectionoverENET,GPIBorUSBTMCinterfaces.Italsosupportsmany
+Automationfeaturesbesidesremotecontrol.SeeActiveDSO.
+VISA
+VISA-compliantdriversalsoprovidethenecessarysoftwareinterfaceforremotecontroloverENET,GPIB,
+orUSBTMC.Add-ontoolslikeNI-VISAhandledevicecommunicationsformanyprogramminglanguages,
+suchasC++,LabVIEW,andPython.AninstallationofNI-VISA(oraVISAdriverthatbehavesexactlylikeit)
+isrequiredifyoucannotuseActiveXtechnologiessuchasActiveDSOorWaveStudio.NI-VISAisalways
+requiredifyouareusingtheUSBTMCinterfaceforremotecontrol.
+LeCroyVICPPassportandVICPClientLibrary
+TheVICPPassportwasdevelopedspecificallyforthoseusingNI-VISAwiththeTeledyneLeCroyVICP
+protocol.ItprovidestherequisiteVISAPassportfunctionsforVICPcommunications.
+Nottechnicallyadriver,theVICPClientLibraryprovidesthenecessarytoolkitfordevelopingaVICP
+interfacetotheoscilloscopefrommachinesthatarenotrunningWindows.
+LeCroyScopeIVIDriver
+TheVISA-basedLeCroyScopeIVIDriverisanInterchangeableVirtualInstrumenttechnologythatprovides
+astandardAPIforcommunicationwithinstruments.ProvidedtomeetLXIstandardrequirements,the
+driverstrictlyadherestotheIVI-ScopeinstrumentclassandincludesbothIVI-CandIVI-COMdrivers.See
+IntroducingtheLXIInterfaceforinstructionsonusingthedriver.
+Note:AlthoughprovidedforLXIcompliance,youcanusetheIVIDriverevenifyourremotecontrol
+settingisTCP/IP(VICP),ratherthanLXI(VXI-11).
+LabVIEWDrivers
+TheLeCroy_Wave_Seriesdriver,createdusingtheLabVIEWprojectarchitecture,isavailableforWindows
+userswhowishtocontroltheiroscilloscopethroughaNationalInstrumentsLabVIEW™program.The
+lcwavedriver,anllbLabViewlibrary,isavailableforthoseusingpre-Windowsoscilloscopemodels.Both
+driverscanbeusedoveranENET,GPIB,orUSBTMCconnection.SeeLabBriefWM832:GettingStarted
+withthe"lcwave"and"LeCroyWaveSeries"LabVIEWDriversforinstructions.
+1-3
+
+----- 第 14 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ConnectivityTools
+MAUIStudio
+MAUIStudioenablesusersrunningWindows10PCstoremotelyconnecttoMAUIoscilloscopestopush
+newsetups,makenewSingleacquisitionsandanalyzedata.Whileitdoesnotallowthefullcontrolthatis
+availablethroughclassicAutomation,andrequiresuserinteraction,itoffersamuchsimplerwaythan
+programmingtoaccomplishmanyacquisitionandanalysistasksfromaremotelocation.SeeMAUI
+Studio.
+MAUIStudioBrowser
+TheMAUIStudioBrowserutilityenablesyoutoview,copyandmodifytheCOMobjecthierarchyofthe
+connectedoscilloscopeapplication.SeeMAUIStudioBrowser.
+WaveStudio
+ForPCsrunningWindows10,7,VISTA,orXP,WaveStudioisaremotecontrolconsolethatprovidesa
+graphicaluserinterfaceforoscilloscopesetup,waveforminspection,anddatatransfer.ItsupportsTCPIP,
+LXI,GPIB,LSIB,orUSBTMC/USB488connections.SeeWaveStudio.
+1-4
+
+----- 第 15 页 -----
+
+Part1:MakingtheRemoteConnection
+ConnectingviaENET
+TeledyneLeCroyoscilloscopesemployastandardEthernetinterfaceforutilizingtheTCP/IPtransport
+layer.
+Hardware
+Forpurposesofremotecontrol,youmayeither:
+l ConnecttheoscilloscopetoaLANportorhubusingastraightEthernet(ENET)cable
+l Connecttheoscilloscopedirectlytothecontrollerusingacrossovercableorastraightcable
+capableofdirectionalswitching(mostmodern,standardENETcablesdothis).
+Tip:Ifyouareconcernedprimarilywithsystemthroughput,aLANconnectionisnot
+recommendedasnetworktrafficmayslowdownoscilloscopedatatransferrates.Considerusing
+adirectconnection.
+IP Address
+TheoscilloscopeispresettoacceptDHCPaddressing.Besurethecontrollerandtheoscilloscopeareon
+thesamesubnet.
+TheoscilloscopeisdeliveredwithadefaultIPaddress,whichispulledfromournetworkpriorto
+shipment.YoucanfindthisaddressbynavigatingtoUtilities>UtilitiesSetup>Remote.Keepinmindthis
+addresswilllikelychangeassoonastheinstrumentisconnectedtoyournetwork.
+Youmayalsoaddresstheoscilloscopeusingthehostname.Thedefaulthostnameistheserialnumber
+printedonthebackoftheinstrumentandontheregistrationcard.IfyournetworkisservedbyaDNS
+server,thehostnamemustbetheinstrumentnamethatisrecognizabletothenameserver.Fordirect
+(coaxialorstraightENET)connections,itmaybeeasiesttomaketheinitialconnectionusingthe
+hostname.
+YoumayoptionallyassignastaticIPaddresstotheoscilloscopeusingthestandardWindowsnetworking
+dialogs.
+Tip:ToaccesstheWindowscontrolpanel,chooseFile>MinimizeorgotoUtilities>UtilitiesSetup
+>RemoteandselectNetConnections.
+ProtocolSelection
+TherearetwoprotocoloptionsforremotecontrolviaENET:
+l VICP,forwhichyouselecttheTCP/IPremotecontrolsetting
+l VXI-11,forwhichyouselecttheLXIremotecontrolsetting
+1-5
+
+----- 第 16 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ConnectingwithVICP
+TheTCP/IP(VICP)remotecontrolsettingusesport1861andtheproprietaryVICPprotocolfor
+transmittingmessages.
+Note:LabVIEWprogrammersshouldusetheTCP/IP(VICP)settingwithaninstallationofNI-VISA
+andVICPPassporttocommunicatewithTeledyneLeCroyoscilloscopes.
+ControllerSetUp
+Openport1861onthecontrollerforTCP/IPcommunications.
+IfyouwishtomanuallycontroltheoscilloscopefromaremotePC,installMAUIStudioorWaveStudio.
+IfyouwishtoexecutecontrolprogramsremotelyandthecontrollerrunsWindows,wehighlyrecommend
+installingActiveDSOonthecontrollertosimplifycommunicationswiththeoscilloscope.
+IfyoucannotuseActiveXcontrols,installNI-VISAtomanagetheinterfacefunctionsoftheVICP
+connection.NI-VISAusersshouldalsoinstalltheVICPPassport.
+ThosewhoarenotrunningWindowsshouldinstalltheLeCroyVICPClientLibrary.Thislibrarycanbe
+downloadedfreeofchargefromwww.SourceForge.net.Youwillneedtousethelibrarytoprogramyour
+ownVICPinterface.
+Optionally,installtheLeCroyScopeIVIdriveroraLabVIEWdriver.
+OscilloscopeSetUp
+GotoUtilities>UtilitiesSetup>RemoteandchooseTCP/IP(VICP).
+Recordtheinstrument'sIPaddresstomakemanualconnectionsandtouseinVISAresourcestringsand
+functioncalls.
+VICPProtocol
+VICPistheVersatileInstrumentControlProtocol,theproprietaryprotocolusedbytheTCP/IP(VICP)
+remotecontrolsettingonTeledyneLeCroyoscilloscopes.ThisprotocolaimstoemulateIEEE488.2and
+includesoperationbitscorrespondingtoSRQ,EOI,Clear,andothersinaheaderthatisdefinedbythe
+VICPprotocol.
+VICP isregisteredwithIANAtocommunicationsport1861.
+CodetoparseVICPpacketsispubliclyavailableat:http://www.SourceForge.net.
+SeetheApplicationBriefLAB_WM827:UnderstandingVICPandtheVICPPassport.
+1-6
+
+----- 第 17 页 -----
+
+Part1:MakingtheRemoteConnection
+VICPHeaders
+TheformatoftheheadersentbeforeeachdatablockofaVICPtransmission,bothtoandfromthe
+instrument,issetoutinthefollowingtable:
+ByteNumber Purpose
+0 Operation
+1 HeaderVersion
+2 SequenceNumber*
+3 Spare(reservedforfutureexpansion)
+4 BlockLength,(bytesofdata),MSB
+5 BlockLength(bytesofdata)
+6 BlockLength(bytesofdata)
+7 BlockLength,(bytesofdata),LSB
+*Thesequencenumberisusedtosynchronizewrite/readoperationstosimulate488.2“discardunreadresponse”
+behavior.Validrangeis1to255(zeroisomittedintentionally).
+VICPOperationBits
+Operationbitsareasfollows:
+DataBit Mnemonic Purpose
+D7 DATA Datablock(D0indicatesterminationwith/withoutEOI)
+D6 REMOTE RemoteMode
+D5 LOCKOUT LocalLockout(Lockoutfrontpanel)
+D4 CLEAR DeviceClear(ifsentwithdata,clearoccursbeforedatablockispassedtoparser)
+D3 SRQ SRQ(DevicetoPConly)
+D2 SERIALPOLL Requestaserialpoll
+D1 Reserved Reservedforfutureexpansion
+D0 EOI BlockterminatedinEOI
+Logic1=useEOIterminator
+Logic0=noEOIterminator
+VISAAddressing
+Codestringssuchas"TCPIP::<IPaddress>::1861::SOCKET"mayormaynotworkwhenusingVICP
+dependingonhowtheapplicationhandlesinstrumentresponses.Thedatareturnedwillincludeheader
+informationthatneedstobeparsed,andallowancesmustbemadetotrapsituationswhereatransferis
+notcomplete,orwherethereisanunreadresponsefromtheinstrument.SOCKETconnectionsshould
+workproperlyifyouareusingtheVICPClientLibrary.
+TeledyneLeCroydevelopedtheVICPPassporttohandlesocketconnectionsmorereliablywhenusingNI-
+VISA.Insteadof"TCPIP::<IPaddress>...",use"VICP::<IPaddress>"tomaketheconnection.
+1-7
+
+----- 第 18 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ConnectingWithVXI-11
+LXIisanindustry-standardspecificationforLAN-basedinstrumentsthatutilizestheVXI-11protocolfor
+TCP/IPcommunicationsandinstrumentdiscovery.Forinformation,visitwww.lxistandard.org.
+TeledyneLeCroyoscilloscopesareLXIClass-Ccompliant.Wehaveimplementedafull-featuredstackthat
+allowsanycommandorquerytobesentusingtheVXI-11protocol,beyondtheLXIrequirementsfor
+discoveryandexecutionofsimple*IDN?queries.
+Note:YoucanusetheVXI-11protocolforremotecontrolofTeledyneLeCroyoscilloscopesevenif
+yournetworkisnotLXIcompliant.ForthosewhocannotutilizeActiveXorareprogrammingin
+newerlanguagessuchasC#,LXI(VXI-11)isthebestremotecontrolsetting.
+Note:IfyouroscilloscoperunsonWindows10,youmustrunfromtheAdministrativeUser
+accountinordertouseLXIforremotecontrol.
+Resources
+TheLXIspecificationstipulatesthatvendorssupply:
+l AnIVIdriverfortheinstrument.
+Note:SomenewerversionsofNI-VISAinstallwithIVIdrivers.TheLeCroyScopeIVIdriveris
+requiredtoconnecttoMATLABapplicationsusingLXI(VXI-11).SeeResources.
+l Awebservertosimplifyremotecontrolconfiguration.ToaccessthispagefromthecontrollingPC,
+entertheoscilloscopeIPaddressinURLfieldofabrowser.
+ControllerSetup
+Openport111onthecontrollerforTCP/IPcommunications.
+InstallNI-VISAtomanagetheinterfacefunctionsoftheunderlyingTCP/IPconnection.
+IfyouarerunningWindowsandcanutilizeActiveXcontrols,wehighlyrecommendinstallingActiveDSO
+onthecontrollertosimplifycommunicationswiththeoscilloscope.
+Optionally,installtheLeCroyScopeIVIdriverorLabVIEWdriver.
+OscilloscopeSetup
+IftheoscilloscoperunsonWindows10,changetotheAdministrativeUser:
+1. ChooseFile>Exittostoptheoscilloscopeapplicationandshowthedesktop.
+2. FromtheWindowsStartmenu
+ ,hoverovertheTeledyneLeCroylogo
+ andselectuser
+LCRYADMIN.EntertheadministrativepasswordSCOPEADMIN(alluppercase).
+3. Double-clicktheStartDSOicontorestarttheoscilloscopeapplication.
+1-8
+
+----- 第 19 页 -----
+
+Part1:MakingtheRemoteConnection
+GotoUtilities>UtilitiesSetup>RemoteandchooseLXI(VXI-11).
+WerecommendthatyoumodifythepasswordforLANaccess.Thedefaultusernameislxi.lecroyuserand
+passwordislxi.YoucanresettothesedefaultsbypressingLANConfigurationReset.
+Recordtheinstrument'sIPaddressforuseinVISAresourcestringsandfunctioncalls.
+1-9
+
+----- 第 20 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ConnectingviaUSBTMC
+USBTMCisaprotocolbuiltontopofUSBthatallowsGPIB-likecommunicationwithUSBdevices.The
+USBTMCprotocolsupportsservicerequests,triggers,andotherGPIB-specificoperations.
+Some(notall)MAUIoscilloscopesofferaUSBTMCremotecontrolsetting.Checkyourproductdatasheet
+toconfirmifthisissupported.
+Hardware
+ConnectaUSBA-Bcablefromanyhostportonthecontrollertothedeviceportontheoscilloscope,which
+isusuallyspecificallymarkedUSBTMC.
+ControllerSetUp
+InstallNI-VISAv3.0orlateronthecontrollerPC.
+Note:NI-VISAisalwaysrequiredfortheUSBTMC connection.
+IfyouarerunningWindowsandcanutilizeActiveXcontrols,wehighlyrecommendinstallingActiveDSO
+onthecontrollertosimplifycommunicationswiththeoscilloscope.
+Optionally,installaLabVIEWdriver.
+OscilloscopeSetUp
+GotoUtilities>UtilitiesSetup>RemoteandselecttheUSBTMCremotecontrolsetting.
+RecordtheUSBTMCVISAAddressforuseinVISAresourcestrings.
+1-10
+
+----- 第 21 页 -----
+
+Part1:MakingtheRemoteConnection
+ConnectingviaGPIB
+TheIEEE488.2GeneralPurposeInterfaceBus,orGPIB,interconnectsindependentdevicesbymeansofa
+cablebus.Althoughlargelyreplacedbyotherserialbuses,TeledyneLeCroy'sIEEE488.2commandsetis
+stillsupportedbyallMAUIoscilloscopes.SeetheIEEE488.2CommandReference.
+GPIBisofferedasanoptional,factory-installedinterfaceonmostMAUIoscilloscopesover350MHz
+bandwidth.YoucansendAutomationcommandsovertheGPIBinterfaceusingtheVBScommand,itis
+notrestrictedtotheIEEE488.2commands.
+Caution:Donotinstallthird-partyGPIBdriversoftwareonTeledyneLeCroyoscilloscopes;thiscan
+resultinanon-functionalGPIBinterface.TheonlyGPIB driverdesignedtooperateonthe
+instrumentisincludedwithyouroscilloscope'sfirmware.
+TheoptionalUSB2-GPIBConverterenablesyoutotakeadvantageofhigh-speedtransferfromthe
+oscilloscopeusingtheUSB2interfaceonnewerMAUIoscilloscopes.However,thisisstilltreatedasa
+GPIBconnectioninVISAresourcestrings.SeetheUSB2-GPIBConverterUser'sManual.
+Hardware
+IfbothcontrollerandoscilloscopehaveaGPIBport,connectthemusingaGPIBcable.
+IfusingtheUSB2-GPIBConverter,connecttheconverterfromtheGPIBportonthecontrollertoaUSB2
+portontheoscilloscope.Onthefirstconnection,acceptandinstallthedevicedriver.Thedriverislocated
+at:C:\Programfiles\LeCroy\XStream\Drivers_X86(orX64)\GPIB2USB.Theinstalleriscalleddpinst.exe.
+Reboottheinstruments.
+ControllerSetUp
+InstallNI-VISAtomanagetheinterfacefunctionsoftheGPIBconnection.
+IfyouarerunningWindowsandcanutilizeActiveXcontrols,wehighlyrecommendinstallingActiveDSO
+onthecontrollertosimplifycommunicationswiththeoscilloscope.
+Optionally,installaLabVIEWdriver.
+OscilloscopeSetUp
+Ontheoscilloscope,gotoUtilities>UtilitiesSetup>RemoteandselecttheGPIBoption.Ifnecessary,
+modifytheoscilloscope'sGPIBAddress.
+1-11
+
+----- 第 22 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ConnectingviaLSIB
+TheLeCroySerialInterfaceBus,orLSIB,isaproprietarystandardforhigh-speeddatatransferfromthe
+oscilloscopewithspeedsupto325MB/s.TeledyneLeCroy’sexclusiveLSIBsolutionisbasedonthewired
+PCIExpressstandardthatusesa4-lanebusforremotedatatransfer.AnLSIBAPIispublished.
+Note:LSIBisadiscontinuedfactory-installedinterfaceonlegacyWavePro,WaveMasterand
+LabMasterseriesoscilloscopes.WhileLSIBofferedsignificantimprovementsindatatransferrate
+over100Base-TENET,USBTMC,andGPIB,theLSIBAPIwasgearedtowardwaveformanddata
+transferanddidnotsupportmanyothercommonremotecontrolfunctionssuchasremoteset
+up.Itisincludedhereforbackwardcompatibility.
+Hardware
+InstalltheLSIBhostboardorhostcardonthecontrollerPC,thenconnectthecontrollertothe
+oscilloscopeusingtheLSIBcable.
+SeetheLSIBHostInterfacesOperator'sManualforinstructionsonmakingtheLSIBconnection.
+ControllerSetUp
+RuntheLSIBinstallerforWindowsorLinuxonthecontroller.Afterinstallation,theonlineLSIBAPI(LSIB-
+API-Ref-OLH-E.chm),canbefoundin:
+C:\ProgramFiles\LeCroy\XStream\LSIB\Docs
+OscilloscopeSetUp
+Ontheoscilloscope,gotoUtilities>UtilitiesSetup>RemoteandselecttheLSIBremotecontroloption.
+Shutdownboththeoscilloscopeandthecontroller.Restarttheoscilloscopefirst,followedbythe
+controller.Youdonothavetowaitfortheoscilloscope'sbootcycletocompletetorestartthecontroller.
+1-12
+
+----- 第 23 页 -----
+
+Part1:MakingtheRemoteConnection
+ConfiguringDCOMConnections
+TheWindowsDistributedComponentObjectModel(DCOM)permitsthedistributionofdifferent
+componentsofasingleapplicationacrosstwoormorenetworkedcomputers,supportingtheremote
+displayandcontrolofapplications.AccessinganetworkedoscilloscoperemotelyviaDCOMisequivalent
+tologgingontotheoscilloscopeitselfandexecutingprograms"locally."
+ADCOMconnectionisnecessarytocontroloscilloscopesusingcustomscriptsandprogramsexecuted
+onremotemachines,unlessyouuseActiveDSOorNI-VISAtohandletheremotemessageinterface.
+DCOMconnectionstoTeledyneLeCroyoscilloscopesrunningWindows®11,10and7Prooperating
+systemsaresupported.ForWindows11/10,downloadtherequiredconfigurationfiles—SoftwareUtilities
+forWindows11/10DCOMSetup.Youwillneedtoregisteranaccountonourwebsitetocompletethe
+download.
+YoumusthaveAdministratorprivilegestocompleteDCOMconfiguration.CheckwithyourITdepartment
+orlaboratorymanagerforthecurrentLCRYADMINpassword.Itmayhavebeenchangedsincethe
+instrumentwasreceived.
+Note:ForaDCOMconnectiontoworkproperly,theoscilloscopeandthecontrollermustbe
+runningthesameoperatingsystem,asaccountsettingsandsecuritypermissionsvary
+significantlybetweenoperatingsystems.
+Note:DCOMisnotsupportedonWaveSurfer3000andWaveSurfer4000HDoscilloscopes,which
+runtheMicrosoftCEplatform.ToviewtheoscilloscopeAutomationhierarchyandsendVBS
+commands,installWaveStudioontheremotePC.
+Windows11/10ProDCOMConfiguration
+BeginningwithWindows10,increasedsecuritycamewiththeincreasedcomplexityofenablingaDCOM
+connectionbetweentheoscilloscopeandanexternalcontroller,butitcanbedone.Wehavecreated
+severalscriptstosimplifytheconfigurationprocess:
+l RPCentry.regsetsuptheWindowsregistryforremotefunctionality.
+l ADMIN-FW.wfwsetsuptheoscilloscopeLCRYADMIN(administrative)accounttoallowDCOM,
+PingandRPCfunctionstopassthroughtheWindowsfirewall.
+l USER-FW.wfwsetsuptheoscilloscopeLeCroyUser(standard)accountandanynew<User>
+accountscreatedontheoscilloscopeforthepurposesofremotecontrol.LikeADMIN-FW,itallows
+DCOM,PingandRPCfunctionstopassthroughtheWindowsfirewall.
+Seepage1forthedownloadlink.Theiruseisdescribedinthefollowingprocedures.
+Note:AfterDCOMisconfigured,theoscilloscopemustberunfromthesameuseraccountasthe
+PCthatistocontrolit.ToswitchWindowsusers,choose
+ Start>
+ LeCroy><Username>
+andentertheuseraccountpassword.
+1-13
+
+----- 第 24 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Note:Usernamesandpasswordsarecasesensitive.Oscilloscopesshippedbeginning~Q42024
+haveuniquepasswordsshownonalabelontheoscilloscopebody.Oscilloscopesshippedbefore
+thattimehadshareddefaultpasswordsSCOPEADMIN(LCRYADMIN)andlecroyservice(royUser),
+whichmayhavebeenchangedsincetheinstrumentwasreceived.ConsultyourITdeptorlab
+managerforthecurrentpasswords.
+CreateUsers
+AnyPCuseraccountsthataretohaveDCOMaccesstotheoscilloscopemustbecreatedonthe
+oscilloscopeusingtheexactsameusernameandpasswordasontheremotePC.TheentireDCOM
+configurationprocedureshouldberunfromeachuseraccountontheoscilloscope,aswellasthedefault
+oscilloscopeaccountsLeCroyUserandLCRYADMIN.
+1. OpentheWindowsStartmenuandswitchtoanAdministrativeuseraccount.Todothisonthe
+oscilloscope:
+l ChooseFile>MinimizetodisplaytheWindowsdesktop.
+l
+Choose
+ Start>
+ LeCroy>LCRYADMIN.
+l EnterthecurrentLCRYADMINpassword.
+2. OpentheWindowsControlPanel.
+3. GotoSystemandsecurity>AdministrativeTools>ComputerManagement>LocalUsersand
+Groups>Users>Action>NewUser…andforeachPCuserthatwillremotecontrolthis
+oscilloscope,enterausernameandpasswordthatisexactlythesameasonthePC.
+1-14
+
+----- 第 25 页 -----
+
+Part1:MakingtheRemoteConnection
+ConfigureDCOM
+Note:ThefollowingDCOMproceduresmustbeperformedontheoscilloscopewhileloggedon
+fromuseraccountsLCRYADMIN,LeCroyUserandanynewuseraccountstohaveDCOMaccess.
+TheymustthenberepeatedfromeachPCanduseraccountthatistohaveremoteaccesstothe
+oscilloscope.Intheexamplesbelow,weareshowingtheoscilloscopeLCRYADMINsetup,andthe
+PC<User>beingaddedandgivenDCOMaccessiscalled"Controller",butinyourenvironmentthis
+shouldbetheexactsamenameastheuseraccountsyouareadding.Werecommendbeginning
+fromLCRYADMIN,sinceyouarealreadyloggedontheretocreatenewusers.
+SetUpRegistryandFirewall
+1. CopythefilesRPCentry.reg,ADMIN-FW.wfwandUSER-FW.wfwtoalocaldrive(e.g.,oscilloscope
+D:drive).
+2. RunthescriptRPCentry.regbydouble-clickingonit.ChooseYesandOKwhenprompted.
+1-15
+
+----- 第 26 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+3. OpentheWindowsStartmenu,thentypeWindowsDefender.ChoosetheWindowsDefender
+FirewallwithAdvancedSecurityapplication.
+4. AtthetoprightoftheWindowsFirewallwindow,underActions,selectImportPolicy.
+5. Choosethepolicyfiletoimport:
+l WheninLCRYADMIN,chooseADMIN-FW.wfw.
+l WheninLeCroyUserandallother<Users>,chooseUSER-FW.wfw.
+1-16
+
+----- 第 27 页 -----
+
+Part1:MakingtheRemoteConnection
+SetUpDCOMPermissions
+1. OpentheWindowsStartmenuandenterDCOMCNFG.Selectdcomcnfg.exe.
+2. ExpandComponentServicesuntilyouseeMyComputer.Right-clickonMyComputerandchoose
+Properties.
+3. OntheOptionstab,enter0forTransactiontimeout.
+1-17
+
+----- 第 28 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+4. OntheDefaultPropertiestab,checkEnabledistributedCOMonthiscomputer.
+5. OntheDefaultProtocolstab,selectConnection-orientedTCP/IP.
+6. OntheMSDTCtab,checkUselocalcoordinator.
+1-18
+
+----- 第 29 页 -----
+
+Part1:MakingtheRemoteConnection
+7. OntheCOMSecuritytab,underAccessPermissions,selectEditLimits.
+8. SelectthePC<User>fromthelistofnames(inourexampleitiscalledController,butyoushould
+selectyouruser).
+Note:Iftheuserdoesnotshowupinthelistofusers,clickAddandadditatthistime.
+9. Allowthe<User>LocalAccessandRemoteAccess.OK.
+10. WhenbackontheCOMSecuritytab,underAccessPermissions,selectEditDefaultandrepeat
+selectingthe<User>andallowingitLocalAccessandRemoteAccess.
+1-19
+
+----- 第 30 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+11. RepeatthestepsofEditLimitsandEditDefaultfortheLaunchandActivationPermissions,
+allowingthe<User>allpermissionsonbothdialogs.
+12. WhenbacktoMyComputerPropertiesdialog,Applyallchanges.
+13. ClosetheMyComputerPropertiesdialogtoreturntotheComponentServiceswindow.
+1-20
+
+----- 第 31 页 -----
+
+Part1:MakingtheRemoteConnection
+14. OntheComponentServiceswindow,navigatetoComponentServices>Computers>My
+Computer>DCOMConfigandselectit.
+15. Fromthelistattheright,right-clickonLeCroyXStreamDSOandchooseProperties.
+Note:DependingontheWindowsrelease,theword"Class"mayormaynotappearafter
+LeCroyXStreamDSO.
+16. OntheSecuritytab,underLaunchandActivationPermissions,choosetoCustomizeandclickEdit.
+17. Selectthe<User>andallowallpermissions.
+18. SelecttheSYSTEM,AdministratorsandINTERACTIVEusersinturnandconfirmthattheyalso
+havebeenallowedallpermissions.
+19. Repeatsteps16to18fortheSecurityAccessPermissionsandConfigurationPermissions,
+confirmingthatallusershavebeenallowedallpermissions.
+1-21
+
+----- 第 32 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+20. OpentheIdentitytabandselectTheinteractiveuser,thenclickOK.
+21. ApplyallDCOMchanges.
+22. Rebootthesystem.
+Note:FollowingaMAUIfirmwareupdate,youwillhavetorepeattheXStreamDSOconfiguration
+steps15through22.
+TestingtheDCOMConnection
+1. InstallMAUIStudioandMAUIStudioBrowserontheremotePC.
+2. LaunchtheMAUIStudioBrowserandclick
+ ConnecttoRemoteInstrument(DCOM).
+3. EntertheoscilloscopeIPaddress.
+IftheDCOMconnectionisproperlyconfigured,youshouldnowseetheoscilloscopeapplicationobject
+hierarchyappearinthebrowserwindow.
+1-22
+
+----- 第 33 页 -----
+
+Part1:MakingtheRemoteConnection
+TestingtheRemoteConnection
+Onceyouhavecompletedallthestepsrequiredtomaketheremoteconnectiontoyouroscilloscope,test
+thatyoucan"see"itfromthecontrollerandsendremotecommands.
+UsingMAUIStudio
+IfyouareusingaTCP/IPconnectionandhaveMAUIStudioProinstalledonthePC:
+1. ChooseFile>RemoteScope.
+2. EntertheoscilloscopeIPaddressandclicktheConnectbutton.
+Ifyouseetheapplicationchangetoreflecttheconnectedoscilloscope'sfeaturesandoptions,the
+connectionisworking.
+IfyouhaveaDCOMconnectiontotheoscilloscope,youcanalsoinstallthefreeversionofMAUIStudio
+andusetheMAUIStudioBrowser.
+1. Click
+ ConnecttoRemoteInstrument(DCOM).
+2. EntertheoscilloscopeIPaddress.
+Iftheconnectionisworking,youshouldnowseetheoscilloscopeapplicationobjecthierarchyappearin
+thebrowserwindow.
+UsingWaveStudio
+ThefreeWaveStudiosoftwareiscapableoftestingseveraltypesofremoteconnection,aswellasserving
+asaremotecommandterminalforcontrollingtheoscilloscope.Fordownloadinformation,see
+Resources.
+Followthesestepstotesttheconnection:
+1. ClicktheAddScope
+ buttononMyScopeExplorerortheScopemenuribbon.
+2. OntheAddDevicedialog,selecttheremoteconnectiontype.
+3. Entertheoscilloscope'snetworknameoraddressandclickOK.
+Iftheoscilloscopeisfound,anentryisaddedtotheMyScopeExplorerwindow.Thestatusshould
+indicatethedeviceis"Alive."Thisconfirmstheconnectionisworking.
+Iftheoscilloscopeisfoundbutcannotbeconnected,afterabrieftimeoutanentryisaddedtoMyScope
+Explorerindicatingtheselecteddeviceis"Dead."Checktheaddressandphysicalconnectionagain.Ifyou
+stillcannotconnect,consultwithyourNetworkAdministrator.
+1-23
+
+----- 第 34 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+UsingthePINGCommand
+ForLANusers,boththephysicalcableconnectionandproperhostTCP/IPconfigurationcanbeverified
+usingthePingcommand.
+Note:PINGisagoodwaytocheckthenetworkconnection,butitdoesn'tguaranteethesocket
+connectiontotheoscilloscopeatport1861.ConnectingviaWaveStudioorMAUIStudioBrowser
+isabettertest.
+AtanMS-DOSprompt,type:
+ping<IP_address>
+where<IP_address>istheaddressassignedtotheoscilloscope.
+TheCommandPromptwindowshowsanexchangesimilartothatbelowifthePingissuccessful.The
+Ethernetconnectionisshownasestablishedandthepingcommandhassentamessagetothe
+instrumentandwaitedforaresponse.Ifatimeoutoccurs,theIPaddressusedforthedestination(the
+oscilloscope)isincorrectornotwithinthesubnetmaskofthehost'sIP.
+Successfulpingshowingreply.
+1-24
+
+----- 第 35 页 -----
+
+Part1:MakingtheRemoteConnection
+RemoteControlAssistant
+TheRemoteControlAssistant(RCA)featureofMAUIoscilloscopesmaintainsalogofremotecontrol
+commandsreceivedandresponsesissued(whichwouldincludeAutomationcontrolssentwithintheVBS
+command),allowingtheprogrammertoreceivefeedbackonerrorsinhisorhersourcecode.
+TheRCAhasthreemodesofoperation:Off,ErrorsOnly,andFullDialog.
+l InErrorsOnlymode(thedefault),theRCAwillkeepalogofanymistakesinthecommands
+received,anddisplaytheerrordetected.
+l InFullDialogmode,allcommandsandresponsesarelogged.
+ThisselectioncanbemadebygoingtoUtilities>UtilitiesSetup>Remoteontheoscilloscope.
+TouchShowRemoteControlLogontheRemotedialogtopopupawindowshowingthelogfile.From
+thereyoucanmanuallyclearthelogorsaveitasatextfile.
+TheautomationCVARsthatcontroltheRemoteControlAssistantare:
+CVAR Type ValueRange Description
+app.Utility.Remote.Assistant ENUM OFF,EO,FD SetsRemoteAssistantLogMode
+field.
+OFFdiables;EOlogserrosonly;
+FDlogsfulldialog.
+app.Utility.Remote.SetToErrorsOnlyAndClearAtStartupBOOL 0,-1orfalse,
+true
+Clears/selectsResettoErrors
+Only...checkbox.Whenresetis
+selected,afterareboot,thelogis
+clearedandtheoscilloscope
+returnstothefactorydefaultset-
+tingEO.
+TheseCVARscanbeusedwithinAutomationscriptsorsentwithintheVBScommandtoremotelyreset
+thelog.
+ThelegacyGPIBremotecommandsCOMM_HELP(CHLP)andCOMM_HELP_LOG(CHL)canalsobeused
+tosetsomefeaturesoftheRemoteControlAssistant.
+Note:TherearenoCVARstochangethelogfilepathorname.Thismustbedonewithinthe
+applicationontheoscilloscope,orbyusingMAUIStudiotomodifythesettings.
+1-25
+
+----- 第 36 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+1-26
+
+----- 第 37 页 -----
+
+Part2:ControllingtheOscilloscope
+Part2:ControllingtheOscilloscope
+Oncethephysicalconnectionisestablished,thereareseveralapproachestoremotecontrolofthe
+oscilloscope.
+Thefirstfewinvolveinstallingremotecontrolsoftware,suchasMAUIStudio,onahostPCandmanually
+sendingcommandstotheoscilloscope.
+Classicremotecontrolcanbeachievedusingprogramsthatremotelyaccesstheoscilloscopeapplication
+andmodifyitusingMicrosoftCOMAutomationorIEEEGPIBcommands.
+Approach1:MAUIStudio 2-2
+Approach2:MAUIStudioBrowser 2-3
+Approach3:WaveStudio 2-5
+Approach4:PrograminVBS 2-7
+Approach3:ProgramUsingActiveDSO 2-10
+Approach6:ProgramUsingVISA 2-14
+2-1
+
+----- 第 38 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Approach1:MAUIStudio
+MAUIStudiowasdesignedtosimplifyremotecontrolofMAUI oscilloscopes.Oncetheremoteconnection
+isestablished,anysetuporanalysistaskyoucanperformontheoscilloscopecanbeperformedinMAUI
+Studio,whichreplicatestheoscilloscopeapplicationfoundontheinstrument.
+UnliketrueAutomationmethods,however,itislimitedtoSingleacquisitions,anduserinteractionis
+required.
+TheoscilloscopemustbesettoconnectusingTCP/IP(VICP)touseMAUIStudio.
+SeetheMAUIStudioInstructionManualforinformationonusingMAUIStudio.
+Visitourwebsiteatteledynelecroy.com/mauistudiotodownloadandregisterMAUIStudio.
+2-2
+
+----- 第 39 页 -----
+
+Part2:ControllingtheOscilloscope
+Approach2:MAUIStudioBrowser
+WhenaPChasaDCOMconnectiontoanetworkedoscilloscope,acopyofMAUIStudioBrowserrunning
+onthePChasthesameread/writecapabilitiesastheversionthatisrunninglocallyontheoscilloscope.
+Theoscilloscope'sCOMobjecthierarchyisexposedandeditablefromMAUIStudioBrowser.Thisis
+perhapsthesimplestwaytoremotelycontrolanoscilloscope,nexttousingMAUIStudio.
+Exercise
+ThisexercisemodifiestheoscilloscopechannelC1VerticalScalesettingdirectlyfromMAUIStudio
+BrowserinstalledonthePC.
+Connect
+1. InstallacopyofMAUIStudioBrowseronthePC(thiscanbeinstalledalongwithMAUIStudio).
+2. CreateaDCOMconnectiontotheoscilloscope.
+3. OpenMAUIStudioBrowseronthePCandselectthe
+ connectionicon.
+4. EnterthenetworkIPAddressoftheoscilloscope,thenclickOK.
+5. WhentheoscilloscopeappearsintheDeviceslist,clickonittoshowtheapplicationhierarchy.
+FindandModifytheObject
+TheVerticalsettingsassociatedwithchannelsarepartoftheAcquisitionsubsystem,astheycontrolthe
+characteristicsoftheADCsattheinput,directlyaffectingacquisition.
+Sincewe'relookingtomodifyasettingthataffectstheAcquisitionsubsystem,expandtheAcquisition
+foldertodisplaytheC1object.SelecttheC1objectfoldersothattheC1CVARsappearintheright-hand
+windowpane.
+Asyouscrolldown,you'llseetheVerScaleCVAR,showingwhatevervaluewaslastsetforthatchannelon
+theoscilloscope,inthisexample,50.0mV.
+MAUIStudioBrowsertellusthefollowingaboutthiscontrol:
+l TheTypecolumnshowsitisaDoubleLockstep
+l TheFlags/StatuscolumnshowsB,meaningitisBackwardsandincrementingtheCVARwill
+decreasethevalue.
+2-3
+
+----- 第 40 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+l TheRange/Helpstringcolumnshowsanacceptablerangeof0.002to1step0.0005.meaningit
+canbesetanywherefrom0.002to1inincrementsassmallas.0005.IfVariableGainislefton,the
+nextvaluepossibleis0.0025.
+l Theadditionalstatementthatitis"lockedto125,finegrain..."isfullyvisibleifweright-clickonthe
+VerScalelineandchooseCopytodisplaytheSetControlVariabledialog:
+Whilefinegrain(VariableGain)adjustmentsareallowedonthisoscilloscope(true),theVar.Gain
+settingiscurrentlyoff(on=false),sothecontrolwouldadjustinsteppedincrementsof1,2,or5
+units(insequence)wereitbeingoperatedfromtheoscilloscopetouchscreen.Startingat0.002,
+thenextvaluewouldbe0.005.
+EnteranewValueof100mVandchoosetoSetthisvalue.
+BackontheMAUIStudioBrowserwindow,youwillseethattheC1VerScalesettinghaschanged:
+Andtheoscilloscopeimmediatelyreflectsthischange,aswell:
+NotethatherewecanseetheVar.Gainsettingisdeselected.
+2-4
+
+----- 第 41 页 -----
+
+Part2:ControllingtheOscilloscope
+Approach3:WaveStudio
+WaveStudioisaPC-basedtoolthatconnectstoTeledyneLeCroyoscilloscopesrunningWindowsXP,
+Vista,7or10operatingsystem,withsupportfor32-and64-bits.Itcanbeusedtoanalyzeacquired
+waveformsoffline,ortosendremotecontrolcommandsviaabuilt-interminal.
+WaveStudioisalsousedtoaccesstheAutomationhierarchyofWaveSurfer3000modeloscilloscopes.
+UnlikeMAUIStudioandMAUIStudioBrowser,whichworksolelywithintheWindowsCOMarchitecture
+overTCP/IP,WaveStudiocanconnecttoaninstrumentovermostoftheavailableremoteinterfaces.It
+workswithlegacyinstrumentsthatdonotsupportWindows7or10.
+Note:WaveStudiodoesnotsupportLSIB connectionstotheinstrument.Chooseanotherremote
+connectionmethodifyouwishtouseWaveStudioforremotecontrol.
+SettingPermissions
+WaveStudioispresetsothatonlyuserswithAdministratorrightscanrunit.IfyouwishtouseWaveStudio
+fromaPCthatdoesnothaveAdministratorprivileges:
+1. NavigatetoC:\ProgramFiles\LeCroy\XStream\WaveStudio.exe,thenright-clickandchoose
+Properties.
+2. OpentheCompatibilitytabanddeselectRunthisprogramasanAdministrator.
+ConnectingtoaDevice
+TouseWaveStudiotomaketheremoteconnectiontoanoscilloscope:
+1. ConfigureboththePC runningWaveStudioandtheoscilloscopetosupporttheremotecontrol
+methodyouwishtouse.
+2. LaunchWaveStudioandclicktheAddScopeicon
+ eitherontheScoperibbonoratthetopof
+theMyScopeExplorerwindow.
+3. Selecttheremotecontrolmethodinuse.
+4. Entertheoscilloscope'sdomainnameoraddress,dependingontheremoteconnectiontype(e.g.,
+IPaddressforTCP/IP,GPIBaddressforGPIB).
+5. ThedeviceshouldnowappearintheMyScopeExplorerwindowwithastatusofAlive.
+IfitdoesnotappearorisnotAlive,selectitandclicktheEditicon
+ .Checkthatyouhaveentered
+thecorrectnameoraddress.Changeitifnecessary.
+Tip:GotoUtilities>UtilitiesSetup>Remoteontheoscilloscopetochecktheremote
+controlmethodandthedevicenameoraddress.Thesemustmatchwhatisenteredin
+WaveStudio.IfDHCPisinuse,theaddressmayhavechangedsincetheoscilloscopewas
+originallyaddedtoWaveStudio.
+2-5
+
+----- 第 42 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+SendingRemoteCommands
+WaveStudioincludesaterminalwindowfromwhichyoucanexecuteIEEE488.2remotecontrol
+commands.UsetheVBScommandtoencapsulateCOMAutomationcommands.
+1. Followtheprocedureabovetoconnecttotheoscilloscope.IfthedeviceisalreadyaddedtoMy
+ScopeExplorer,justselectitfromthelist.
+2. WhentheconnectionisAlive,selectTerminalfromthelistofobjects/foldersbelongingtothe
+deviceinMyScopeExplorer.
+3. AtthetopoftheTerminalwindow,immediatelybelowthewords"LeCroyWaveStudio,"enterthe
+remotecommandorqueryandReturn.
+RepliestoqueriesappearinthebottomsectionoftheTerminalwindow.
+AutomationBrowserforWaveSurfer3000
+ForWaveSurfer3000oscilloscopes,WaveStudioincludesanAutomationBrowserfeaturethatexposes
+theinstrument'sCOMobjecthierarchy,thesameasdoesMAUIStudioBrowserforotheroscilloscope
+models.
+2-6
+
+----- 第 43 页 -----
+
+Part2:ControllingtheOscilloscope
+Approach4:PrograminVBS
+Setup(orPanel)files,whichareusedtosaveandrecallthestateoftheinstrumentbetweensessions,are
+traditionallybinaryfileswithaninternalstructurethatisneitherdocumentednorobvioustotheuser.In
+MAUIoscilloscopes,however,thisisnotthecase.SetupsareASCIItextfilesthatcontainacomplete
+VisualBasicScript“program”.Ineffect,eachtimeapanelissaved,theinstrumentwritesaprogramthat,
+whenexecuted,returnstheinstrumenttothesavedstate.
+VBSprogramsfunctionlikeoscilloscopesetupfilesthatcanbewrittenandexecutedlocallyorremotely.A
+DCOMconnectiontotheoscilloscopeisrequiredtoexecuteVBSfilesremotely.
+Note:Filesstoredbytheinstrumenthavefileextension“.lss”(LeCroySetupScript).Thesefilesare
+syntacticallyidenticaltoMicrosoftVBSfiles,whichhavea“.vbs” extension.
+Exercise
+Inthisexercise,we'llcreateandexecuteasimpleVBSprogramonthePCthat:
+l Connectstoanetworkedoscilloscope
+l PerformsanAutoSetup
+l Changestheoscilloscopegridmode
+l ReadsbacktheGridModeandVerticalScale
+l Disconnects
+PreliminarySetup
+1. ItisassumedthereisaDCOMconnectionbetweenthePCandanoscilloscopeonthesame
+network,andthatMAUIStudioBrowserisinstalledonthePC.
+2. Ontheoscilloscope,gotoUtilities>UtilitiesSetup>RemoteandconfirmthattheTCP/IP(VICP)
+settingisselected.Notetheoscilloscope'sIPaddress.
+3. OpenMAUIStudioBrowserandNotePadoranothertexteditoronthePC.
+Program
+Note:Charactersinanglebracketsareplaceholders.Omitthebracketsfromyourcode.
+Connect
+CreateObjectistheVisualBasicfunctionthatcreatesaninstanceofaCOMServer.Theargument
+“LeCroy.XStreamDSO”referstotheoscilloscopeapplication.Onceithasinstantiated(connectedto)the
+oscilloscopeapplication,itrequiressomekindof‘handle’(pointer)sothatitcanlaterbeusedto
+communicatewiththeinstrument.CreateObjectreturnsahandle,whichisstoredintheappvariable.
+Inthetexteditor,writetheVBSconnectstring:
+Setapp= CreateObject("LeCroy.XStreamDSO")
+2-7
+
+----- 第 44 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Note:OnlyasingleinstanceofXStreamDSOcanrunonasystematonetime.Ifitisalready
+runningwhenCreateObjectiscalled,ahandletothatinstanceisreturned.Ifitisnotrunning,itwill
+bestarted.
+AutoSetup
+AutoSetupisanActionthatutilizesdefaultVerticalandTimebasesettingsanda50%levelEdgetriggerto
+quicklysetupanacquisition.Thefirstactiveinputchannelisusedasthetrigggersource.
+AutoSetupoccurs"above"theindividualsubsystemsintheXStreamDSOapplicationhierarchy,attheroot
+objectLeCroy.XStreamDSO.InMAUIStudioBrowser,youwillfinditintherootfolder.Hadthiscommand
+involvedonlyC1,forexample,youwouldhavenavigatedtoAcquisition>C1andselectedittoshowthe
+C1CVARs.
+YoucanseeAutoSetupisanActionfromtheTypecolumn.Mostofwhatoccursatthistoplevelare
+Actions.Right-clickonAutoSetupandchooseCopyPath.
+Gobacktothetexteditorwindow,andpastetheAutoSetupcommandintoyourprogram:
+app.AutoSetup
+ChangeGridMode
+TheGridModedetermineshowmanygridsappearontheoscilloscopedisplay.Thisisonesettingwhere
+achangecanbeperceivedwithoutaninputsignal.
+GridModeaffectstheoscilloscopedisplay,soitisfoundwithintheDisplaysubsystem.InMAUIStudio
+Browser,expandtheDisplayfolderuntilyouseetheCVARsintheright-sidepane.
+NavigatetotheobjectGridMode.YoucanseethevalidsettingslistedinRange/Helpstring.
+Right-clickonGridModeandchooseCopyPath.You'llseefromtheMAUIStudioBrowserwindow
+messagebarthattheobjectpathis:
+app.Display.GridMode
+Notethatthecontrolsarearrangedinahierarchy,witheachleveldelimitedbyadecimalpoint( .).
+Pastethelineintoyourremotecontrolprogram,thensetthenewvalueofQuattro:
+app.Display.GridMode= “Quattro”
+Usingtheapphandle,thislineofcodechangestheDisplayGridModecontrolto“Quattro”.
+Note:SomeoscilloscopesonlysupportAuto,Single,andXYGridModes.IfyougofromAutoto
+Single,thechangewillonlybeevidentfromtheDisplaysetupdialog,notthescreen.
+ReadBackGridModeandVerticalScale
+Createavariabletoreadbackthevalue.Inthetexteditor,writetheline:
+2-8
+
+----- 第 45 页 -----
+
+Part2:ControllingtheOscilloscope
+myGridMode= app.Display.GridMode
+Thislineofcoderetrievesthecurrentvalueoftheapp.Display.GridModeCVARandstoresitwithinthe
+variablemyGridMode.
+Note:InVBSitisnotnecessarytodimensionvariablesbeforeusingthem(forexample,using
+statementslike“DimmyVerScaleasDouble”).
+TogetthevalueoftheC1VerticalScale,createanewlineforthevariablemyVerScale.
+InMAUIStudioBrowser,navigatetotheAcquisition>C1folderandclickonittoshowtheCVARs.Right
+clickonVerScaleandCopyPath.Pasteitbehindthe"myVerScale"variable:
+myVerScale= app.Acquisition.C1.VerScale
+Forthisexercise,the"readback"methodwillbethestandardVisualBasicMessageBoxdialog.Addtwo
+linesusingtheMsgBoxfunctiontodisplaythevaluesofthetwovariablesyoucreated:
+MsgBoxmyGridMode
+MsgBoxmyVerScale
+Disconnect
+Addalineofcodetoendtheprogramandclosetheconnectiontotheoscilloscope:
+Setapp= Nothing
+Execute
+Youshouldseethefollowingscriptinyourtexteditor:
+'ConnecttotheXStreamDSOapplication
+Setapp= CreateObject("LeCroy.XStreamDSO")
+'PerformactionAutoSetupandchangegridmodesetting
+app.AutoSetup
+app.Display.GridMode= "Quattro"
+'Readbackgridmodeandverticalscale
+myGridMode= app.Display.GridMode
+myVerScale= app.Acquisition.C1.VerScale
+MsgBoxmyGridMode
+MsgBoxmyVerScale
+'Disconnect
+Setapp= Nothing
+SavethefileasVBSExercise.vbs.
+OpenWindowsExplorerandnavigatetoVBSExercise.vbs.Double-clickonthefiletoexecuteit.
+Ifthesestepswerefollowedcorrectly,youshouldobservetheoscilloscopeperformanAutoSetupand
+entertheQuattro-griddisplaymode.Thenewgridmodewillbeevidentfromthefourgrids,oneineach
+quadrantofthedisplay.
+2-9
+
+----- 第 46 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Approach3:ProgramUsingActiveDSO
+AsnotallcontrollerscanutilizetheWindowsDCOMarchitecture,thereisanothersimplifiedprogramming
+methodforremotecontroloftheXStreamDSOapplication:ActiveDSO.
+ActiveDSOisaproprietaryActiveX™controlthatenablesTeledyneLeCroyoscilloscopestobecontrolled
+byandexchangedatawithavarietyofWindowsapplicationsthatsupporttheActiveXstandard.
+MicrosoftOfficesuite,InternetExplorer,VisualBasic,VisualC++,andVisualJavaareafewofthemany
+applicationsandlanguagesthatsupportActiveXcontrols.
+ActiveDSOhidestheintricaciesofprogramminginActiveXandprovidesasimpleandconsistentinterface
+tothecontrollingapplication.TheActiveDSOcontrolmaybeusedaseither:
+l An"invisible"objectaccessedviaascriptinglanguage,forexample,VBS.
+l AvisibleobjectembeddedinanOLEAutomationcompatibleclient,suchasaVBAmacrolaunched
+byaWindowsapplicationbutton.
+Note:ManyofourAutomationexamplesutilizeVisualBasicScript(VBS),theoscilloscope's
+"native"language,asitissyntacticallyidenticaltoourLeCroySetupScript(.LSS).Donotconfuse
+VBSwithVisualBasicforApplications(VBA),asubsetofVisualBasicusedextensivelywithin
+Windowsapplications,suchasExcel,asamacro"programming"language.Somethingsthat
+workinVBSdonotworkinVBA.
+AgreatbenefitofActiveDSOisthatitiscompletelyindependentoftheremotehardwareinterface.The
+connectionviaTCP/IP,GPIB,orUSBTMCismadebyasinglecommandnearthestartofaprogram.
+Also,itmaybeusedtosendAutomationcommandsorlegacyIEEE488.2remotecontrolcommands.
+DownloadtheActiveDSOsoftwarefreeofchargefromourwebsite(seeResources)andinstallActiveDSO
+onthecontrollerPC.ThedriverinstallswiththeActiveDSODeveloper'sGuide.Thismanualdocumentsall
+themethodsandpropertiesusedtoprogramActiveDSOobjects.Followingaresomesimpleexamples.
+MoreextensiveexamplesareinstalledintheActiveDSOprogramfolder.
+InstantiatingtheActiveDSOControl
+Thecontrol'sexternalnameisalways:LeCroy.ActiveDSOCtrl.1
+Thecontrol'sCLSIDis450A9897-D9C9-11D1-9966-0000F840FC5E
+Followingareinstantiationsofthecontrolasan"invisible"objectusedtopassremotecommandsin
+severalcommonlyusedlanguages.Ineachcase,thecontrolisaliasedas"dso",althoughforthisyoumay
+substitutewhateveryouwish.
+Language
+VBA DimdsoAsObject
+Setdso=CreateObject("LeCroy.ActiveDSOCtrl.1")
+Python importwin32com.client
+dso=win32com.client.Dispatch("LeCroy.ActiveDSOCtrl.1")
+2-10
+
+----- 第 47 页 -----
+
+Part2:ControllingtheOscilloscope
+Language
+VisualC++ CActiveDSOdso;
+RECTdummyRect;
+dso.Create("LeCroy.ActiveDSOCtrl.1","HiddenWindowForDSOControl",0,dummyRect,
+this,0);
+Exercise
+ActiveDSOcanbeusedformuchmorethanremotecontrol,butthisexerciseshowshowthesame
+AutomationcommandsusedintheVBSexercisecouldbesentusingActiveDSO.
+PreliminarySetup
+1. DownloadActiveDSOfromteledynelecroy.com(seeResources)andinstallitonthePC.
+2. OpenMAUIStudioBrowserandNotePadoranothertexteditoronthePC.
+3. Turnontheoscilloscope.Forthisexercise,we'llcontinuetouseVBSandaLANconnection,so
+confirmtheoscilloscopeisconnectedtoLAN(orhasacross-overconnectiontoyourPC).
+4. GotoUtilities>UtilitiesSetup>RemoteandconfirmtheTCP/IP(VICP)setting.
+5. Notetheoscilloscope'sIPaddress.
+Program
+Note:Charactersinanglebracketsareplaceholders.Omitthebracketsfromyourcode.
+Connect
+Inthetexteditor,instantiatetheActiveDSOcontrol:
+Setdso= CreateObject("LeCroy.ActiveDSOCtrl.1")
+Then,invoketheMakeConnectmethod,inthiscaseusingtheoscilloscope'sIPaddress:
+Calldso.MakeConnection("IP:<IP address>")
+ThismethodcouldhaveusedUSBTMC,GPIB,oranyothersupportedconnectiontype.Youwouldwantto
+besuretochoosecontrolfromthatsameinterfaceontheoscilloscopeRemotedialog.
+AutoSetup
+Besidestheinstantiationmethod,themostobviousdifferencebetweenusingnativeVBSandusing
+ActiveDSOisinhowcommandsaresent.WithActiveDSO,AutomationcontrolsarenestedwithintheVBS
+command.Writetheline:
+Calldso.WriteString("VBS'app.AutoSetup'",1)
+TheBoolean"1"istellingtheXStreamDSOapplicationtointerpretthecommandimmediately.
+YoucouldalsouseWriteStringwiththelegacyIEEE488.2commandset.Forexample,write:
+Calldso.WriteString("C1:VDIV200mV",1)
+2-11
+
+----- 第 48 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ThiscommandwillresettheVerticalScale,sameasdidthe"app.C1.VerScale"Automationcommand
+sentinExercise1.EitherlegacycommandsorVBSAutomationcommandscanbesentusingWriteString.
+ChangeGridMode
+AddanotherlinetotheprogramtochangetheGridModefromQuattrobacktoAuto,oranyothergrid
+modesupportedbyyouroscilloscopemodel:
+Calldso.WriteString("VBS'app.Display.GridMode= "Auto"'",1)
+Note:WhenusingActiveDSOwithExcelVBA,argumentsmustbeplacedinsidetwodouble
+quotes,sotheabovecallwouldbe:Calldso.WriteString("VBS'app.Display.GridMode=
+""Auto""'",1)
+Ifyouwish,addlinesforanyothersetupchangesyou'dliketomake,usingtheMAUIStudioBrowserto
+findtheCVARandcopyingthepathintotheVBScommand.
+ReadBackGridModeandVerticalScale
+ThereareseveralActiveDSOmethodstoreadbackparameterresultsandwaveformdata,butasimple
+waytoreadsetupvaluesistousetheVBS?querywiththeAutomationcontrol.
+Inyourprogram,write:
+Calldso.WriteString("VBS?'app.Display.GridMode'",1)
+Call.dso.WriteString("VBS?'app.Acquisition.C1.VerScale'",1)
+Noticewe'restillusingWriteStringto"readback,"aswhatwe'redoingiswritingthestringthatistheVBS
+query.Thequery,byitsnature,returnsinformation.Again,we'reincludingtheBoolean1thattellsthe
+oscilloscopetointerprettheinstructionimmediately.
+Whatwestillneedtospecifyishowtodisplaytheresulttext:
+Calldso.WriteString("VBS?'return= app.Acquisition.C1.VerScale'",1)
+myString= ReadString(numbytes)
+MsgBox(myString)
+Disconnect
+WritethefollowinglinestodisconnectfromtheXStreamDSOapplicationandendtheprogram:
+dso.Disconnect
+Setdso= Nothing
+2-12
+
+----- 第 49 页 -----
+
+Part2:ControllingtheOscilloscope
+Execute
+Youshouldnowseethefollowingprogram,orsimilar,inyourtexteditor:
+'ConnecttotheXStreamDSOapplication
+DimdsoAsObject
+Setdso= CreateObject("LeCroy.ActiveDSOCtrl.1")
+Calldso.MakeConnection("IP:<IP address>")
+'SendcommandstoAutoSetup,changegridmodeandverticalscale
+Calldso.WriteString("VBS'app.AutoSetup'",1)
+Calldso.WriteString("C1:VDIV200mV",1)
+Calldso.WriteString("VBS'app.Display.GridMode= "Auto"'",1)
+'Querygridmodeandverticalscale,showresultinMessageBox
+Calldso.WriteString("VBS?'app.Display.GridMode'",1)
+Call.dso.WriteString("VBS?'app.Acquisition.C1.VerScale'",1)
+Calldso.WriteString("VBS?'return= app.Acquisition.C1.VerScale'",1)
+myString= ReadString(numbytes)
+MsgBox(myString)
+'Disconnect
+dso.Disconnect
+Setdso= Nothing
+SavethefileasActiveDSOExercise.vbs.
+OpenWindowsExplorerandnavigatetoActiveDSOExercise.vbs.Double-clickonthefiletoexecuteit.
+Ifthesestepswerefollowedcorrectly,youshouldagainobservetheoscilloscopeperformanAutoSetup
+thenchangedisplaymodeandverticalscale.ChecktheC1descriptorboxtoseethattheVerticalScale
+haschanged.
+2-13
+
+----- 第 50 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Approach6:ProgramUsingVISA
+IfyoudonotwishtoutilizeActiveXcontrolslikeActiveDSO,anyprogramminglanguagethatcanconnect
+throughVISAcanbeusedtosendAutomationorIEEEcommands.TeledyneLeCroyoscilloscopesare
+designedtoworkwithVISAdriversforENET,USBTMC,orGPIBremoteconnections.Itisnotnecessaryto
+haveaDCOMconnectiontotheoscilloscopewhenyouareusingaVISAdriver.
+VISAreferstotheVirtualInstrumentSoftwareArchitecture,anAPIwidelyusedinTest&Measurementfor
+communicatingwithinstrumentsfromaPC.WiththeinstallationofaVISAdriver,theprogrammerneeds
+onlyprovideaVISAresourcestringtocreateaconnectiontoaremoteinstrument,andVISApasses
+subsequentwriteorreaddatarequestsandthecorrespondingVISApassporttotheinstrument.
+AVISAdriverthatbehavesexactlylikeNI-VISAisrequiredforremoteconnectiontoTeledyneLeCroy
+oscilloscopesovertheTCP/IP,USBTMC,andGPIBinterfacesifyoucannotutilizeActiveXtechnology
+(suchasActiveDSOandWaveStudio)onyournetwork.ProgrammersshoulddownloadandreadtheIVI
+VISAspecificationdocumentfortheirprogramminglanguagetofullyunderstandtheVISAAPI.Itis
+alwaysagoodideatoinstalltheIVIVISAAPIinordertodecoupleyourAutomationprogramfromthe
+driverused.
+WehavetestedourinstrumentswithNationalInstrument'simplementationofVISA,NI-VISA,and
+recommendaninstallationofthisifyouaremakingtheremoteconnectionfromaWindowsmachine.
+Note:ForNI-VISAlicensingrequirementsandfees,seehttps://www.ni.com/visa/license.htm.
+UnlessyouinstallNI-VISA(oruseActiveDSO),youwillhavetoprogramyourownremotecontrolinterface.
+WesupplytheVICPClientLibraryforthosewhowishtousetheVICPprotocolbutcannotuseNI-VISA
+becausetheyarenotworkingintheWindowsenvironment.
+VICPPassportforNI-VISA
+ThoseusingNI-VISAforVICPconnectionsintheWindowsenvironmentshouldinstalltheVICPPassport.
+Thepassportisaplug-inDLLforNI-VISAthatprovidesatranslationlayerbetweenthestandardNI-VISA
+APIandTeledyneLeCroy'sVICPprotocol.SeetheApplicationBriefLAB_WM827:UnderstandingVICPand
+theVICPPassportformoreinformation.
+Note:NI-VISAprovidesthenecessaryVISApassportsforLXI,GPIB,andUSBTMCconnections;
+VICPPassportisonlynecessaryifyou'reusingVICPprotocol.
+DownloadVICPPassportfromteledynelecroy.com.SeeResources.
+2-14
+
+----- 第 51 页 -----
+
+Part2:ControllingtheOscilloscope
+Exercise
+Inthisexercise,we'llcreateaPythonscriptdesignedtoconnectovertheLAN,asinthepreviousexercise,
+butusingLXIprotocolsettings.
+Note:AllthecodeexamplesgivenhereusetheLXIVISAresourcestring,nottheTCP/IPVISA
+resourcestring.BoththeTCP/IPandLXIsettingsutilizetheTCP/IPlayer,butthehigher-level
+protocolisdifferent,asistheVISAresourcestring.YoucanusetheLXIoptiontocommunicate
+withoscilloscopesevenifyournetworkisnotsetuptobeLXIcompliant.
+PreliminarySetup
+Thisexerciserequiresabitmoresetupthantheprevious,butbydoingso,itwillbetterdemonstratehow
+youmayuseAutomationtosetupandretrievemeasurementdata.
+1. OnthePC,installaVISAdriver,Python,andthecompatiblePythonforWindowsextensions.
+2. Turnontheoscilloscope.BesureitisconnectedtoyourLAN.
+3. ConnectoneofthepassiveprobesdeliveredwithyouroscilloscopetotheCalOut/AuxOutonthe
+frontoftheinstrument(whatitisnamedwillvarybymodel)andtheC1input.
+4. GotoUtilities>UtilitiesSetup>AuxOutputandchoosetooutputa1KHz,1VoltSquareWaveor
+whateveristhedefaultselectionforyouroscilloscope(thereshouldbeabutton).
+5. Adjustyourtimebaseuntilyouseeastablepulseontheoscilloscope.
+6. GotoUtilities>UtilitiesSetup>RemoteandselecttheLXI(VXI-11)setting.Notetheoscilloscope's
+IPaddress.
+7. OnthePC,openMAUIStudioBrowserandNotepadoranothertexteditor.
+Program
+Note:Charactersinanglebracketsareplaceholders.Omitthebracketsfromyourcode.
+ConnecttotheOscilloscope
+Inyourtexteditor,writetheselinestomaketheremoteconnectiontoVISAandtotheoscilloscope:
+importvisa
+rm= visa.ResourceManager()
+lecroy= rm.open_resource("TCPIP0::<hostname|IPaddress>::INSTR")
+lecroy.timeout= 5000
+lecroy.clear()
+IfyouroscilloscopeandPCarebothknowntothesamenetworknameserver,youcanusethehostname
+syntax(e.g.,"TCPIP0::LCRY0450N70355::INSTR")insteadoftheactualIPaddress.
+2-15
+
+----- 第 52 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Thetimeoutof5000millisecondsensuresthatVISAwillwaitupto5000millisecondsforoperationsto
+completewheneverwritingcommandsorreadingresponses.Readingcontinuesuntiltheentireresponse
+isreceived(EOIisreached)orfor5fullseconds.After5seconds,therewillbea"timeout"error.
+Theclearisintendedtoclearoutthebuffersontheoscilloscopelistingthecommandssenttoitandalso
+responsessentfromit.Clearremovesanythingleftoverfromaprevioususeandisagoodpracticeasa
+firststepinanyprogram.
+Severalotherpreliminarysettingscanbemadetopreparethegeneraloscilloscope"environment"priorto
+writingnewsetupsorreadingmeasurements.Inyourprogram,type:
+lecroy.write("COMM_HEADEROFF")
+lecroy.write(r"""vbs'app.settodefaultsetup'""")
+Thecommand"COMM_HEADEROFF"isalegacy488.2commandthattellstheoscilloscope"don'treturn
+thecommandheaderwithqueryresult."Thishelpstoreadbackvaluesinaformatthatismorefriendlyto
+beingviewedonscreenorimportedintootherprograms.
+Recallingthedefaultsetup,whilenotrequired,ensuresthatallsetupsareataknownbaselinevalue
+beforeyoubegin.
+Noticethatthemethod'app.settodefaultsetup'isthefirstactualAutomationcommandbeingpassedto
+theoscilloscope.ItisenclosedintheVBScommandwrapper,asareallAutomationcommandssentby
+remoteconnection,ratherthanthroughaCOM/DCOMconnection.
+Note:Thethreedouble-quotesaroundtheVBScommandarerequiredbecausethedouble-quotes
+aroundtheargumentswithinthecommandcouldbeinterpretedbyPythonastheendofthe
+commandstring.YouwouldprobablycreateafunctiontoputtheVBSwrapperaroundwhatever
+automationcommandsyouwantedtosend.Here,we'reshowingeachfulllineofcodefor
+demonstration.
+TimingandSynchronization
+Inanyremotecontrolprogram,itisimportanttosetup"checks,"periodicallyqueryingthatprocessesare
+completebeforestartingnewones,orthatoldmeasurementsareclearedbeforetakingnewones,etc.
+Queryingthe'app.WaitUntilIdle'methodcantellyourprogramwhenitissafetoproceed.
+Inyourprogram,enterthequery:
+r = lecroy.query(r"""vbs?'return=app.WaitUntilIdle(5)'""")
+Thiswillinformtheprogramtowaitupto5secondsfortheRecallDefaultsetuptobecompletedbefore
+goingontosetupthenewacquisition.
+Note:SettoDefaultSetup(andsimilarGPIBcommands,suchasRECALL_PANELandRECALL_
+DEFAULT)blocksallincomingcommandsuntilfinishedrecallingthepanel,including
+synchronizationqueriessuchas*OPC?andWaitUntilIdle.Usinganyqueryfollowedbyareadwith
+asufficientlylongtimeouttoallowthepaneltoloadfullyisthebestwaytokeeptheclient
+programsynchronizedwiththeoscilloscope.
+2-16
+
+----- 第 53 页 -----
+
+Part2:ControllingtheOscilloscope
+SetUpAcquisition
+Everyprogramthatistoacquirenewdata,whetherrawwaveformdataorpost-processingmeasurement
+results,mustsetupanacquisition.Itisimportantbeforetakinganynewacquisitiontostoptheprevious
+one.Failuretodothisisaprincipalreasonforinaccuratemeasurements.Addtheline:
+lecroy.write(r"""vbs'app.acquisition.triggermode= "stopped"' """)
+UsingMAUIStudioBrowser,findsuitablereplacementsfor<value>infollowingacquisitionCVARs,and
+addtheselinestoyourprogram:
+lecroy.write(r"""vbs'app.acquisition.trigger.edge.level= <value>'""")
+lecroy.write(r"""vbs'app.acquisition.triggermode= "single"' """)
+lecroy.write(r"""vbs'app.acquisition.horizontal.maximize= "<value>"' """)
+Note:Besurenottoforgetthedouble-quotesaroundthosevaluesthatareStringorEnumtypes.
+SetUpMeasurements
+Aswiththedefaultsetup,itisagoodideatoclearallmeasurementdefinitionsandprevioussweeps
+beforeproceedingwithnewmeasurements:
+lecroy.write(r"""vbs'app.measure.clearall' """)
+lecroy.write(r"""vbs'app.measure.clearsweeps' """)
+Asyoumayhavenoticedbynow,Automationcommandsaremoregranularthanlegacy488.2
+commands.Generally,morelinesofcodemustbesenttoachievethesameendresult,becauseevery
+relevantapplicationobjectmustbesettoaparticularstate.However,thisgranularityisalsowhatmakes
+Automationmorepowerful.
+Tosetupmeasurements,wehavetofirstturnonmeasurements,thenturnonstatistics,thenturnonthe
+parameter,thensetwhatwewanttheparametertomeasure,thensettheparametersource(whatinputit
+willmeasure),etc.UsingMAUIStudioBrowser,findasuitable<value>for'app.measure.p1.paramengine'.
+Tip:Selectasinglesourcemeasurementappropriatetoyour1KHz,1Vpulsewave.
+lecroy.write(r"""vbs'app.measure.showmeasure= true' """)
+lecroy.write(r"""vbs'app.measure.statson= true' """)
+lecroy.write(r"""vbs'app.measure.p1.view= true' """)
+lecroy.write(r"""vbs'app.measure.p1.paramengine= "<value>"' """)
+lecroy.write(r"""vbs'app.measure.p1.source1= "C1"' """)
+Acquire
+Nowwritecodetoarmtheacquisition.Again,timingisimportant:thisexampletakes10acquisitions,
+forcingatriggerifnoneoccursafter0.1seconds(thesecondandfirstarguments,respectively,of
+'app.acquisition.acquire'),thenusesthe'app.WaitUnitIdle'methodtowaitfor5secondsafterall
+acquisitionprocessingiscompletebeforemeasuring.
+fori inrange(0,10):
+r=lecroy.query(r"""vbs?'return=app.acquisition.acquire( 0.1,True)'""")
+r=lecroy.query(r"""vbs?'return=app.WaitUntilIdle(5)'""")
+ifr==0:
+2-17
+
+----- 第 54 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+print"TimeoutfromWaitUntilIdle,return= {0}".format(r)
+ReadBackMeasurementResults
+ReadtheOut.ResultobjectoftheP1parameterintoavariableofyourchoosing,andprintthevalue.
+JustastheAutomationcommandsweresentwithintheVBScommandwrapper,theAutomationqueryis
+sentwithintheVBS?querywrapper.For<var>,youcansubstitutethenameofthemeasurementyou
+chooseearlier.
+<var>=lecroy.query(r"""vbs?'return=app.measure.p1.out.result.value'""")
+print"<var>={0}".format(<var>)
+Disconnect
+Finally,closetheremoteconnectionstothescopeandtoVISA,inthereverseoftheorderinwhichyou
+openedthem:
+lecroy.close()
+rm.close()
+Execute
+SavethefileasVISAExercise.py.NavigatetothefileonyourPCandexecuteit.
+Ifthesestepswerefollowedcorrectly,youshouldobservetheoscilloscoperesumetheDefaultSetup.The
+Measuretableshouldappearbelowthewaveform,showingtheresultsofthemeasurementyousetinP1.
+Meanwhile,thefollowingshouldappearinyourconsole:
+TimeoutfromWaitUntilIdle= <value>
+<var> = <value>
+2-18
+
+----- 第 55 页 -----
+
+Part3:AutomationProgrammingReference
+Part3:AutomationProgrammingReference
+ThissectionisaprogrammingguidetotheAutomationcapabilitiesofTeledyneLeCroy’sMAUI(also
+knownasXStream)oscilloscopes.
+WhileTeledyneLeCroyhasalwaysstriventomaximizecompatibility,theunderlyingtechnologiesusedby
+AutomationrequiretheMicrosoftWindowsoperatingsystem(minimum32-bit),andthissystemwas
+introducedonlywithourMAUIinstruments.
+Automationisnotavailableontheolderoscilloscopefamilies.Theseinstrumentscanbecontrolled
+remotelyusinglegacyIEEE488.2remotecontrolcommands.
+AutomationOverview 3-2
+MAUIBrowser 3-4
+ViewingMAUIObjects 3-6
+VBSCommand 3-10
+ControlVariables 3-11
+ResultInterfaces 3-14
+Synchronization 3-26
+ApplicationInteractions 3-28
+EarlyandLateBinding 3-29
+AutomationProgrammingConventions 3-30
+UsingProgrammingVariables 3-33
+AutomationinMATLAB 3-34
+AutomationinPython 3-37
+AutomationinC# 3-40
+3-1
+
+----- 第 56 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+AutomationOverview
+Automation(formerlyreferredtoas“OLEAutomation”)isaMicrosofttechnologythatisprimarilyusedto
+enablecross-applicationmacroprogramming.ItisbasedupontheComponentObjectModel(COM),
+whichissimilarinnaturetoCORBAmorecommonlyfoundintheUNIXworld.Inadditiontosupportingthe
+familiarASCII-basedremotecommandsthathavebeenusedtocontrolallTeledyneLeCroyoscilloscopes
+formanyyears,allWindows-basedMAUIinstrumentsfullysupportcontrolbyAutomationinterfaces.
+UsingCOM,thecontrollingapplicationcanrundirectlyontheinstrumentwithoutrequiringanexternal
+controller.Alternatively,itcanrunfromaremote,networkedcomputerusingMicrosoft’sdistributedCOM
+standard(DCOM),theActiveDSOActiveXcontrol,oraVISAdriver.
+ItisimportanttonotethatAutomationitselfisnotlanguagedependent;itcanbeperformedusingany
+programminglanguagethatsupportsCOM.
+GeneralArchitecture
+Anapplicationthat“exposesAutomationobjects”isreferredtoasan“Automationserver.”Automation
+objectsexpose“Automationinterfaces”tothecontrolling“Automationclient.”Theoscilloscope
+applicationonMAUIoscilloscopes(XStreamDSO)isanAutomationserverthatcanbecontrolledlocally
+orremotelybyAutomationclients.
+Automationobjectscantaketheformof:
+l Invisible"objects"createdbyscript,suchasaVisualBasicscripttochangeoscilloscopesettings
+andreadbackthenewmeasurementresults
+l Visibleobjectsembeddedinanapplication,suchasabuttonthatlaunchesamacrocontainingan
+Automationsubroutine
+UsesofAutomation
+Automationhasmanyuses:
+l Instrumentsetup(panelfiles)
+l RemotecontrolfromexternalWindowsapplications
+l ExposingwaveformdataandmeasurementresultstoexternalWindowsapplications
+l Custommath/measurementprocessinganduserinterfacecustomizations(withXDEV)
+ThissectionconcentratesonusingAutomationforremoteoscilloscopesetup,controland
+waveform/datatransfer,thefunctionstraditionallyperformedbyGPIBremotecontrol.
+3-2
+
+----- 第 57 页 -----
+
+Part3:AutomationProgrammingReference
+AutomationComparedtoIEEE488.2RemoteControl
+AutomationdoesnotnecessarilyreplacetheIEEE488.2legacyremotecommandset,whichisalso
+supportedbyMAUIinstruments(andwillcontinuetobe).Rather,itaugmentsitandallowsanotherclass
+ofapplicationtobecreatedthatcanbeexecutedlocallyorremotely.
+Automation,however,canbeconsideredasthe“nativelanguage”ofMAUIinstruments.Allofthe
+instrument’scontrolsandfeaturesareavailabletotheAutomationclient,whereasonlysomeofthe
+instrumentfeatureshavebeenimplementedinthe488.2remotecommandset.
+Thefollowingtablesummarizesthedifferencesbetweenthetwoapproachestoremotecontrol:
+IEEE488.2RemoteControl AutomationRemoteControl
+Physicaltransport TCP/IPandLXIoverEthernet,GPIB,LSIB,
+orUSBTMC*
+Inter-processusingCOM,inter-PCusing
+DCOM(TCP/IP)
+Textualparsingofinstrument
+responsesrequired
+Yes,allinstrumentresponsesneed
+‘parsing’toextractusefulinformation
+No,eachelementintheAutomation
+hierarchyappearsasa“variable”tothe
+Automationclient
+Compatibilitywithlegacy
+programs/instruments
+Yes,inmostcasesremotecontrol
+applicationswrittenforlegacyinstruments
+willworkwithoutmodification
+No,Automationisastandardfirst
+introducedwithMAUI(XStreamDSO)
+Abilitytocontroltheoscilloscope
+applicationfrom“insidethebox”
+Yes,byusingtheVICP(TCP/IP)protocol
+totalktothe“localhost”
+Yes,natively
+Easeofuse Nottrivial,althougheasierusingatool
+suchasActiveDSO**thathidessomeof
+thecomplexities
+VeryeasywithscriptinglanguagesandMS
+Officeproductivitytools
+Formatofwaveformresults BinaryorASCII;bothrequireparsing
+beforeuse
+Arraysoffloatingpointvalues
+ControlfromMSOfficesuite PossibleviaActiveDSOutility Yes,natively
+*Notallinterfacesavailableonallmodels.GPIBandLSIBavailablewithhardwareoption.
+**ActiveDSOisanActiveXbaseddriverforTeledyneLeCroyoscilloscopes
+3-3
+
+----- 第 58 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+MAUIBrowser
+TheMAUIBrowserutility(formerlyXStreamBrowser™)enablesyoutoview,copyandmodifytheCOM
+objecthierarchyofaWindows-basedMAUIoscilloscope.ItisessentialforwritingAutomationprograms,
+asitalwaysshowsalltheAutomationobjectsontheinstrumentattheexactcurrentconfiguration—
+includingthoseobjectsbelongingtosoftwareoptions.
+MAUIBrowserisinstalledonallMAUIoscilloscopesforlocalbrowsing.ItmayalsobeinstalledwithMAUI
+StudioonremotePCstoviewaconnectedoscilloscope'sAutomationhierarchy.
+Note:WaveSurfer3000andWaveSurfer4000HDusersshouldinstalltheWaveStudiosoftware
+insteadofMAUIStudio.TheCOMobjecthierarchyofaconnecteddeviceisshowninthe
+WaveStudioAutomationBrowser.
+Caution:ThelegacyXStreamBrowseravailablefordownloadonourwebsiteisa32-bitversion.Do
+notinstallthisonany64-bitoscilloscopesorPCs.Useonlythelatest64-bitMAUIinstallerto
+updatetheoscilloscopeMAUIBrowser,oruseMAUIStudiotoinstallitonyourPC.
+ConnectingtoaLocalOscilloscope
+TolaunchMAUIBrowserontheoscilloscope:
+1. ChooseFile->MinimizetodisplaytheWindowsdesktop.
+2. Double-clicktheMAUIBrowsericon.
+3. Selectthe
+ connectionicon.
+ConnectingtoaRemoteOscilloscope
+1. BesuretheoscilloscopeisconfiguredtoallowaDCOMconnectionfromthePC.
+2. LaunchMAUIBrowseronthePC.
+3. Selectthe
+ connectionicon.
+4. EnterthenetworkIPAddressoftheoscilloscope,thenclickOK.
+Note:Iftheoscilloscopeapplicationisnotrunning,initiatingtheconnectionfromtheMAUI
+Browserwillstartit;however,itwillnotpoweronadevicethatispoweredoff.Besurethe
+oscilloscopeisturnedonbeforeconnecting.
+Whentheconnectiontoaninstrumentisestablished,theMAUIBrowserwindowispopulatedwiththe
+oscilloscopeapplicationobjecthierarchy.
+3-4
+
+----- 第 59 页 -----
+
+Part3:AutomationProgrammingReference
+Caution:Whileremoteviewingissafe,itisnotadvisabletouseMAUIBrowsertochangecertain
+settings,inparticularremotecontrolCVARs,overaremoteconnection.Makethesechanges
+locallyontheoscilloscope.
+RefreshingtheDisplay
+IfyouchangethestateoftheoscilloscopeinanywaywhileconnectedtoMAUIBrowser,selectthe
+icontorefreshtheobjecthierarchy.Settingschangedontheoscilloscopemustbe"pulled"intotheMAUI
+Browserdisplay.
+Disconnecting
+Onlyoneconnectionmaybemadeatonetime.Todisconnect,chooseFile>CloseSession.
+UsethewindowcloseboxorchooseFile>ExittoclosetheMAUIBrowserapplication.
+3-5
+
+----- 第 60 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ViewingMAUIObjects
+Thenumberofdifferentobjectsinacompleteoscilloscopesetupisobviouslyverylargeandchangeswith
+theinstallationofnewfirmwareandsoftwareoptions.MAUIBrowserhelpsyouquicklyfindtheobject
+pathandvalidvaluescorrespondingtoanyinstrumentcontrol.
+TheobjecthierarchyexposedbyMAUIinstrumentsisrootedattheApplicationobject.Thisobjectis
+alwaysnamedLeCroy.XStreamDSO.
+Allmajorinstrumentsubsystemsareavailablefromthisobject,andmanyofthesesubsystems
+themselvesmaybebroken downfurther.Asnewsoftwareoptionsareactivatedontheoscilloscope,
+thesesubsystemsareaddedtotheApplicationobjecthierarchy.
+AnythingexposedbytheobjecthierarchycanbecontrolledorreadbackviaAutomation.
+ObjectHierarchy
+Theleft-handpaneoftheMAUIBrowserwindowcontainsan
+expandablenavigation"tree."Theobjecthierarchyistiered;for
+example,theAcquisitionsubsystemiscomprisedofavarietyof
+objects,eachwithchildobjects.
+Theright-handpaneshowstheControlVariablesorProperties
+relatedtotheobjectselectedfromthenavigationtree.
+ControlVariables
+ThemajorityoftheitemsyouwillfindasyouexpandthenavigationtreeareControlVariables,orCVARs
+forshort.TheseareshownasyellowfoldersintheMAUIBrowserwindow.
+CVARsprovideaninterfaceforaccessingscopeconfigurationsandforexecutingmethodsandactions.
+WhenviewedfromMAUIBrowser,manyCVARsappeartobeproperties,butareactuallyobjectswith
+propertiessuchasName, Value,andType,tonameafew.
+3-6
+
+----- 第 61 页 -----
+
+Part3:AutomationProgrammingReference
+CVARpropertiesshownintheright-handpaneofMAUIBrowserwindow.
+TheRange/Helpstringcolumnprovidesshortforminformationaboutthepossiblevaluesthevariablecan
+take.
+TheFlags/Statuscolumncontainscodedinformationabouttheobject.
+Flag/Status Indicates
+R ForCVARs:Readonly.
+ForProperties:Readable.
+W ForCVARs:Wrapping,incrementingthevaluewill"wraparound"frommax.tomin.,orviceversa.
+ForProperties:Writable.
+H Hidden:notvisibleonanyGUIdialogormenu.
+g Grey:appears"greyedout"onGUIindicatingitis
+disabledornotsettable.
+B Backwards:incrementingtheCVARvaluewilldecreasethevalue.
+N Nonvolatile:valueissavedintheapplication's"nonvolatile"settingsfile.TheseCVARsaretypicallyuser
+preferencesandarenotaffectedbyRecallDefaultSetup.
+A AutoRepeat:theCVARactionshouldberepeatedifabuttonontheGUIishelddown.
+M MultiLine:theCVARvaluemayberenderedon
+multiplelinesoftheGUI.
+L LateUpdate:theCVARvaluemaybeupdatedwhenitisread/refreshed.
+3-7
+
+----- 第 62 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ActionsandMethods
+BesidestheconfigurationCVARs,AutomationalsoprovidesforActionsthatmaybeappliedatthe
+applicationorsubsystemlevel.
+Forexample,toclearsweepsforallsubsystems,theAutomationcommandwouldbe:
+app.ClearSweeps
+MethodsaresimilartoActionsbutmaytakeparametersfromthecallerandmaypossiblyreturnavalue,
+whereas,Actionsdonotsupportanyparametersorreturnvalues,althoughtheymaysupportinitialization
+arguments.AnexampleofaMethodisapp.Acquisition.Acquire,whichtakesboth"timeout"and"force
+trigger"arguments.
+ResultInterfaces
+ThegreyfoldersareResultInterfaces.ResultInterfacescontainmorethanjustthebasicresultsof
+oscilloscopeoperations,suchaswaveformdataandmeasurementvalues;theyincludeinformation
+abouthorizontalandverticalresolution,eventtimes,numberofsweeps,histogrampeaks,etc.TheType
+columnoftheMAUIBrowserwindowshowstheresultinterfacetype.
+Collections
+Collections,whichareshownaspinkfoldersinMAUIBrowser,containsetsofsimilarobjects.For
+example,theapp.Acquisition.Channelscollectioncontainsinputchannelobjects(C1,C2,etc.).Objectsin
+Collectionsfoldersaredynamicallylinkedtothoseintheyellowfolders;changingthevalueineitherplace
+changesiteverywhere.Collectionsubfoldersarereferencedbyindexingthecollectionnamewiththe
+subfoldername.
+3-8
+
+----- 第 63 页 -----
+
+Part3:AutomationProgrammingReference
+CopyingfromMAUIBrowser
+Whenavariableisselectedfromtheright-handpane,themessagebaratthebottomofthescreenshows
+thefullobjectpathincorrectnotationforsendingasanAutomationcommand:
+Right-clickandchooseCopyPath.Thetextisautomaticallyplacedintheclipboard,fromwhereitcanbe
+easilycopiedintoAutomationprograms.
+3-9
+
+----- 第 64 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+VBSCommand
+ForuserswhowishtoharnessthepowerofAutomation,butarecurrentlyusing“traditional”GPIBremote
+controlcommands,thereisasolution:theVBScommand.Thiswillenableyoutocontroltheadvanced
+featuresofMAUIoscilloscopesthatarenotsupportedbyGPIBcommands.
+VBSisalsousedtoencapsulateAutomationcommandswheneverthereisaremoteconnectiontothe
+oscilloscopeotherthanDCOM(ActiveDSO,VISAdriver,etc.).
+Belowaretwo,equivalentmethodsforsettingtheV/DivofChannel1.ThefirstexamplesusesaGPIB
+command,VDIV;thesecondusestheVBScommand:
+C1:VDIV0.5
+VBS'app.Acquisition.C1.VerScale= 0.5'
+Initsqueryform,thefollowingareequivalent:
+C1:VDIV?
+VBS?'return= app.Acquisition.C1.VerScale'
+Note:Forthequeryform,including'return=object' isimportant,asitindicateswhichvalueyou
+wishtobereturnedtothecaller.
+TheVBSCommand/QueryisdocumentedinmoredetailintheGPIBcommandreference.
+3-10
+
+----- 第 65 页 -----
+
+Part3:AutomationProgrammingReference
+ControlVariables
+Traditionally,propertiespresentedtoanAutomationclientaresimple“variables”withtypessuchas
+Integer(int),String(BSTR),FloatingPoint(single,double),etc.However,onMAUIoscilloscopes,CVARs
+areanextensionofthetraditionalAutomationpattern,withoutaffectinghowtheyappeartomost
+Automationclients(seethetopiconearly/latebinding).ThisenablesanAutomationclienttonotonlyset
+andquerythecurrentvalueofacontrol,butalsotoqueryitslimits.Thisisusefulinthegenerationof
+instrument-independentapplications,orapplicationsthatpresentoscilloscopecontrolswherelimitsare
+requiredthroughagraphicaluserinterface.
+SettingControlVariables
+AllCVARshavethedefaultpropertyofValue.ACVARsuchasVerScale(Volts/Div)maybesetinVBSas
+follows:
+app.Acquisition.C1.VerScale= 0.5
+Itscurrentvaluemaybequeriedwith:
+CurrentValue= app.Acquisition.C1.VerScale
+Thefollowingmethodsarealsosupported(forthisCVARtype):
+doubleGetAdaptedValue
+SetRequestedValue(double)
+doubleGetRequestedValue
+doubleGetDefaultValue
+doubleGetGrainValue
+doubleGetMaxValue
+doubleGetMinValue
+Forexample:
+app.Acquisition.C1.VerScale.SetRequestedValue(1.0)
+minValue= app.Acquisition.C1.VerScale.GetMinValue
+maxValue= app.Acquisition.C1.VerScale.GetMaxValue
+ThesamplefileD:\Scripts\Automation\ExampleCvarTypes.vbscontainscodeforqueryinganddisplaying
+CVARpropertiesforeachtypeofcontrolvariable,includingthestatusflags.Commandssuchasthese
+areusefulforascertainingthestateoftheoscilloscopepriortochangingsetupsortakingotheractions.
+Note:Inthesamplefile,afterinstantiatingtheappobject,theprogrammingvariable"acq"wasset
+totaketheplaceof"app.acquisition"inallcommands,andothervariablesaresetatthebeginning
+ofeachtype,dependingonthechildobjectsbeingsubstituted(e.g.,acqHorzreplaces
+app.Acquisition.Horizontal).Thisistosimplifycoding.
+3-11
+
+----- 第 66 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ControlVariableTypes
+TheTypecolumnoftheMAUIStudioBrowserwindowshowsthecontroltype.Controlvariabletype
+designationsareasfollows:
+Type Definition
+Action Action(noargumentsorvalue)
+Bool Booleanvaluegivenas{ false|true}or{ 0|-1}
+Color RGBvaluetriplex"R,G,B"
+Double Double-precisionfloatingpointvalue
+DoubleLockstep Double-precisionfloatingpointvaluelockedtoanon-linear(e.g.,1,2,5)steppedsequence.
+Enum Listvalue.Alllistsbeginwiththezeroelement.Valuemaybespecifiedbynameinquotesorpositionin
+thelist,forexample:
+app.Acquisition.Horizontal.SampleMode=0
+app.Acquisition.Horizontal.SampleMode="RealTime"
+FileName LegalDOSpath
+Integer 32-bitIntegervalue
+String Stringvalue
+PropertiesandMethods
+Thepropertiesandmethodsavailableforeachcontrolaretype-specific.Belowarethemostcommon:
+Type PropertiesandMethods
+Integer VARIANTValue
+Value(VARIANT)
+intGetAdaptedValue
+SetRequestedValue(int)
+intGetRequestedValue
+intGetDefaultValue
+intGetGrain
+intGetMax
+intGetMin
+Increment(int)
+3-12
+
+----- 第 67 页 -----
+
+Part3:AutomationProgrammingReference
+Type PropertiesandMethods
+Double VARIANTValue
+Value(VARIANT)
+doubleGetAdaptedValue
+SetRequestedValue(double)
+doubleGetRequestedValue
+doubleGetDefaultValue
+doubleGetGrainValue
+doubleGetMaxValue
+doubleGetMinValue
+Increment(int)
+DoubleLockstep SeeDouble
+Enum VARIANTValue
+Value(VARIANT)
+intGetAdaptedValue
+SetRequestedValue(int)
+intGetRequestedValue
+intGetDefaultValue
+intGetMaxintGetMin
+intGetNumberOfValueStates
+Increment(int)
+BSTRGetRangeStringScreen
+BSTRGetRangeStringRemote
+String VARIANTValue
+Value(VARIANT)
+intGetMaxLength
+BSTRGetRequestedValue
+BSTRGetAdaptedValue
+SetRequestedValue(BSTR)
+Bool VARIANTValue
+Value(VARIANT)
+BOOLGetAdaptedValue
+BOOLGetRequestedValue
+BOOLGetDefaultValue
+Set
+Clear
+Action ActNow
+3-13
+
+----- 第 68 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ResultInterfaces
+Tip:Thesamplescriptsforexposingresultsthatarereferredtointhissectionareinstalledwith
+XStreamDSOv.8.5.x.x.andlater.
+"Out.Result"propertiesareresultsofthelastcompletedacquisition.Theyarenotaffectedifothercontrols
+arechangedafterthatacquisitionwascompleted.Thisdistinctionbetween"Out.Result"propertiesand
+othercontrolsismostimportantwhenthetriggermodeisSingleorStopped.Treat"Out.Result"properties
+asread-only.
+Note:Althoughyoucanwritethepropertiesofaresult,itisnotadvisable,astheresultproperties
+anddatawillbeupdatedonnextacquisition.
+Caution:ItishighlyrecommendedthatyouSTOPacquisitionsbeforeaccessingresultdata.Most
+remotecontrolproblemsarecausedbyfailuretofollowthispractice.
+SeveraloftheOut.Resultpropertiesmentionthe"frame":thisisthetermusedtodescribethevisible
+portionofthetrace,whichisgenerallysmallerthantheacquiredwaveform.Theframecouldbeused,for
+example,todisplaya500ptwindowontoa1Mpttrace,orshowthecenter10mVofa100mVtrace.
+Severalproperties,mostsignificantlytheDataArrayobject,areVariantscontainingeitheraone-ortwo-
+dimensionalarray.DimensionthetargetvariableasaVarianttype,andassigntheDataArraypropertytoit.
+SeeDataArrayforexamplesofitsusewithineachoftheResultinterfaces.
+ResultInterfaceTypes
+ResultInterfacetypedesignationsareasfollows:
+Type Definition
+Digital Digital(bi-state)waveformgeneratedbymixed-signaloscilloscope.
+Histogram Histogramtrace.
+Param IndividualresultsandresultarraysformeasurementparametersandPass/Failtestqualifiers.
+Persist Eyediagramsorotherwaveshapesthataretheresultofoverlayingmultiplewaveforms.
+Table Tabularresultsprimarilyusedinconjunctionwiththevariouslow-speedserialdecodingoptions.
+Waveform BasicVoltagevs.Timewaveforms.
+XY XYwaveforms.
+Digital
+TheDigitalinterfaceisfoundwhenusingamixed-signalinputtogeneratedigital(bi-state)waveforms.
+ThesewaveformsarecontainedintheDigitalntracename,wherex=1,2,3etc.EachDigitalntraceisa
+busthatmaycontainmultipledigitallines,withamaximumnumberdependentonthecapabilitiesofthe
+mixed-signaloscilloscopeoption.ThekeypropertyintheDigitalinterfaceistheDataArray,whichisa2D
+arraycontainingthevalueofeachsampleofeachdigitallineinthebus.
+3-14
+
+----- 第 69 页 -----
+
+Part3:AutomationProgrammingReference
+ExamplepathstoDigitalResultinterfaces:
+app.LogicAnalyzer.Digital1.Out.Result
+app.LogicAnalyzer.Digital2.Out.Result
+Histogram
+TheHistograminterfaceisusedforallhistogramtraces.Histogramscanbeconfiguredonmost
+oscilloscopesasamathfunction(Fn).Histogramsarealsousedinvariousanalysismodes,especiallyon
+SerialDataAnalyzers,wheretheHTIEtraceisthesourcedataforthealgorithmtocalculateTotaljitter
+(Tj).ThekeypropertyisBinPopulations,whichisa1Darrayofthebinpopulations.
+ExamplepathstoHTIEResultinterfaces:
+app.Math.F1.Out.Result
+app.SDA.Htie.Out.Result
+Note:ThisexampleassumesthatmathfunctionF1issetupasaHistogram.
+Param
+TheParameterinterfaceisusedintheMeasurementandPass/Failsystemstoholdbothindividual
+resultsandresultarrays.ThekeypropertiesfortheParameterinterfaceareValueandValueArray.Value
+holdsthelastmeasurementorP/Fresult,whileValueArrayholdsallmeasurementstakenforthelast
+acquisition.Thisisanimportantdistinctiontorememberdependingonthemeasurementassignedtothe
+parameter,asthevaluesmayormaynotbethesame.Forexample:ifthesourcewaveformis1000
+cyclesofsquarewave,thentheFrequencymeasurementwillhave1000valuesintheValueArrayand
+Valuewillbethesameasthe1000th(last).Bycontrast,MinorMaxmeasurementsonthatsame
+waveformwillonlyhaveonevalueintheValueArray,andValuewillbethatsamevalue.
+ExamplepathstoParamResultinterfaces:
+app.Measure.P1.Out.Result
+app.Measure.P1.Sdev.Result
+app.Measure.Measure("P1").Out.Result
+Persist
+ThePersistinterfaceismostoftenfoundwhenusingsoftwareoptionsthatcreateeyediagramsorother
+waveshapesthataretheresultofoverlayingmultiplewaveforms.(Notethatthisdoesnotapplytothe
+Persistencedisplaymode.)ThekeypropertyinthePersistinterfaceistheDataArray,whichisa2Darray
+containingthepopulationofeachpixelofthepersistancemap.
+ExamplepathstoPersistResultinterfaces:
+app.SDA.Eye.Out.Result
+app.SDA.Eye2.Out.Result
+3-15
+
+----- 第 70 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Table
+Tableresultsinterfacesareprimarilyusedinconjunctionwiththevariouslow-speedserialdecoding
+options,suchasCAN,I2C,SPI,UART,etc.Whenthetableisdisplayed,theuserhasaccesstoinformation
+aboutthemessagesdecodedforthelastacquisition.RetrievingdatafromtheTableinterfaceinvolves
+someknowledgeofthetable’sstructure,intermsofthecolumnsthataredisplayedandthecelltypes.
+TheCellTypeandCellValuearethekeypropertiestousetoretrievethetable’sdata.Seetheinformationin
+theCellValuepropertyformoreinformation.
+ExamplepathstoTableResultinterfaces:
+app.SerialDecode.Decode1.Out.Result
+app.SerialDecode.Objects("Decode2").Out.Result
+Waveform
+WaveformResultsinterfacescanbefoundwherevertherearebasicVoltagevs.Timewaveforms.
+Examplesincludechannel(Cn),memory(Mn),mathfunction(Fn)andzoom(Zn)traces,aswellasothers
+thatareassociatedwithspecificanalysispackages,suchasthePowerwaveformusedinthePAS
+package.Ingeneral,thesewaveformsareusualvoltagevstime,unlessacurrentprobeorothermethod
+ofchangingtheverticalunits(e.g.,theRescaleMathfunction)isemployed.Thekeypropertyinthe
+WaveforminterfaceistheDataArray,whichisa1Darraycontainingthevalueofeachsampleinthe
+waveform.
+ExamplepathstoWaveformResultinterfaces:
+app.Acquisition.C1.Out.Result
+app.Acquisition.Channels("C1").Out.Result
+app.Math.F2.Out.Result
+app.Zoom.Z3.Out.Result
+app.SDA.Btub.Out.Result
+Note:TraceslikeF2andZ3canholdplots,likehistograms,whichdonotusetheWaveform
+interface.
+XY
+TheXYinterfaceisusedonXYwaveforms.UserscancreateanXYwaveformbyselectingthisoptionin
+theDisplaySetup…screen.XYwaveformsallowyoutoseehowthesignalononechannelmovesin
+relationtoanother.ThekeypropertyistheDataArray,whichisa2Darraythatreturnsthevoltagesonthe
+XandYsourcesforeachXYpair.
+ExamplepathtotheXYResultinterface:
+app.Math.XY.Out.Result
+3-16
+
+----- 第 71 页 -----
+
+Part3:AutomationProgrammingReference
+ResultVariableTypes
+Type Definition
+Integer 16-bitsignedinteger
+Long 32-bitsignedinteger
+Double 8-bytefloatingpointtype
+String Arrayofcharacters
+Object Objectwithitsowninterface
+Variant Variablethatisdimensionedwithoutindicatingavariabletype
+ExposingWaveforms
+Waveformdataisexposedasasimplearrayusingapp.Subsystem.Wfmn.Out.Result.Samples.The
+SubsystemandWfmncanbeanyobjectdefinedwithinthehierarchythatproducesawaveformtrace,
+suchasAcquisition.Cn,Math.Fn,Memory.Mn,etc.
+ThesamplescriptD:\Scripts\Automation\ExampleWaveform.vbsgetsthesamplepointsinanalogtrace
+C1byaccessingapp.Acquisition.C1.Out.Result.Samplesanddumpsthemintoatextfile.
+DigitalWaveforms
+Digitalwaveformsaretwo-dimensionalarrays,theDataArraybeingthesamplesandtheTimeArraybeing
+thetimeassociatedwiththesamples.Aseachdigitalbusmayhaveup-to-18lines(D0-D17),the
+DataArrayhasatleasttwocolumns,beingtheSampleNumberandtheDigitalLinefromwhichitwas
+taken.
+Eachsamplehasatime,butitisnoteasilycalculatedfromthetimebase,aswithanalogwaveforms,as
+thedigitalpulsesoneachlinemayhavedifferentwidths.Toaccuratelyexposeadigitalwaveform,you
+mustaccessbotharraysandcorrelatethetimeswiththesamplesfromeachline.
+ThesamplescriptD:\Scripts\Automation\ExampleDigital.vbsgetsthearraysinadigitaltracethathas
+beenstoredinM1,determinesthenumberoflinesinthebus,correlatesthetimeswiththesamples,and
+dumpstheresultsinatextfile.
+Tip:TheDigitalentryfromD:\Scripts\Automation\AutomationExamplesLabNotebook.lnbcopiesa
+3-linedigitaltraceintoM1.Thiscanbeusedtodemonstratethesamplescript.
+SequenceModeWaveforms
+InMAUIfirmwareversion7.7.x.xandlater,thesegmentindexissupportedasanargumenttothe
+Out.Resultproperty.Forexample,thefollowingcommandsreturnresultsforsegment1oftherespective
+waveform(whichisaSequenceModeacquisition):
+setmyResult= app.Acquisition.C1.Out.Result(1)
+setmyResult= app.Math.F1.Out.Result(1)
+Zero(0)ornoargumentreturnstheresultrelatedtothelastsegment.Asegmentindexgreaterthanthe
+totalnumberofsegmentsalsoreturnstheresultrelatedtothelastsegment.
+3-17
+
+----- 第 72 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WaveformStatusProperty
+ThewaveformresultincludesaStatusproperty(bit-field)thatreflects‘warning’and‘error’conditions.
+Thereisnobitfor"valid."
+Bit# Value Description
+0 0x0000000000001 Invalid
+1 0x0000000000002 Overflow
+2 0x0000000000004 Underflow
+3 0x0000000000008 ContainsUndefinedValues
+4 0x0000000000010 LessThan
+5 0x0000000000020 GreaterThan
+6 0x0000000000040 NotAPulse
+7 0x0000000000080 NotCyclic
+8 0x0000000000100 Averaged
+9 0x0000000000200 UnlockedPLL
+10 0x0000000000400 OtherError
+11 0x0000000000800 OtherWarning
+12 0x0000000001000 OtherInfo
+32 0x0000100000000 InputsIncompatible
+33 0x0000200000000 AlgorithmLimitsReached
+34 0x0000400000000 BadDefinition
+35 0x0000800000000 TooFewData
+36 0x0001000000000 TooManyData
+37 0x0002000000000 UniformHorizIntervalRequired
+38 0x0004000000000 BadUnits
+39 0x0008000000000 DataRangeTooLow
+40 0x0010000000000 DataUndersampled
+41 0x0020000000000 PoorStatistics
+42 0x0040000000000 SlowTransitionTime
+43 0x0080000000000 DataResampled
+44 0x0100000000000 DataInterpolated
+45 0x0200000000000 MeasurementScaleImprecise
+46 0x0400000000000 NoDataAvailable
+47 0x0800000000000 SomeCummulatedResultsInvalid
+48 0x1000000000000 InsufficientMemory
+49 0x2000000000000 ChannelNotActive
+50 0x4000000000000 UseStatusDescription
+3-18
+
+----- 第 73 页 -----
+
+Part3:AutomationProgrammingReference
+CopyingWaveformDatatoExcel
+ThisExcelmacroreadsthenumberofsamplesinawaveformandplacesitincellB1ofthespreadsheet,
+thenreadsallwaveformsamplevaluesandcopiesthemintocolumnA(A1...Axx).Theexampleiscoded
+inVBA,andwouldbelaunchedbyabuttoninaspreadsheet.
+SubButton1_Click()
+' Connecttotheoscilloscope
+Setapp= CreateObject("LeCroy.XStreamDSO")
+' QuerythenumberofsamplesinC1andstoreincell"B1"
+numSamples= app.Acquisition.C1.Out.Result.Samples
+Cells(1,2)
+Value= numSamples
+' Accesswaveformdataarray,fillfirstcolumnofthespreadsheet
+wave= app.Acquisition.C1.Out.Result.DataArray
+Fori = 0 TonumSamples- 1 
+Cells(i+ 1,1).Value= wave(i)
+Nexti
+EndSub
+Note:Ensurethattherecordlengthis<64ksamples,sinceExcelhasalimitonthenumberof
+rowsinaspreadsheet.Ideally,startexperimentingwithshort(500point)records.
+StoringWaveformDatainaTextFile
+ThisVBScriptexampleisverysimilartotheVBAmacroexampleabove,themostnotabledifferencebeing
+theuseofastandardsystemActiveXcontrol,Scripting.FileSystemObject,toenablethecreationoffiles
+containingwaveformdatainASCIIformat.
+' Connecttotheoscilloscope
+Setapp= CreateObject("LeCroy.XStreamDSO")
+' CodetotakeacquisitionandgenerateFFTinF1
+. . .
+' ReadouttheFFT
+numSamples= app.Math.F1.Out.Result.Samples
+' WritetheFFTpowerspectrumintothefile,samplebysample
+Setfso= CreateObject("Scripting.FileSystemObject")
+SetMyFile=fso.CreateTextFile("c:\XStreamFFT.txt",True)
+wave= app.Math.F1.Out.Result.DataArray
+Fori = 0 TonumSamples- 1
+MyFile.WriteLine(wave(i))
+Next
+' Cleanup
+MyFile.Close
+Setfso= Nothing
+Setapp= Nothing
+3-19
+
+----- 第 74 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ExposingMeasurements
+MeasurementresultsarereadsimilartoWaveforms,usingtheappropriateapp.Measure.Pn.Out.Result
+object.'Value'isthedefaultargumentofallOut.Resultobjectsanddeliversthelastmeasuredvalueinthe
+acquisitionforthatparameter.
+TheoscilloscopefolderD:\Scripts\Automation\containsexample.vbsfilesforreadingmeasurement
+resultsfromvariousapplicationtablesintoatextfileofthesamename.Youcanrunthesescriptsasisto
+querythedatainthetable,orusethemasthebasisforyourownscripts.
+ExampleTableMeasure.vbsreadstheMeasureresultstable.
+ExampleMeasureSegs.vbsreadstheMeasureresultstableforaSequenceModeacquisition.
+Tip:Stopacquisitionbeforerunningthescripttostabilizethetabledata.
+AlsoseeD:\Scripts\TableExport.lss.
+Statistics
+Inadditiontothelastmeasuredvalue,statisticsareavailableforeachparameterusingtwodifferentcalls:
+result= app.Measure.P1.mean.Result.Value
+result= app.Measure.P1.max.Result.Value
+result= app.Measure.P1.min.Result.Value
+result= app.Measure.P1.num.Result.Value
+result= app.Measure.P1.sdev.Result.Value
+result= app.Measure.P1.Statistics("mean").Result.Value
+result= app.Measure.P1.Statistics("max").Result.Value
+result= app.Measure.P1.Statistics("min").Result.Value
+result= app.Measure.P1.Statistics("num").Result.Value
+result= app.Measure.P1.Statistics("sdev").Result.Value
+ThedatausedtodisplaytheHisticonisavailableusingthe“histo”statistic.Forexample:
+Setapp= CreateObject("LeCroy.XStreamDSO")
+bins= app.Measure.P5.Statistics("histo").Result.BinPopulations
+numBins= app.Measure.P5.Statistics("histo").Result.bins
+Fori = 0 TonumBins- 1
+Cells(i+ 1,4).Value= bins(i)
+NextI
+Setapp= Nothing
+3-20
+
+----- 第 75 页 -----
+
+Part3:AutomationProgrammingReference
+MeasurementsonSequenceModeWaveforms
+InMAUIfirmwareversion7.7.x.xandlater,thesegmentindexissupportedasanargumenttothe
+app.Measure.Pn.Out.Resultproperty.Forexample,thecode:
+setmyResult= app.Measure.P1.Out.Result(1)
+returnstheresultofthemeasurementonsegment1ofthesourceofparameterP1.
+Zero(0)ornoargumentreturnstheresultrelatedtolastsegment.Asegmentindexgreaterthanthetotal
+numberofsegmentsalsoreturnstheresultrelatedtolastsegment.
+ThefollowingcodefromthesamplefileD:\Scripts\Automation\ExampleMeasureSeg.vbsloopsovereach
+parameterspecified,returningtheresultforeachsegment:
+numSegs= 10
+foriSeg= 1 tonumSegs
+setp1Result= app.Measure.P1.Out.Result(iSeg)
+setp2Result= app.Measure.P2.Out.Result(iSeg)
+setp3Result= app.Measure.P3.Out.Result(iSeg)
+outputFile.WriteiSeg& ","& p1Result.Value& ","& p2Result.Value& ","&
+p3Result.Value& ","& VbCrLf
+next
+CopyingMeasurementstoExcel
+ThefollowingExcelmacroenablestheStandardVerticalparameters,thentransferstheirvaluesintocells
+C1-C8.Aswritten,thisVBAexamplewouldbelaunchedbyabuttoninaspreadsheet,butthecodeto
+enableandtransferthemeasurementdatacouldbetiedtoanycontrolorincludedinascript.
+' CreateButtoninExcel
+SubButton1_Click()
+' Connecttotheoscilloscope
+Setapp= CreateObject("LeCroy.XStreamDSO")
+' EnableStandardVerticalParameters
+app.Measure.MeasureMode= "StdVertical"
+' Transferthe8 parametervaluesintothespreadsheet
+Cells(1,3).Value= app.Measure.P1.Out.Result.Value
+Cells(2,3).Value= app.Measure.P2.Out.Result.Value
+Cells(3,3).Value= app.Measure.P3.Out.Result.Value
+Cells(4,3).Value= app.Measure.P4.Out.Result.Value
+Cells(5,3).Value= app.Measure.P5.Out.Result.Value
+Cells(6,3).Value= app.Measure.P6.Out.Result.Value
+Cells(7,3).Value= app.Measure.P7.Out.Result.Value
+Cells(8,3).Value= app.Measure.P8.Out.Result.Value
+' Cleanup
+Setapp= Nothing
+EndSub
+3-21
+
+----- 第 76 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ExposingTableData
+Tablesaredataarraysthatmaybeone-ortwo-dimensional,andthisisimpossibletotellfromlookingat
+thetableasitispresentedinMAUI.
+ManytableshaveVariantcelltypes,whichmaycontainothertablesthatalsoneedtobeindexedinorder
+toseethecorrectvalues.Forexample,wereyoutosendthissimpleVBSquerytogetresultsfromthe
+SpectrumAnalyzertable:
+vbs?'return=app.SpecAnalyzer.SpecAnTable.Out.Result.CellValue(3,2)'
+(3,2)representsthetable(row,column)toreturn,buttospecificallyreturnthefrequencyvalue,you'dhave
+tosendsomethinglike:
+vbs?'return=app.SpecAnalyzer.SpecAnTable.Out.Result.CellValue(3,2)(0,0)'
+Thefirstindexindicatestherowoftabledatawanted(3)fromtheFrequencycolumn(2),butthatsingle
+cellcontainsanarrayoftheAmplitudevalue(0,0),StartFrequency(1,0)andStopFrequency(2,0).You
+havetoindexfirsttheprincipletablethenthearrayinsideaparticularcell--theextra(0,0)--togetthe
+amplitudevalue.
+Thetablethatpresentstheresultsofanyserialdecodersoftware,app.SerialDecode.Decoden.Out.Result,
+isatablewithatableineachcellthatyouneedtoindexat(line,col).However,itonlyhasanumericvalue
+in(0,0)andthatneedstobeindexed,aswell.
+Note:IfthedatainacelloftheSerialDecoderResulttableisastring,thereisno
+(datatype,dataidx);ifitisanumber,thereisanarraytobeindexedanditisalwaysat(0,0).
+TheSerialDecodetablepresentsanumberofchallengesinexposingresults.Seethesamplescript
+D:\Scripts\Automation\ExampleTableSerialDecode.vbs,whichiteratesovertheSerialDecodetableand
+dumpsthedatatoatextfile.
+Tip:Toseehowthisworks,recallD:\Scripts\Automation\AutomationExamplesLabNotebook.lnb
+andopenTableSerialDecode.ThiscopieswaveformsintoM1andM2andappliestheUSB2
+decoder.
+HandlingDifferentCellTypes
+Therearefourcell"types"thatmayappearinatable.Eachtypemustbehandleddifferentlyincode.
+l CellType0isaVariant(asintheSpectrumAnalyzerandSerialDecodertables).Thesecellsmay
+holdthingssuchasothertablearrays,whichmaybeeitherone-ortwo-dimensional.
+l CellType2isaParamresult(asintheMeasuretable).Thesearecellswithsinglevalues.
+l CellType3isaBooleanresult.Thesearecellscontainingsingle,Booleanvalues,either1|0or
+True|False.
+l CellType4isthehisticoncelloftheMeasuretable.Thisnotcommonlyused.
+3-22
+
+----- 第 77 页 -----
+
+Part3:AutomationProgrammingReference
+EachoftheD:\Scripts\Automation\ExampleTable*.vbsscriptscontaincodeusedtoiterateoveratableto
+determineitsactualstructureandcelltypes.Werecommendthatyouadaptthiscodetoyourprograms
+wheneveraccessingresultsfromtableobjects.
+Tip:ThefileD:\Scripts\TableExport.lssalsoincludescodefordeterminingwhetherCellType0
+cellscontainanarrayandusestheappropriatemethodforreadingthedata.
+ErrorHandlingforTableResults
+ErrorhandlingisespeciallyimportantfortableswithParameterandBooleancelltypes,asanerroris
+generatedifacellhasnodata.ThefollowingsnippetshowstheVBSfunction"onerrorresumenext"
+appliedtotabledata:
+' gettheParameterorBooleanValueproperty(handleerrorcaseifnodatainthe
+value)
+strThisVal= "-"
+onerrorresumenext
+setcellVal= myResult.CellValue(rowIdx,columnIdx)
+strThisVal= cellVal.value
+onerrorgoto0 ' ResetErrorhandlingstate
+strRowData= strRowData& strThisVal
+DiscoveringNumberofArrayDimensions
+Youcandiscoverthenumberofdimensionsinatablearraybyaddingthefollowinghelperfunctionto
+VBScripts:
+functiongetArrayDims(arr1)
+dimensions= 0
+ifIsArray(arr1)then
+onerrorresumenext
+Err.clear
+dowhileErr.number= 0
+dimensions= dimensions+ 1
+UBoundarr1,dimensions
+loop
+Err.clear
+dimensions= dimensions- 1
+endif
+getArrayDims= dimensions
+endfunction
+Tip:Thisfunctionappearsattheendofthesamplescripts
+D:\Scripts\Automation\ExampleTable*.vbs,fromwhichyoucancopyit.
+Note:ThisfunctionwillnotworkinVBAscripts.
+3-23
+
+----- 第 78 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+UsingJointoReadfromTables
+TheVBSqueryJoincanbeusedtoreadtablevaluearraysintoacomma-delimitedlistofvalues.For
+example,sendingthefollowingcommandfromtheWaveStudioterminalreturnsalistofallthespecified
+valuesforthemeasurementparameterP2:
+VBS?'return=join(app.Measure.P2.Out.Result.ValueArray(-1,0,1),chr(44))
+ExampleScriptsforReadingfromTables
+TheoscilloscopefolderD:\Scripts\Automation\containsthefollowingexample.vbsfilesforreadingdata
+fromvariousapplicationtablesintoatextfileofthesamename.
+ExampleTableHistory.vbsreadsfromtheHistory(Mode)table
+ExampleTableMeasure.vbsreadsfromthe(Parameter)Measureresultstable
+ExampleTablePassFail.vbsreadsfromthePass/Failresultstable
+ExampleTableSerialDecode.vbsreadsfromthedecoderresultstable
+ExampleTableWaveScan.vbsreadsfromtheWaveScanresultstable
+Youcanrunthesescriptsasistoquerythedatainthetable,orusethemasthebasisforyourown
+scripts.
+Tip:Stopacquisitionbeforerunningthescripttostabilizethetabledata.
+AlsoseeD:\Scripts\TableExport.lss.
+3-24
+
+----- 第 79 页 -----
+
+Part3:AutomationProgrammingReference
+VBSCommandstoReadfromSpectrumAnalyzer
+ThefollowingareexamplesofcommandsthatcanbesenttoreadtheSpectrumAnalyzertable.
+RemoteCommand WhatIsRead
+vbs?'app.specanalyzer.specantable.out.result.rows'Numberofrows,includingheader
+row
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(0,0)'
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(0,1)'
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(0,2)'
+FirstthreecolumnsofRow0
+(theheaderrow)inthetable
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(1,1)' Displayed(rounded)frequencyin
+Row1,withunits
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(1,2)
+(1,0)' PrecisefrequencyinRow1,
+withoutunits
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(1,2)
+(0,0)' PrecisemagnitudeinRow1,
+withoutunits
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(4,2)
+(1,0)'
+vbs?'app.specanalyzer.specantable.out.result.cellvalue(4,2)
+(0,0)'
+Precisefrequencyandmagnitudein
+Row4,withoutunits
+3-25
+
+----- 第 80 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Synchronization
+Synchronization—or,morespecifically,knowingwhentoreadresults—iscriticalwhenoperatingadigital
+oscilloscoperemotely(itisjustasimportantforAutomationasforGPIBremotecontrol).Thisis
+especiallytruewhenworkingwithanoscilloscopethatusesamultithreadedarchitecture.
+AclassicproblemseeninthemajorityofcustomapplicationsthatcontrolTeledyneLeCroyoscilloscopes
+isthatthescopeislefttofree-runinAuto-triggermode,whilesimultaneously(andasynchronously)
+resultsarequeried.
+Severaltechniquescanbeusedtoguaranteethesynchronizationandconsistencyofresults,whether
+theybewaveformorparametermeasurements,whenusingtheAutomationinterface.
+SynchronizingTriggersUsingTimeouts
+TheAcquiremethodarmstheacquisitionsystemandwaitsauser-specifiedtimeforatrigger.The
+secondargument,anoptionalBoolean,specifieswhetherornottoforceatriggerthenreturnthevalueifa
+triggerdoesn’tarrivewithintheallottedtimeperiod.
+Note:TheAcquiremethodisequivalenttosettingtheTriggerModeto“Single”,thenexecuting
+WaitUntilIdle.ThereturnoftheBooleancausesthemethodtofunctionlogicallylikeaqueryand
+requiresittobereadintoavariable,whetherornotthereturnedvalueisactuallydisplayed.
+ThefollowingExcelVBAmacroexampledemonstratestheuseofatimeout,ausefultechniquefor
+ensuringsynchronization.
+SubButton1_Click()
+' Connecttotheoscilloscope
+Setapp= CreateObject("LeCroy.XStreamDSO")
+' EnableStandardVerticalparameters
+app.Measure.MeasureMode= "StdVertical"
+' Stopthefree-runningtriggerandtakea singleacquisition
+' Usea 10secondtimeoutincasetheacquisitionisnotcomplete
+app.Acquisition.TriggerMode= "Stopped"
+DimAcquiredasBoolean
+Acquired= app.Acquisition.Acquire(10,True)
+' Readthefirstparametervalueandtransferintothespreadsheet
+' DisplaytheAcquiredvaluetoshowtheoscilloscopehastriggered
+Cells(1,3).Value= app.Measure.P1.Out.Result.Value
+MsgBoxAcquired
+EndSub
+3-26
+
+----- 第 81 页 -----
+
+Part3:AutomationProgrammingReference
+SynchronizingSetups
+Anotherscenariowheresynchronizationisnecessaryisbetweenchangingsettingsandreadingresults,
+evenwhennoacquisitiontookplace.ForthistheWaitUntilIdlemethodisused.Thismethodisa
+“blocking”mechanismandwillnotreturncontroluntilthesetuprequesthascompleted.
+AnexampleofWaitUntilIdleusagefollows.
+Note:WaitUntilIdleisnotforusewheninNormalorAutotriggermode.
+SubButton1_Click()
+' Connecttotheoscilloscope
+Setapp= CreateObject("LeCroy.XStreamDSO")
+' EnableStandardVerticalparameters
+app.Measure.MeasureMode= "StdVertical"
+' Waitforthechangetotakeplacefora max.of5 seconds
+app.WaitUntilIdle(5)
+' ReadthevalueofP1(pkpk)andtransferintothespreadsheet
+Cells(1,2).Value= app.Measure.P1.Out.Result.Value
+' EnableStandardHorizontalparameters
+app.Measure.MeasureMode= "StdHorizontal"
+' Waitforthechangetotakeplacefora max.of5 seconds
+app.WaitUntilIdle(5)
+' ReadthevalueofP1andtransferintothespreadsheet
+Cells(1,3).Value= app.Measure.P1.Out.Result.Value
+EndSub
+BestPracticesforSynchronization
+l InalmostallAutomationapplications,itishighlyrecommendedthatyoustopacquisitionsbefore
+accessingresultdata.Mostsynchronizationproblemsarecausedbyfailuretofollowthispractice.
+l SettoDefaultSetup(andsimilarGPIBcommands,suchasRECALL_PANELandRECALL_DEFAULT)
+blocksallincomingcommandsuntilfinishedrecallingthepanel,includingsynchronizationqueries
+suchas*OPC?andWaitUntilIdle.Usinganyqueryfollowedbyareadwithasufficientlylong
+timeouttoallowthepaneltoloadfullyisthebestwaytokeeptheclientprogramsynchronizedwith
+theoscilloscope.
+l Usetheapp.SetToDefaultSetupactiontorestoretheinstrumenttoitsdefaultstatebeforesetting
+thecontrolsrequiredbyanapplication.Thiseliminatesanydependencyontheprevious
+configurationoftheinstrument.TeledyneLeCroystrivestoensurethatthedefaultstateofthe
+instrumentisconstantfromonesoftwarereleasetothenext.
+l Whenusingaresultobject,verifythatthestatusisvalidtoensurethattheacquisitionand/or
+processingwasvalid.
+3-27
+
+----- 第 82 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ApplicationInteractions
+Itisnotpossibletoruntwosimultaneousinstancesoftheoscilloscopeapplication.Morethanone
+simultaneousconnectiontotheinstrumentviaAutomationwillbeaccepted,butsimultaneous
+connectionsarenotrecommended.Whenthefinalclienthasbeendisconnectedfromtheinstrument
+(server),theoscilloscopeapplicationwillremainrunningandwillacceptfurtherclientconnections.
+OperationsthatcauseModalDialogstoappearintheinstrument’sdisplaywill,bydefault,disruptaccess
+fromAutomation.Thisbehaviorcanbechangedusingthecontrols:
+l app.SystemControl.ModalDialogTimeout
+l app.SystemControl.EnableMessageBox
+Theinstrumentapplicationcanbeminimizedinordertoallowthecontrollingapplicationtotakeoverthe
+displayandtouchpanelbymeansoftheapp.Minimizecontrol.Itcanalsoberesizedandrepositionedon
+thedisplaybymeansoftheapp.Top,app.Left,app.Bottom,andapp.Rightcontrols.
+Whenanapplicationisrunninglocallyontheinstrumentandrequestsaconnectiontotheoscilloscopevia
+Automation,oneoftwothingswillhappen:
+l Iftheoscilloscopeapplicationisalreadyrunning,theobjectreturnedwillbea“pointer”tothe
+runningapplication.
+l Iftheoscilloscopeapplicationisnotrunning,itwillbestarted.
+3-28
+
+----- 第 83 页 -----
+
+Part3:AutomationProgrammingReference
+EarlyandLateBinding
+TheCOMstandardonwhichAutomationisbuiltsupportstwokindsof“binding”betweenclientand
+server:early(static),andlate(dynamic,dispatch).Staticbindingusuallyinvolvesatypelibraryandisused
+primarilybycompiledlanguagessuchasC++.Inthiscase,functionentrypointsareresolvedatcompile
+time.Dynamicbinding(alsoknownaslatebinding)involvesresolvingmethodandpropertycallsatrun
+time,asopposedtocompiletime.
+TheAutomationinterfacesinXStreamDSObasedinstrumentsuseprimarilydynamicbinding.Frommany
+programminglanguages(VB,VBScript,etc.)thisistransparent.Butwhenyouaredevelopingapplications
+inC++,whichdoesnotprovidelate-bindingnatively,theuseofa“helper”classisrequired.Thisis
+demonstratedbelow:
+#include"stdafx.h"
+#include"AtlBase.h"CComModule_Module;
+#include"AtlCom.h"
+CComPtr<IDispatch>spDso;
+//dispatchptr.torootofobjectmodel(app)
+CComDispatchDriverddDso;
+intmain(intargc,char* argv[])
+{
+printf("HelloXStreamWorld!\n");
+::CoInitialize(NULL);
+HRESULThr= spDso.CoCreateInstance(L"LeCroy.XStreamDSO");
+if(SUCCEEDED(hr))
+{
+ddDso= spDso;
+//performanAuto-Setup(app.Autosetup)
+hr= ddDso.Invoke0(L"AutoSetup");
+//retrievea Dispatchptr.totheapp.Displayobject
+CComVariantdisplayPtr;
+hr= ddDso.GetPropertyByName(L"Display",&displayPtr);
+CComDispatchDriverddDisplay(displayPtr.pdispVal);
+//enterDual-gridmode(app.Display.GridMode= "Dual")
+hr= ddDisplay.PutPropertyByName(L"GridMode",&CComVariant("Dual"));
+}
+return0;
+}
+3-29
+
+----- 第 84 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+AutomationProgrammingConventions
+FollowtheseguidelineswhenwritingAutomationprogramsforremotecontrol.SeeControlVariablesand
+ResultInterfacesformoreinformationaboutthetypesandsupportedmethods.
+Variablesareindicatedbyitalicizedplaceholdertextintheexamplesbelow.
+Values
+Enum,String,andColortypevaluesmusthavedoublequotesaroundthem,forexample:
+app.Display.GridMode= "Quad"
+Integer,Double,DoubleLockstep,andBoolvaluesdonotrequirequotes:
+app.Display.Persisted= false
+app.Acquisition.Horizontal.NumSegments= 10
+Whereobjectstakemultiplearguments,valuesaregivenincomma-delimitedlists:
+app.Acquisition.Acquire(5,true)
+app.Acquisition.C1.LabelsText= "Hello,World"
+ThefirstAcquisitionobjectaboveisaMethodwithbothIntegerandBooltypearguments;thesecondisa
+CVARwithamulti-valueStringargument.
+Toseethecorrectformatandsyntax,querytheobject'scurrentsetting.Thiscommandcanbesentvery
+easilyusingtheWaveStudioTerminalwitharemoteconnectiontotheoscilloscope:
+VBS?'return= object'
+Units
+Generally,unitsareoptionalwhengivingAutomationcommands,asunitsarealreadydeterminedbythe
+inputtraceandtypeofanymathfunctionsappliedtothetrace.AnexceptionistheRescalemathfunction,
+whichcreatesasecondtracethatexplicitlychangestheverticalunitsinwhichthesourcetraceis
+calculated,andthereforerequiresthataunitbespecified:
+app.Math.Fn.Equation= rescale(trace)
+app.Math.Fn.Operator1Setup.Unit= "menemonic"
+SeethelistofacceptablemnemonicsinUnits.
+Theverticalunitofanalogandsensorinputchannels(CnandSEn)canbechangedbysettingtheCVAR
+Unitto"Other":
+app.Acquisition.Cn.Unit= "OTHER"
+app.AcquisitionPMU.SEn.Unit= "OTHER"
+Then,followwiththeunitType(category)anddisplayedUnits.Forexample:
+app.Acquisition.Cn.Type= "MASS"
+app.Acquisition.Cn.Units= "SLUG"
+3-30
+
+----- 第 85 页 -----
+
+Part3:AutomationProgrammingReference
+Note:YoucanonlyselectUnitsfromthelistofvaluesthatappearsfollowingtheTypeselection.
+Equations
+CVARsapp.Math.Fn.Equation,app.Math.Fn.EquationRemote,and
+app.Measure.Pn.EquationaretextStringscontainingthesummaryofthemathormeasureoperation.
+Theycanbeusedtoquerythecurrentsettings,butnottosetthefunctionorparameter.
+TosetupaMathfunction,usetheCVARsapp.Math.Fn.Sourcenandapp.Math.Fn.Operatorn,andany
+objectsintheapp.Math.F1.OperatornSetupfolders.
+TosetupaParameter,usetheCVARsapp.Measure.Pn.Sourcenand
+app.Measure.Pn.ParamEngine,plusanyobjectsintheapp.Measure.Pn.Operatorsubfolder.
+Labels
+TheCVARsLabelsTextandLabelsPosition(whichappearinthehierarchyforanywaveformobject)
+specifythetextandpositionofcustomlabelsplacedonawaveform.LabelsTexttakesasingleString
+argumentforwhichyoucanspecifyacomma-delimitedlistofvalueseachrepresentingaseparatelabel:
+app.Acquisition.C1.LabelsText= "Hello,World"
+Theabovecontrolcreatestwolabels,"Hello"and"World."Notethatlatersendingthesamecontrolwith
+onlyasinglevaluewilleraseallbutthefirstlabelinthelist(whichwillremainatitscurrentposition),
+changingittothenewtextstring.
+LabelsPositionisalsoaStringwhereeachlistvalueisapipe-delimitedpairspecifyingthehorizontaland
+verticalpositionofthecorrespondinglabelintheLabelsTextstring.Placingparenthesesaroundthe
+verticalvalueinthepairturnson"UseTraceVerticalPosition".Thefollowingcontrolwouldpositionboth
+labels"Hello"and"World",placing"Hello"adjacenttothetrace,and"World"attheverticalposition
+specified:
+app.Acquisition.C1.LabelsPosition= "0.000002|(0.02),0.000002|0.01"
+Colors
+ColortypeCVARsset/querythecoloroftracesandotherdisplayobjects,usinganumberintherange0to
+FFFFFFinhexadecimal.Thepossiblecolorsaremadefromanycombinationoftheprimarycolors,which
+aresetinhexadecimalasBlue=&HFF0000,Green=&HFF00,Red=&HFF.Forexample:
+app.Display.C1Color= "255,255,0"
+Thevaluemaybeenteredindecimalorinhexadecimal,thoughhexadecimalisusuallymoreconvenient.
+Notethatiftheintensityofacoloristobereducedorincreasedbyanumericalfactor,anANDoperation
+mustbeusedafterwards,topreventcorruptionofotherprimarycolors.
+FileNames
+CVARsoftheFilenametypegenerallydonotrequirethefullpathtobegivenaspartofthevalue,butin
+mostcases,thedirectoryinwhichthefileswillbesavedissetusingaseparateCVAR,whichdoesrequire
+3-31
+
+----- 第 86 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+thefullpath.ChecktheparentobjectswithinthesubsysteminMAUIStudioBrowsertofindtheCVARfor
+settingthefilepath.
+Persistence
+Whenappliedtoanytrace,theCVARsPersisted,PersistDotJoined,Persistence3D,Persist3DQuality,
+PersistenceMonochrome,andPersistenceSaturationdeterminethestatusandappearanceofthe
+persistencedisplay.
+Persistencesets/queriesthepersistencestate.IftheDisplay.LockPersistenceCVARissetto'AllLocked'
+thenthepersistedstateofalldisplayedwaveformswillbethesame.IftheDisplay.LockPersistence
+controlissetto'PerTrace'thenthepersistedstateofeachwaveformmaybeindependentlycontrolled.
+IfPersistDotJoinedisFalse(thedefaultstate),samplesareputintothepersistencemapasdots.The
+advantageofthatisthatanylitpixelinthepmapactuallycorrespondstoasampleofthedatatakenat
+thattime.Thedisadvantageofdotsisthatthereisnowaytoassociateadotwithanyotherdot;thereis
+nohistoryofwhichdotswerepartofthesameacquisition.IfthiscontrolissetTrue,theneachacquisition
+drawslinesintothepersistencemapthatconnectthedotsatthesamplepositions.Clearlytheadvantage
+ofthatisthatitisnowpossibletoseeifsomeoutliersampleswereallpartofthesameacquisition,ornot.
+Thedisadvantageisthatlitpointsinthepersistencemapnolongercorrespondtoactualsamples,the
+linesbetweenthesamplesarealsolit.
+IfthepersistencemapisgoingtobeanalyzeditisprobablypreferabletoleaveDotJoinedoffsothatonly
+actualsamplesareconsideredintheanalysis.Ifthereareveryfewpointsinapersistencemap,theremay
+columnswithnopoints,thatis,therearegapshorizontallybetweenpoints.Inthatcase,DotJoinedwill
+connectthemstartingwiththelasttrace,andforallsubsequencetracesaccumulated.
+TheactionofturningonoroffDotJoinedclearstheaccumulatedpersistencemap.
+Persistence3Dputsthepersistencedisplayintoa3Dsurfacemap.
+Persistence3DQualityselectsthe3Dquality,whichdetermineshowthedisplayisrendered.ThisCVARis
+onlyrelevantwhenPersistence3DisTrue.
+IfPersistenceMonoChromeissetTrue,thedisplaywillbemonochromatic,regardlessofwhether2Dor
+3D.
+Placeholders
+Insomecases,thevaluethatappearsinMAUIStudioBrowserisonlyaplaceholderthatwillappearonthe
+oscilloscopeGUIuntilyoumakeanactualsetting.Placeholderswillusuallybeindicatedbyanglebrackets
+surroundingthetextstring.Forexample,theValueofapp.Utility.Remote.AllowControlFromis<ipAddr,or
+dnsName>,whichappearsinsidethecontrolontheGUIindicatingyoushouldsubstitutetheremoteclient
+IPaddressorDNSname.IfyouprovidedanactualIPaddressorDNSname,thatnodewouldhave
+exclusiveremotecontroloftheoscilloscope.
+VisibleSerialDecoderTableColumns
+TheCVARapp.SerialDecode.Decodex.Decode.ColumnStatecontainsapipe-delimitedlistofallthetable
+columnsthatareselectedfordisplay.Forexample:
+app.SerialDecode.Decode1.Decode.ColumnState= "Idx=On|Time=On|Data=On|..."
+3-32
+
+----- 第 87 页 -----
+
+Part3:AutomationProgrammingReference
+Ifyouwishtochangethetableconfigurationbyhidingordisplayingcolumns,sendthefullstringwiththe
+statechangedfrom"on"to"off",orviceversa,ratherthanremoveanycolumnfromthelist.
+Note:Eventhoughcolumnsarehidden,theyarestillcalculatedinthedecoding,andanytimeyou
+accesstheOut.Resultobjectsofserialdecodetables,allthecolumnsarereturned.Ifyouseekto
+accessaspecificcolumn,usethegetDataArrayfunctiontofirstdeterminethedepthandorderof
+thetableandtheactualnumberofthecolumn.
+UsingProgrammingVariables
+Onewaytoincreasethereadabilityandsimplicityofyoursourcecodeistousevariablestoreference
+objectsthatareateachlevelofthehierarchy.Forexample,hereistheVBcodetoreadouttheSweeps
+propertyforC1:
+DimnumSweepsasLong
+numSweeps= app.Acquisition.C1.Out.Result.Sweeps
+IfyouarereadingoutmorethanjusttheSweepsproperty,youmightfinditeasiertoreadthefollowing:
+DimC1ResasObject
+DimC1asObject
+DimnumSweepsasLong
+DimHorizontalOffsetAsDouble
+DimHorizontalPerStepAsDouble
+DimVerticalOffsetAsDouble
+DimVerticalPerStepAsDouble
+Dimwform
+C1= app.Acquisition.C1
+C1.AverageSweeps= 200numSweeps= C1
+Res.SweepsHorizontalOffset= C1
+Res.HorizontalOffsetHorizontalPerStep= C1
+Res.HorizontalPerStepVerticalOffset= C1
+Res.VerticalOffsetVerticalPerStep= C1
+Res.VerticalPerStep
+Thepanelsetupfilesmakeheavyuseofobjectvariables,makingthemfarmorereadableandeditable:
+SetAcquisition= XStreamDSO.Acquisition
+SetC1= Acquisition.C1
+C1.View= True
+C1.UseGrid= "YT1"
+C1.Persisted= False
+C1.PersistenceSaturation= 50
+C1.PersistenceMonoChrome= True
+C1.Persistence3d= False
+. . .
+3-33
+
+----- 第 88 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+AutomationinMATLAB
+OninstrumentsequippedwiththeCustomDSO(XDEV)option,MATLABapplicationscanuseAutomation
+tocontrolandexchangedatawiththeoscilloscopeapplication.Formoreinformation,seeLab831:X-
+StreamCOMObjectProgrammingwithMATLABandUsingLeCroyDigitalOscilloscopeswithMATLAB.
+Note:AninstallationofMATLABisrequiredonthecontrollerforremoteexecutionofMATLAB
+scripts.AninstallationofMATLABisrequiredbothonthecontrollerandoscilloscopewhen
+implementingcustomMATLABmathandmeasurementsintheprocessingofremotecontrol
+programs.Ifyouhaveasitelicense,theoscilloscopewilloccupyoneseatwhenconnected.For
+individuallicenses,theoscilloscopecanbeoneofthethreeallowedinstallations.
+ConnectingandDisconnecting
+TheLeCroy-MATLABinterfaceisbasedonActiveXtechnologyandisgreatlyassistedbyusingthe
+ActiveDSOlibrary.MATLABapplicationsusetheactxserverkeywordtoconnecttotheinstrumentover
+TCP/IP,forexample:
+app= actxserver('LeCroy.XstreamDSO.1','<IP address>')
+Note:Useaddress127.0.0.1whentheMATLABapplicationaccessingtheoscilloscope
+applicationisrunninglocallyontheoscilloscope,ratherthanremotely.
+Todisconnect,endwith:
+Setapp= Nothing
+CreatingObjectVariables
+GiventhecomplexityofMATLAB'ssyntaxforhandlingmulti-tieredAutomationobjects,itishighly
+recommendedtocreateobjectvariables("handles")ateachlevelofthehierarchy.Forexample:
+% creationofobjectvariables1 leveldownfromtop-level
+acq= app.Objects.Item('Acquisition');
+math= app.Objects.Item('Math');
+meas= app.Objects.Item('Measure');
+PF= app.Objects.Item('PassFail');
+% creationofobjectvariables1 levelfurther
+c1= acq.Objects.Item('C1');
+f1= math.Objects.Item('F1');
+p1= meas.Objects.Item('P1');
+p1Operator= p1.Objects.Item('Operator')
+% creationofobjectvariablestoresults
+c1_results= c1.Out.Result;
+f1_results= f1.Out.Result;
+p1_results= p1.Out.Result;
+3-34
+
+----- 第 89 页 -----
+
+Part3:AutomationProgrammingReference
+AccessingControlVariables(CVARs)
+TheseinstructionsapplytoCVARs(objectselectedfromayellowfolderinMAUIStudioBrowser).
+Usingthesyntax:
+<handle> = Objects.Item('<object>')
+Createanobjectvariableforeachlevelintheobjecthierarchy.Forexample,thefollowinglinesofcode
+drillintothehierarchyoftheVerScaleCVAR:
+acq= app.Objects.Item('Acquisition');
+c1= acq.Objects.Item('C1');
+Theresultisaconvenientsetofhandlestouseratherthanlongandclumsylinesofcode.Notethateach
+lineaboveusestheobjectvariablecreatedinthelineaboveit.
+ForCVARsthatyoucanreadorwrite,usethegetandsetfunctionstoaccesspropertiesoftheCVAR.The
+Valuepropertyismostfrequentlyused,butothersareavailable,includingRange.Hereareexamplesof
+gettingandsettingtheVerScaleCVAR:
+% readthevalueoftheVerScaleCVAR
+C1VDiv= get(c1.Item('VerScale'),'Value')
+% readtheRangeandTypepropertiesoftheVerScaleCVAR
+range= get(c1.Item('VerScale'),'Range')
+type= get(c1.Item('VerScale'),'Type')
+% setVerScaleto0.789V/div
+set(c1.Item('VerScale'),'Value',0.789)
+ForCVARsthatareActions,usetheinvokefunction:
+% executeanapplication-levelClearSweepsaction
+app.invoke('ClearSweeps','ActNow');
+% executeanAutoSetupaction
+app.invoke('AutoSetup','ActNow');
+% executetheResetAllactionfortheMathsystem(only)
+math.invoke('ResetAll','ActNow');
+ActionCVARshaveaninterfacecalledActNowthatcanbereferenced,butthisisn'trequired.
+ForCVARsthatareMethods,usetheinvokefunctionandincludetheargumentsrequiredtoperformthe
+method:
+% executetheAcquiremethodwith5stimeout,noforcedtrigger
+acq.invoke('Acquire',5,false);
+3-35
+
+----- 第 90 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+AccessingOut.ResultObjects
+TheseinstructionsapplytoitemsthatappearwhenselectinganobjectfromaResultInterfacefolderin
+MAUIStudioBrowser.
+Foreachleveloftheobjecthierarchyuptobutnotincludingtheitem’sparentobject,createanobject
+variableusingthesyntax:
+<handle> = Objects.Item('<object>')
+Forexample,thefollowinglinesofcodedrillintotheP1objecthierarchyuptotheparent"Out.Result":
+meas= app.Objects.Item('Measure');
+p1= meas.Objects.Item('P1');
+Createanobjectvariablefor"Out.Result"usingthissyntax:
+p1_results= p1.Out.Result
+ToreadpropertieswithintheOut.Resultobject,useeitherofthefollowing:
+p1_<handle> = p1_results.<property>
+p1= get(p1_results,'<property>')
+Forexample,toreadtheValueproperty:
+p1_val= p1_results.Value
+Or
+p1= get(p1_results,'Value')
+Toreadbackmulti-valueditemssuchasValueArrayandDataArray,usethegetfunction:
+P1_array= get(p1_results,'ValueArray',-1,0,1)
+C1_data= get(c1_results,'DataArray',-1,-1,0,1)
+ValueArray,whichreturnsallmeasuredvaluesforaparameter,andDataArray,whichreturnswaveform
+data,areactuallyinterfacesthatrequireseveralargumentstodeterminethenumberofvaluestoreturn,
+whatkindofvalues,etc.SeeValueArrayandDataArray.
+3-36
+
+----- 第 91 页 -----
+
+Part3:AutomationProgrammingReference
+AutomationinPython
+TheoscilloscopecanbecontrolledbyAutomationfromapplicationswritteninthePythonlanguage.
+PythonprogramsmaybedesignedtoexecutelocallyusingCOM,orremotelyusingeithertheActiveDSO
+driveroraVISAdriver.SeethePythonexampleinRemoteControlProgramUsingVISA.
+YouwillneedthePythonforWindowsExtensionsandPythoninstalledwherevertheprogramistorun.Ifit
+runslocally,thelibrariesmustbeinstalledontheoscilloscope;ifitconnectsremotely,theymustbe
+installedonthecontroller.TheversionofPythonforWindowsExtensionsshouldmatchyourversionof
+Python.
+Forremotecontrol,youwillalsoneedaninstallationofActiveDSO oraVISAdriveronthecontroller.
+PythonwithCOM
+COMisthemostdirectwaytosendAutomationcommandstotheoscilloscopeinPython.
+Note:AnyCOMprogramshouldbeabletorunfromaremotecomputerthathasaDCOM
+connectiontotheoscilloscope.
+Connecting
+Theinitialconnectionimportsthewin32com.client,neededforanyCOMAutomation,andanyPython
+extensionstobeused.Itthenconnectstotheoscilloscopeapplication,"LeCroy.XStreamDSO",runningon
+theoscilloscope,
+"<IPaddress>",whichisherealiasedas"h".Forremotecontrol,thesyntaxis:
+importwin32com.client
+importmatplotlib.pyplotasplt
+h = win32com.client.DispatchEx("LeCroy.XStreamDSO.1","<IP address>")
+Note:WhenrunningPythonscriptslocallyontheoscilloscope,ratherthanoveraremote
+connection,Thesyntaxisslightlydifferent:
+h=win32com.client.Dispatch("LeCroy.XStreamDSO.1")
+AccessingControlVariables
+ThecurrentvalueofanyCVARs(yellowfolderobjects)canbereadbyplacingtheobjectintoavariable.
+Thisexamplegetsthecurrentsampleperiodofthevariable"deltat",thenprintsitfollowingthestring
+"SamplePeriod":
+deltat= h.Acquisition.Horizontal.TimePerPoint
+print"SamplePeriod= ",deltat
+ShortcutscanbecreatedtosimplifyreferencestoanyAutomationobject.Thisgetstheverticalscaleof
+C1,usingtheshortcutc1torefertothefullobjectpath"h.Acquisition.C1":
+3-37
+
+----- 第 92 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+c1= h.Acquisition.C1
+vdiv= c1.VerScale
+print"Channel1 VoltsperDivisionSetting= ",vdiv
+TochangethesetupofaCVAR,settheobject(oritsshortcut)equaltothenewvalue:
+c1.VerScale= .1
+AccessingOut.ResultObjects
+Toreadasinglemeasuredpropertyofawaveform,placetheobject(oritsshortcut)intoavariable:
+numsamples= h.Acquisition.C1.Out.Result.Samples
+print(numsamples)
+Toaccesstheentirewaveform,usetheDataArrayobject.Forexample,toplottheC1waveform:
+wave= h.Acquisition.C1.Out.Result.DataArray
+plt.plot(wave)
+plt.show()
+PythonwithActiveDSO
+Formoreexamples,seetheTechnicalBrief:UsingPythonwithActiveDSOforRemoteCommunication.
+ConnectandDisconnect
+ConnectingtotheoscilloscopeusingActiveDSOsimilarlycallsthewin32com.clienttheninstantiatesthe
+ActiveDSOcontrol"LeCroy.ActiveDSOCtrl.1",herealiasedas"scope".TheMakeConnectionstringmakes
+theremoteconnectiontotheoscilloscope:
+importwin32com.client
+scope=win32com.client.Dispatch("LeCroy.ActiveDSOCtrl.1")
+scope.MakeConnection("<connectionstring>")
+The<connectionstring>iswhateveryouwouldnormallyenterintheActiveDSOMakeConnectionmethod
+tospecifytheinterface,forexample"IP:172.0.0.31".
+Todisconnect,send:
+scope.Disconnect()
+AccessingControlVariables
+ForCVARsthatyoucanreadorwrite(yellowfolderobjects),useWriteStringtosendcommands.The
+<commandstring>istheremotecommand,eitherinthelegacy488.2format,oranAutomationcontrol
+sentwithintheVBScommand.
+scope.WriteString("<commandstring>",<BooleanEOI>)
+Forexample,tosettheC1V/divto20mVusingAutomation,youwouldsend:
+scope.WriteString("""VBS'app.Acquisition.C1.VDIV=".02V"' """,1)
+3-38
+
+----- 第 93 页 -----
+
+Part3:AutomationProgrammingReference
+Note:Thetriplequotesaroundthecommandstringarerequiredbecausethedoublequotes
+aroundthevalue".02V"arepartoftheAutomationcontrolembeddedwithintheVBScommand.
+Otherwise,Pythonwouldinterpretthefirstdoublequoteastheendofthecommandstring.
+AccessingOut.ResultObjects
+ToreadOut.Resultobjects,useWriteStringwiththeVBS?query(toaccesstheresultvalue)followedby
+theReadStringmethodtoreturnitinthedesiredformat.ThefollowingcodequeriestheresultoftheP1
+parameter,readingamaximumof80bytes,andprintstheresultstotheInteractiveWindow:
+scope.WriteString("VBS?'return=app.Measure.P1.Out.Result.Value'",1)
+value= scope.ReadString(80)
+print(value)
+3-39
+
+----- 第 94 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+AutomationinC#
+NewerprogramminglanguageslikeC#arenotsupportedbytheActiveDSOcontrolortheVICPprotocol.
+WerecommendthatthosewritingAutomationprogramsinC#shoulddothefollowing:
+l ConnecttotheoscilloscopeoverENET,eitherthroughyourLANoradirectconnection.
+l Ontheoscilloscope,choosetheLXI(VXI-11)remotecontrolsetting.
+l Onthecontroller,installanVISA-compliantdriverandtheIVIC#VISAAPItodecoupleyour
+Automationprogramfromthedriver.
+ThefollowingC#programusestheaboveconfigurationtomakearemoteconnectiontotheoscilloscope
+andperformthesametasksasthePythonscriptinProgramUsingVISA.
+Note:Charactersinanglebracketsareplaceholders.Omitthebracketsfromyourcode.
+usingSystem;
+usingIvi.Visa;
+namespaceLeCroy.ScopeVisaExample
+{
+publicclassScopeExample
+{
+publicvoidDoExample()
+{
+//Opensessiontoscope
+varsession= (IMessageBasedSession)GlobalResourceManager.Open
+("TCPIP0::<hostname|IP address>::INSTR");
+session.TimeoutMilliseconds= 5000;
+session.Clear();
+//Don'treturncommandheaderwithqueryresult
+session.FormattedIO.WriteLine("COMM_HEADEROFF");
+//Recalldefaultsetup
+session.FormattedIO.WriteLine("vbs'app.settodefaultsetup'");
+//Waituntilscopeisdonewithrecalldefault
+session.FormattedIO.WriteLine("vbs?'return=app.WaitUntilIdle(5)'");
+session.FormattedIO.ReadString();
+//Setupacquisitiontriggerandtimebase
+session.FormattedIO.WriteLine("vbs'app.acquisition.triggermode=
+\"stopped\"'");
+session.FormattedIO.WriteLine("vbs'app.acquisition.trigger.edge.level=
+1.0'");
+session.FormattedIO.WriteLine("vbs'app.acquisition.triggermode=
+\"Single\"'");
+session.FormattedIO.WriteLine("vbs'app.acquisition.horizontal.maximize=
+\"FixedSampleRate\"'");
+3-40
+
+----- 第 95 页 -----
+
+Part3:AutomationProgrammingReference
+//Clearallcurrentmeasurementdefinitionsandsetupnewmeasurement
+session.FormattedIO.WriteLine("vbs'app.measure.clearall'");
+session.FormattedIO.WriteLine("vbs'app.measure.showmeasure= true'");
+session.FormattedIO.WriteLine("vbs'app.measure.statson= true'");
+session.FormattedIO.WriteLine("vbs'app.measure.p1.view= true'");
+session.FormattedIO.WriteLine("vbs'app.measure.p1.paramengine= \"mean\"'");
+session.FormattedIO.WriteLine("vbs'app.measure.p1.source1= \"C1\"'");
+//Resettheparameterstatistics
+session.FormattedIO.WriteLine("vbs'app.measure.clearsweeps'");
+//Armacquisition,forcinga triggerifthereisnoneafter0.1seconds.
+//Take10acquisitions,findthemeanvalueandprintittotheconsole.
+for(inti = 0;i < 10;++i)
+{
+session.FormattedIO.WriteLine("vbs?'return=app.acquisition.acquire
+( 0.1, True)'");
+//Waituntilallprocessingisdone;checkiftimedout
+session.FormattedIO.WriteLine("vbs?'return=app.WaitUntilIdle(5)'");
+varsuccess= session.FormattedIO.ReadInt64();
+if(success==0)
+{
+thrownewTimeoutException($"TimeoutfromWaitUntilIdle,return=
+{success}");
+}
+//ReadresultinP1measurementparameter,writeittotheconsole
+session.FormattedIO.WriteLine("vbs?
+'return=app.measure.p1.out.result.value'");
+varmean= session.FormattedIO.ReadDouble();
+Console.WriteLine($"Mean= {mean}");
+}
+//Closesessionanddisconnectfromscope
+session.Dispose();
+}
+}
+}
+3-41
+
+----- 第 96 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+3-42
+
+----- 第 97 页 -----
+
+Part4:AutomationControlVariableReference
+Part4:AutomationControlVariableReference
+ThissectiondescribestheActionsandMethodsthatmaybeappliedtoXStreamDSOstandardobjects.
+Note:ManymoreCVARsareavailableintheXStreamDSOapplicationthanaredocumentedhere,
+whichcoversonlythetop-levelhierarchyandCVARswithactions/methods.UseMAUIStudio
+Browsertoviewtheentireappobjecthierarchyofyouroscilloscopeandtheacceptablevalue
+rangesforothertypesofCVARs.Alsoseethevarioussoftwareoptionmanuals.
+app 4-3
+app.Acquisition 4-6
+app.Acquisition.Cn 4-8
+app.Acquisition.Trigger 4-9
+app.Acquisition.Trigger.ZoneTrigger 4-10
+app.Acquisition.Trigger.ZoneTrigger.Areas 4-12
+app.Cursors 4-14
+app.CustomDSO 4-15
+app.Display 4-16
+app.Hardcopy 4-17
+app.History 4-18
+app.LabNotebook 4-19
+app.Math 4-20
+app.Math.Fnandapp.Math.XY 4-21
+app.Measure 4-22
+app.Measure.Pn 4-23
+app.Memory 4-24
+app.Memory.Mn 4-24
+app.PassFail 4-25
+app.PassFail.Qn 4-26
+app.Preferences 4-27
+app.ProbesCal 4-28
+app.SpecAnalyzer 4-29
+app.SaveRecall 4-30
+4-1
+
+----- 第 98 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.SaveRecall.Remote 4-31
+app.SaveRecall.Setup 4-32
+app.SaveRecall.Table 4-32
+app.SaveRecall.Utilities 4-33
+app.SaveRecall.Waveform 4-33
+app.TriggerScan 4-34
+app.Utility 4-35
+app.WaveScan 4-36
+app.WebEditor 4-37
+app.Zoom 4-39
+4-2
+
+----- 第 99 页 -----
+
+Part4:AutomationControlVariableReference
+app
+appistherootoftheXStreamDSOautomationhierarchy;allothernodesareaccessedfromthispoint.
+NestedwithintheappobjectaretheprincipalXStreamDSOsubsystems.Standardandoptional
+subsystemsarearrangedalphabetically.
+ChildObjects
+Object Description
+app.Acquisition Subsystemsrelatedtotheacquisitionanddigitizationofsignal:allinputs,
+Timebase(Horizontal),andTrigger.
+app.AutoENET AutomotiveEthernetDebugToolkitoption.
+app.Autoset AutoSetupsubsystem.
+app.ClockExpert ClockExpertoptions.
+app.Cursors Cursor(measure)subsystem.
+app.CustomDSO CustomDSO(XDEV)option.StandardonWavePro,WaveMaster,and
+LabMasteroscilloscopesandequivalentDDA/SDAmodels.
+app.DDR LegacyDDRphysicallayermeasurementsoption.
+app.DDRA DDRDebugToolkitoptions.
+app.Display Displaysubsystem.
+app.DPAUX DP-AUXphysicallayermeasurementsoption.
+app.ElectricalTelecom ET-PMToption.
+app.Ethernet LegacyEthernetphysicallayermeasurementsoption.
+app.EyeDr EyeDoctorIIoption.StandardonSDAmodeloscilloscopeswithSDA III.
+app.HardCopy Hardcopy(Print)subsystem.
+app.Help OnlineHelpsubsystem.
+app.History HistoryModesubsystem.
+app.LabNotebook LabNotebooksubsystem.
+app.Math Math(Function)subsystem.
+app.Measure Measure(Parameter)subsystem.
+app.Memory Internalmemory(storage)subsystem.
+app.MIPICPHY MIPI-CPHYphysicallayermeasurementsoption.
+app.MIPIDPHY MIPI-DPHYphysicallayermeasurementsoption.
+app.Motor MotorDriveAnalyzeroption.StandardonMDAoscilloscopes.
+app.OMA OpticalModulationAnalysisoption.StandardonOMAsystems.
+app.PassFail Pass/Failtestingsubsystem.
+app.Preferences Applicationpreferencessubsystem.
+app.ProbesCal Probecalibrationsubsystem.
+4-3
+
+----- 第 100 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Object Description
+app.PWRDevice Power-Deviceanalysisoption.
+app.SaveRecall SaveRecall(File)subsystem.
+app.SDAX SDAExpertoptions.StandardonSDAmodeloscilloscopes.
+app.SerialDecode Serialdecoderoptionsframework.
+app.SpecAnalyzer SpectrumAnalyzeroption.StandardonHDO6000,HDO8000,andMDA
+oscilloscopes.
+app.SystemControl Mouse/pointercontrolsubsystem.
+app.TriggerScan TriggerScansubsystem.
+app.USB2 LegacyUSB2.0physicallayermeasurementsoption.
+app.USB4SB USB4-SB(sidebands)physicallayermeasurementsoption.
+app.USBPD USB-PD(powerdelivery)physicallayermeasurementsoption.
+app.Utility Utilitiessubsystem.
+app.VirtualProbe VirtualProbeoption.StandardonSDAmodeloscilloscopeswithSDAIII.
+app.WaveScan WaveScansubsystem.
+app.WaveSource WaveSourcesignalsimulatorsubsystem.
+app.WebEditor WebEditorsubsystem.
+app.XPort Reportoutputsubsystem.
+app.Zoom Zoom("expansiontrace")subsystem.
+Actions
+Action Description
+app.AutoSetup StartsanAutoSetupoperation.Wheninputchannelsarevisible,AutoSetup
+operatesonlyonthosevisiblechannels.Ifnochannelsarevisible,all
+channelsareaffectedbyAutoSetup.Withmorethanonechannelvisible,
+thefirstvisiblechannelinnumericalorderthathasadetectablesignal
+appliedtoitisautomaticallysetupforedgetriggering.
+app.ClearSweeps Clearsallaccumulatedsweepsforallsubsystems.TheseincludeChannel
+Pre-Processing,Math,Measure,andDisplayPersistence.Notethat
+subsystem-specificClearSweepscontrolsaffectonlytheindividual
+subsystem.
+app.Exit Equivalenttoapp.Quit()method.
+app.FindAllVerScaleAtCurrentTimebaseRescalesallchanneltracestooccupymostofthefullverticalscalerange,
+butwithoutchangingthetimebase.AbetteradjustmentwillbemadeifVar
+Gainisalsoenabled,inwhichcasethetraceswillbeadjustedtooccupy+/-
+3.3divisions.
+app.Maximize Maximizeswindowtofilldesktop.Equivalenttoapp.WindowState=1.
+app.Minimize Minimizeswindowtorevealunderlyingdesktop.Itwilldisplayasmall
+windowinthecornerofthedisplaythatwhenclickedrestoresthewindow
+tofull-screenmode.Toprogrammaticallyrestorethewindow,referto
+app.WindowState.
+4-4
+
+----- 第 101 页 -----
+
+Part4:AutomationControlVariableReference
+Action Description
+app.ResetPreferences Resetsallapplicationpreferencestotheirdefaultstates.Thisincludesthe
+remotecommunicationsport,thecolorpalettesettings,etc.butdoesnot
+includecontrolssuchasV/Div,T/Div,etc.Thesemaininstrumentcontrols
+canberesetusingtheSetToDefaultSetupcontrol.
+app.Restore Restorestheinstrumentdisplaytoitspositionandsizebeforethelast
+minimizerequest.
+app.SetToDefaultSetup Restoresallinstrumentpanelsetupstothefactorydefaultstate.User
+preferencesettingssuchastheremotecommunicationsport,colorpalette,
+etc.willnotberestoredtothedefaultstate.Thesemayberesetusingthe
+ResetPreferencesaction.
+app.Shutdown Powersofftheinstrument.
+app.Windowed Placestheapplicationwindowintheupper-partofthedisplayscreenwitha
+sizableborder.
+Methods
+app.Quit
+ClosestheXStreamDSOapplication.Userwillbepromptedtoconfirm.Untiltheuserresponds,controlvia
+Automationisblocked.
+app.Sleep([in]doubletimeoutMilliseconds)
+Causesthemainexecutionthreadoftheinstrumentapplicationtosleepforthespecifiedtimeperiod,
+definedinmilliseconds.
+' Sleepfortenseconds
+app.Sleep(10000)
+WaitUntilIdle([in]doubletimeoutSeconds)
+Waitsuntileithertheapplicationisidleorthespecifiedtimeoutexpires,specifiedinseconds.This
+evaluatestoTrueiftheapplicationcompletesbeforethetimeoutexpires,andtoFalseifatimeoutoccurs.
+WhenTriggermodeisAutoorRun,theapplicationisneverIdle.InthiscasethecalltoWaitUntilIdle
+returnsafterthenextacquisitionandanyconfiguredprocessing.
+' Waitwitha timeoutoffiveseconds
+app.WaitUntilIdle(5)
+4-5
+
+----- 第 102 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Acquisition
+CVARsrelatedtoinputsC1-CnandAuxIn,thetimebase,thetrigger,andtheAuxOutput.
+app.AcquisitionPMUcontainsequivalentCVARsforSAM40sensoracquisitionmodules.
+ChildObjects
+Object Description
+app.Acquisition.AuxIn AuxInsettings.
+app.Acquisition.AuxOutput AuxOutsettings.
+app.Acquisition.Cn ChannelinputsC1toCn.Thenumberdependsonyouroscilloscopemodel.
+app.Acquisition.Diffn DifferentialchannelDiff1andDiff2settings.OnlyavailableonWaveMaster
+8000HDoscilloscopes.
+app.Acquisition.DVM DigitalVoltmetersettings(whenfunctionalityispresentonoscilloscope).
+app.Acquisition.Horizontal Acquisitiontimebasesettings.
+app.Acquisition.Trigger Acquisitiontriggersettings.
+Actions
+Action Description
+app.Acquisition.Calibrate Initiatesacalibrationoftheacquisitionsystemoftheinstrumentusingthe
+currenthorizontalandverticalsettings.
+app.Acquisition.CalibrateAll Initiatesafullcalibrationoftheacquisitionsystemoftheinstrumentusing
+allpossiblehorizontalandverticalsettings.
+app.Acquisition.CalibrateAllAbort AbortsaCalibrateAllrequest.
+app.Acquisition.CalibrateSkew
+app.Acquisition.ClearSweeps Resetsanyaccumulatedaveragedataorpersistencedataforchannel
+waveforms.Validonlywhenoneormorechannelshavewaveform
+averagingorpersistenceenabledintheirpre-processingsettings.Notethat
+channelcountersmayberesetonanindividualbasisusing
+app.Acquisition.Cn.ClearSweepscontrol.
+app.Acquisition.CopyChannelSetup LaunchestheCopyChannelSetupmodaldialogformakingthecopyselec-
+tions.EquivalenttoclickingCopyChannelSetupbutton.
+app.Acquisition.FactoryCalibrateAll Initiatesafullcalibrationoftheacquisitionsystemoftheinstrumentusing
+thecachedfactorycalibrationfiles.
+app.Acquisition.ForceTrigger Forcesanacquisition.
+app.Acquisition.ShowChannelSetup OpenstheChannelSetupdialog,whichsummarizesallthecurrentchannel
+Verticalsettings.
+4-6
+
+----- 第 103 页 -----
+
+Part4:AutomationControlVariableReference
+Methods
+app.AcquisitionAcquire([in]doubletimeoutSeconds,[in]longbForceTriggerOnTimeout)
+Takesasingleacquisition.Thefirstofthetwoargumentsspecifiesatimeout;thesecond,whichis
+optional,specifieswhetherornottoforceatriggerwhenthetimeoutoccurs.EvaluatestoTrueifatrigger
+occurred,orFalseifatimeoutoccurred.
+Note:AddingtheBooleanForceTriggerargumenttothemethodrequiresthatitbedimensioned
+intoavariable.Here,"triggerDetected"isused.
+' Startacquisition,wait5 secondsfortrigger,forcetriggerif notdetected
+within5 seconds
+DimtriggerDetectedasBoolean
+triggerDetected= app.Acquisition.Acquire(5,true)
+OtherCVARsofNote
+BecausetheINRbit13doesnotproperlyreflectwhenaWindowsoscilloscopeisreadyfortriggering,the
+read-onlyBooleanCVARapp.Acquisition.IsTriggerReadycanbeusedinplaceoftheINRbittoascertainif
+theoscilloscopeisreadytotrigger(i.e.,pre-triggertimefilledwithdataandtheReadyLEDonthefront
+panelon).Valuesare0,-1orfalse,true.
+4-7
+
+----- 第 104 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Acquisition.Cn
+CVARsrelatedtoinputchannelsC1throughCn.
+app.AcquisitionPMU.SEncontainsequivalentCVARsforSAM40sensoracquisitionmodulechannels.
+Namesoftheformapp.Acquisition.Channels.xxxxareanaliasCollection.Forexample:
+l app.Acquisition.Channels("Cn")isequivalenttoapp.Acquisition.Cn
+l app.Acquisition.Channels(n)isequivalenttoapp.Acquisition.Cn
+l app.Acquisition.Channels("Cn").Out.Resultisequivalenttoapp.Acquisition.Cn.Out.Result
+ChildObjects
+Object Description
+app.Acquisition.Cn.DeembedFixture OnWaveMaster8000HDonly,settingscontrollingthedeembeddingfea-
+ture.
+app.Acquisition.Cn.InputA OnZi-SeriesandequivalentDDA/SDAoscilloscopes,settingsrelatedtothe
+"A"rowinputs.OnWaveMaster8000HD,settingscontrollingProAxial/
+Prolinkinputs.
+app.Acquisition.Cn.InputB OnZi-SeriesandequivalentDDA/SDAoscilloscopes,settingsrelatedtothe
+"B"rowinputs.OnWaveMaster8000HD,settingscontrolling1.85mmDBI
+inputs.
+app.Acquisition.Cn.InputC OnWaveMaster8000HDonly,settingscontrollingProBusinputs.
+Actions
+Action Description
+app.Acquisition.Cn.ClearSweeps Clearsallaccumulatedsweepsforchannel.
+app.Acquisition.Cn.EditAlias Enablescreation/modificationofuser-definednameassociatedwithchan-
+nel.
+app.Acquisition.Cn.FindScale Automaticallyadjustschannel'sV/divandOffsetsuchthatthesignalisvis-
+ibleonthescreenwithin+/-3div.
+app.Acquisition.Cn.HorScaleToggle TogglesHorizontalOffsetcontrolbetween(1,2,5)steppedandfineincre-
+mentinput.Var.checkboxisclearedorchecked.
+app.Acquisition.Cn.MoveViewToTopZ Whenmultiplechannelsaredisplayedonthesamegrid,movesnamed
+channeltothetopofthedisplay.
+app.Acquisition.Cn.VerScaleToggle TogglesVerticalScalecontrolbetween(1,2,5)steppedandfineincrement
+input.Var.checkboxisclearedorchecked.
+app.Acquisition.Cn.SensorSetup Enables/disablesdisplayofsensorcontroldialog.
+app.Acquisition.Cn.RemoveAlias Removesuser-definednameassociatedwithchannel.
+4-8
+
+----- 第 105 页 -----
+
+Part4:AutomationControlVariableReference
+app.Acquisition.Trigger
+CVARsrelatedtoacquisitiontrigger.
+ChildObjects
+Object Description
+app.Acquisition.Trigger.<Type> Currentlyselectedacquisitiontriggertype
+(e.g.,app.Acquisition.Trigger.Edge).Thesettingswithinthe<Type>
+objectwillchangedependingonwhatisselected.Mosttriggertypes
+supporttheActionFindLevel.
+app.Acquisition.Trigger.SoftwareAssistedTriggerSettingsrelatedtoSoftwareAssistedTriggerfeature.Notavailableon
+WaveSurferandHDO4000oscilloscopes.
+app.Acquisition.Trigger.ZoneTrigger SettingsrelatedtotheZoneTriggerfeature.Activatedwhen
+app.Acquisition.Trigger.SecondaryTypeis"Zone".Availableonlyon12-
+bitWindowsoscilloscopes.Notavailableon8-bitandCEoscilloscopes.
+Actions
+Action Description
+app.Acquisition.Trigger.<Type>.FindLevel Automaticallysetstriggerleveltosignalmean.
+4-9
+
+----- 第 106 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Acquisition.Trigger.ZoneTrigger
+CVARsrelatedtosecondarytriggertypeZoneTriggerthatarenotspecifictoanArea.
+ChildObjects
+Object Description
+app.Acquisition.Trigger.ZoneTrigger.AreasAutomationcollectionofalldefinedareasA1throughAn.Usesstandard
+Microsoftautomationcollectioninterface(e.g.,count,Item,enumerator).
+Seta1=zoneTrig.Areas("A1")
+numberOfAreas=zoneTrig.Areas.Count
+CVARs
+TheseCVARsareappendedtoapp.Acquisition.Trigger.ZoneTriggeroritsalias(zoneTriginthese
+examples).
+Name Type Description
+AddArea Action CreatesanewArea.Hastwooptionalstringargumentsforinitializingthe
+newArea:("<Areaname>","<initializationproperties
+condition|source|horizontal|vertical>")
+SetTriggerZoneTriggerA1=TriggerZoneTrigger.AddArea("A1",
+"condition=In|source=C1|horres=0.0000000005|verres=0.0015625|points=-
+50.000001E-9,-100E-3;25E-9,100E-3;75.000003E-9,-100E-3")
+Ifnotspecified,thencreatesadefaultareathatmaythenbeconfigured
+furtherviaautomationcommandsonthenewlycreatedAreaobject.
+SetmyArea=zoneTrig.AddArea
+"myArea"referstothenewly-createdarea;itcanbeanyvbsobjectname.You
+canthenfurtherconfiguremyArea(see
+app.Acquisition.Trigger.ZoneTrigger.Areas).
+DeleteAllAreas Action RemovesallAreas.
+DoRecallZoneTriggerSetup Action RecallszonetriggersettingsfromfileinpathRecallZoneTrig-
+gerSetupFilename.
+DoSaveZoneTriggerSetup Action Saveszonetrigger(only)settingstofileinpath
+SaveZoneTriggerSetupFilename.
+LastTestResult Bool Read-onlybooleanindicatingthelasttestresultforzonetrigger(i.e.,eval-
+uationofLogicEquationofallareas).0,-1orfalse(Fail),true(Pass).
+LogicEquation String TheBooleanlogicstatementthatdefinestherelationshipamongAreas.This
+isenteredasastringthatincludesareanumbers(An),operators"and","or"
+and"not",andparenthesesifneededtoshowprecedence.
+zoneTrig.LogicEquation="A1andnotA2"
+zoneTrig.LogicEquation="A1and(not(A2orA3))"
+PassThru Bool Enables/disablesPassThumode(temporarilysuspendallAreaconditions).
+0,-1orfalse(off),true(on).
+RecallZoneTriggerSetupFilenameString Fullpathtolocationofzonetriggersetupfile.Anynumberofcharacters.
+4-10
+
+----- 第 107 页 -----
+
+Part4:AutomationControlVariableReference
+Name Type Description
+SaveZoneTriggerSetupFilenameString Fullpathtolocationofzonetriggersetupfile.Anynumberofcharacters.
+ZoneLastTestStatus String Read-only,comma-separatedstringindicatingthelastteststatusforallindi-
+vidualAreas.EachAreastatusmaybe"0","1"or"X";"Fail","Pass"or"Don't
+Care/undefined".Canbeusedtoaggregatetheresultsofapp.Ac-
+quisition.Trigger.ZoneTrigger.Areas("An").LastTestStatus.
+4-11
+
+----- 第 108 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Acquisition.Trigger.ZoneTrigger.Areas
+CVARsrelatedtoadefinedzonetriggerArea.
+CVARs
+ThefollowingCVARscontrolzonetriggerbehaviorspecifictoanAreaAnwithintheAreacollectionfolder.
+Theyareappendedtoapp.Acquisition.Trigger.ZoneTrigger.Areas("An")oritsalias.
+Name Type Description
+AddPoint Action Addsanewpoint(forshapemodification)totheArea.
+Condition Enum SpecifiestheAreacondition.Waveformsmustmeetthisconditiontotrig-
+geracquisition.MaybeIn,Out,orDon'tCare.
+Delete Action RemovesselectedArea.
+Duplicate Action DuplicatesselectedArea.
+LastTestStatus Enum Read-onlyenumindicatingthelastteststatusoftheArea.0isFail,1is
+Pass,XisDon'tCare/undefined.
+NextPoint Action MovesfocustonextpointinArea.
+PointHorPosition Double Absolutehorizontalposition(inseconds)ofselectedpoint.
+Points SafeArray Specifiestheareavertices.Isanarray(VBSSafeArray)ormaybespecified
+asastringwithcomma-separatedx,yforeachpointandsemicolon-
+separatedpoints,asshownbelow.
+A1.points="-50e-9,0;-50e-9,0.1;100e-9,0.1;100e-9,-0.05"
+PointVerPosition Double Absoluteverticalposition(inVolts)ofselectedpoint.
+PreviousPoint Action MovesfocustopreviouspointinArea.
+RemovePoint Action RemovespointfromArea.
+SelectedPoint Enum PointwithinAreathatcurrentlyhasfocus.Forrectangles:Point1through
+Point4.Forcustomshapes:Point1throughPointnwherenisthetotal
+numberofpoints.
+Source Enum InputwaveformonwhichtheAreaisplaced,C1throughC4.
+4-12
+
+----- 第 109 页 -----
+
+Part4:AutomationControlVariableReference
+ExampleVBSScript
+Thefollowingscriptdemonstrateshowtoinstantiateaconnectiontoanoscilloscope,setupazone
+triggerfortwoAreas(A1andA2)ontwochannels,forceatriggerifthezonelogicisnotsatisfied,then
+changethelogic.
+' connecttoscopeapp,enable/configurezone-trigger
+Setapp=CreateObject("LeCroy.XStreamDSO")
+app.SetToDefaultSetup
+setacq=app.acquisition
+' enablezonetrigger
+acq.trigger.secondarytype="zone"
+setzoneTrig= app.acquisition.trigger.zonetrigger
+' configuresomezonetriggerareas
+setarea1= zoneTrig.AddArea()
+area1.Source= "C1"
+area1.Condition= "In"
+area1.Points= "-50e-9,-0.1;25e-9,0.1;75e-9,-0.1"
+setarea2= zoneTrig.AddArea()
+area2.Source= "C2"
+area2.Condition= "Out"
+area2.Points= "-115e-9,-0.05;-115e-9,0.035;95e-9,0.035;95e-9,-0.05"
+' armacquisitionandwait
+timeoutSec= 3.0
+msgbox"zoneTriggerconfiguredwith" & zoneTrig.Areas.Count&" area(s)andequation:" &
+zoneTrig.logicequation& VbCrLf& VbCrLf&"PressOktoarmandwaitupto" & timeoutSec&"
+secondsfortrigger"
+acq.arm
+triggered= acq.wait(timeoutSec)
+msgbox"acq.waitreturned"& triggered&VbCrLf& VbCrLf& getZoneTriggerStatus(zoneTrig)
+' ifdidn'ttrigger,forcetrigger
+ifnottriggeredthen
+acq.forcetrigger
+forcetriggered= acq.wait(timeoutSec)
+msgbox"afterforcetrigger,acq.waitreturned" & forcetriggered& VbCrLf& VbCrLf&
+getZoneTriggerStatus(zoneTrig)
+endif
+' changelogic-equation
+zoneTrig.logicequation= "notA1ornotA2"
+app.waituntilidle(timeoutSec)
+msgbox"afterchanginglogicequation" &VbCrLf& VbCrLf& getZoneTriggerStatus(zoneTrig)
+' helperfunctiontogetstringcontainingzoneTriggersummarystatus/resultandspecific
+resultforeacharea
+functiongetZoneTriggerStatus(zoneTrig)
+status="ZoneTriggerstatus:" &zoneTrig.lastTestResult&VbCrLf
+status=status& "LogicEquation:"& zoneTrig.logicequation& VbCrLf
+foreachareainzoneTrig.areas
+status= status&area.name& " LastTestStatus:" &area.LastTestStatus&VbCrLf
+next
+getZoneTriggerStatus= status
+endfunction
+4-13
+
+----- 第 110 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Cursors
+CVARsrelatedtotheselectionandplacementofmeasurementcursors.
+ChildObjects
+Object Description
+app.Cursors.XYCursorsMgr Settingsrelatedtotheplacementandtrackingofrelativecursors.
+4-14
+
+----- 第 111 页 -----
+
+Part4:AutomationControlVariableReference
+app.CustomDSO
+CVARsrelatedtotheCustomDSO(XDEV)option.StandardonWavePro,WaveMaster,andLabMaster
+oscilloscopes,availableasanoptiononWaveRunnerandmostHDOoscilloscopes.Notavailableon
+HDO4000andWaveSurfer3000oscilloscopes.
+Actions
+Action Description
+app.CustomDSO.PlugIn1Install Installscustomprogram
+app.CustomDSO.PlugIn1Remove Removescustomprogram
+4-15
+
+----- 第 112 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Display
+CVARsrelatedtotheoscilloscopetouchscreendisplayandtheappearanceofwaveformtraces.
+Actions
+Action Description
+app.Display.ClearSweeps Clearssweepsonlyforpersistencetraces.
+app.Display.DisableExternalMonitor Exitexternalmonitordisplay;resumedefaulttouchscreendisplay.
+app.Display.EnableExternalMonitor Enterexternalmonitordisplay.
+app.Display.FactoryDefault EquivalenttoSetToDefault.
+app.Display.OpenMonitorControls Opensdialogforexternalmonitorsetup.
+app.Display.PreviewPrintColors Showstheinstrumentdisplayinthecurrentlyselectedprintcolorpalette.
+app.Display.ResetAll Turnsoffdisplaypersistenceonanytracewhereithasbeenset.
+4-16
+
+----- 第 113 页 -----
+
+Part4:AutomationControlVariableReference
+app.Hardcopy
+CVARsrelatedtotheoscilloscopePrintfunction.Thisincludeshardcopyprintaswellasprinttofile,send
+toemail,andcopytoclipboard.
+Note:Inthe64-bitXStreamDSOv.8.4.0.0andlater,manyformerHardcopyCVARshavebeen
+movedtotheFile>PrintandFile>SaveScreenImagedialogs.ThereisnolongeraHardcopy
+PreferencesdialoginMAUI.Seeapp.SaveRecall.
+Actions
+Action Description
+app.Hardcopy.EjectPaper Sendsejectcommandtoconnectedprinter.Thisactionisonlyrelevantif
+app.Hardcopy.DestinationissettoPrinter.
+app.Hardcopy.Print Initiatestheprintaction;opensmodaldialogforcompletingprint
+selections.
+app.Hardcopy.PrintToRemote Performsthesameactionastheabovecommand,butusefulforpro-
+gramminglanguageswhereendingacommandwiththeword"print"is
+problematic.
+app.Hardcopy.ShowEmailMenu DisplaysdialogforconfiguringEmailsettings.
+4-17
+
+----- 第 114 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.History
+CVARsrelatedtotheoscilloscopeHistoryModefeature.NotavailableonZiseriesoscilloscopes.
+ChildObjects
+Object Description
+app.History.HistoryTable SettingsrelatedtotheHistoryModetabulardisplay.
+Actions
+Action Description
+app.History.Next Displaysnextacquisitioninhistory.
+app.History.Previous Displayspreviousacquisitioninhistory.
+app.History.HistoryTable.ClearSweepsClearshistorybuffer.
+4-18
+
+----- 第 115 页 -----
+
+Part4:AutomationControlVariableReference
+app.LabNotebook
+CVARsrelatedtotheLabNotebookdocumentationtool.
+Note:InMAUI,LabNotebookCVARShavebeenmovedtotheFile>SaveandFile>Recalldialogs.
+Seeapp.SaveRecall.
+Actions
+Action Description
+app.LabNotebook.CreateReport OutputsselectedNotebookEntriesinreportformat.
+app.LabNotebook.DeleteAll DeletesallNotebookEntries.
+app.LabNotebook.DeleteRecord DeletesselectedNotebookEntries.
+app.LabNotebook.DeviceChanged UsedinternallybyMAUItopropagateWindows"DeviceChanged"
+notificationstoLabNotebook.Donotuse.
+app.LabNotebook.EmailRecord EmailsselectedNotebookEntries.
+app.LabNotebook.ExtractAttachmentsNow ExtractsexternalfilesattachedtoselectedLabNotebooktopath
+setinapp.LabNotebook.ExtractFilepath.
+app.LabNotebook.ExtractFilesNow Extractsscreencapture(.PNG),setup(.LSS)andtrace(.TRC)files
+thatmakeuptheNotebookEntryintoseparatefiles.
+app.LabNotebook.FilterRecords AppliessearchfilterstolistofNotebookEntries.
+app.LabNotebook.FlashBackToRecord InvokesFlashbackRecallofselectedNotebookEntry.Theflash-
+backrestoresthescreenimage,waveforms,andsetupssaved
+withtheentry.
+app.LabNotebook.InternalView OpenstheLabnotebookReportViewer,displayingtheselected
+entryinthereportformat.
+app.LabNotebook.NextRecord DisplaysthenextNotebookEntry
+app.LabNotebook.PreviousRecord DisplaysthepreviousNotebookEntry
+app.LabNotebookPrintRecord SendsselectedNotebookEntrytoconnectedprinter.
+app.LabNotebook.Refresh RefreshesthelistofNotrbookEntriesfortheselectedLabNote-
+bookfile.PrimarilyusedbylegacyLabNotebookforWaveSurfer
+andWaveRunnerXioscilloscopes.
+app.LabNotebook.ReportGenRefreshFromCurrentStateGeneratesreportusingcurrentstateofoscilloscope(allsetups,
+visiblewaveforms,visibletabledata,etc.).
+app.LabNotebook.Save SavescurrentstateofoscilloscopetonewNotebookEntry.
+app.LabNotebook.SaveReport Savescontentsofreportwindowtofileusingcurrent
+app.LabNotebook.Report*settings.
+app.LabNotebook.ShowEditDescription Displayspop-upofNotebookEntryDescriptionforediting.
+app.LabNotebook.ShowEMailMenu DisplaysEmail&ReportSettingsdialog.
+app.LabNotebook.ShowScreenImageSettingsDisplayspop-upofScreenImagesettingsforediting(linkedto
+Area/ColorPreferencesbutton).
+app.LabNotebook.ViewRecord DisplaysselectedNotebookEntryinreportwindow.
+4-19
+
+----- 第 116 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Math
+CVARsrelatedtoMathfunctionsF1-Fn.
+Namesoftheformapp.Math.Functions("Fn").xxxxareanaliasCollection.Forexample:
+l app.Math.Functions("Fn")isequivalenttoapp.Math.Fn
+l app.Math.Functions("Fn").Out.Resultisequivalenttoapp.Math.Fn.Out.Result
+l app.Math.Functions("Fn").Zoomisequivalenttoapp.Math.Zoom.Fn
+ChildObjects
+Object Description
+app.Math.Fn MathfunctionsF1toFn.
+app.Math.XY CVARscontrollingthedisplayofdatainXvs.Ymode.OnlyValidwhenthe
+instrumentisinXY,XYSingle,orXYDualdisplaymodes.
+Actions
+Action Description
+app.Math.ClearSweeps Clearssweepsforhistoryfunctionssuchasaverage,histogramandtrend.
+app.Math.ResetAll Resetsallmathfunctionstodefaultstate;allfunctiondefinitionsare
+cleared.
+app.Math.ShowZoomMenu DisplaystheZoomdialogforrescalingfunctions.
+4-20
+
+----- 第 117 页 -----
+
+Part4:AutomationControlVariableReference
+app.Math.Fnandapp.Math.XY
+CVARsrelatedtoindividualmathfunctionsF1-FnandXYtrace.
+ChildObjects
+Object Description
+app.Math.Fn.OperatornSetup Thisnodeisdynamicallycreatedandwillcontainthecontrolsforthe
+operatorcurrentlyselectedintoOperatorn.
+app.Math.Fn.Zoom Functionzoomscalesettings.
+Actions
+Action Description
+app.Math.Fn.ClearSweeps
+app.Math.XY.ClearSweeps
+Clearsaccumulateddataforsinglefunctiontrace.
+ClearspersistenceX-Yplot.
+app.Math.Fn.DoResetZoom ResetsscaleofFntraceto1:1.
+app.Math.Fn.DoStoreToMemoryTrace StoresFntracetocorrespondinginternalmemory(e.g.,F1toM1).
+app.Math.Fn.FPHit Opens/closestheFndialogdisplay.Eachsuccessiveinvocationofthe
+commandactslikeatoggle.
+app.Math.Fn.ShowProcessingWeb OpenWebEditorwindowtocreateprocessingwebtoruninfunction.Not
+availableonWaveSurferandHDO4000oscilloscopes.
+app.Math.Fn.OperatornSetup.DownFactor Forthoseoperatorsthatinvolveasamplingfactor(suchasInterpolation),
+decreasesthesamplevaluebyonestep.
+app.Math.Fn.OperatornSetup.UpFactor Forthoseoperatorsthatinvolveasamplingfactor(suchasInterpolation),
+increasesthesamplevaluebyonestep.
+4-21
+
+----- 第 118 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Measure
+CVARsrelatedtoMeasureparametersP1-Pn(MyMeasuremode)andthestatisticalresultsandhisticons
+whichdependonthem.
+Namesoftheformapp.Measure.Measure("Pn").xxxxareanaliasCollection.Forexample:
+l app.Measure.Measure("Pn").OutResultisequivalenttoapp.Measure."Pn".OutResult
+l app.Measure.Measure("Pn").Statisticsisequivalenttoapp.Measure.Pn.Statistics
+Theapp.Measureobjectisalsousedtosetlevelsandotherfeaturesforallmeasurementsinthe
+aggregateonWaveSurfer-classoscilloscopes(includingHDO4000andHDO4000Aseries).These
+oscilloscopesdonotsupportmakingthesesettingsindividuallyforeachparameterP1throughPn.
+Note:OnWaveSurferoscilloscopes,MAUIBrowserwillshowCVARsgroupedunderC1through
+Cn,buttheycannotbesetusingthatsyntax.UsetheCVARsinthetablesbelow.
+ChildObjects
+Object Description
+app.Measure.Pn User-definedmeasureparametersP1toPn.
+app.Measure.Premote UsedinternallybyMAUIforhandlinglegacyremotecommands.Donot
+use.
+app.Measure.StdLevelPercent UsedbyWaveSurferstosetmeasurelevelpercentamplitudeforallpara-
+meters.
+app.Measure.StdLevelPercent2 UsedbyWaveSurferstosetsecondmeasurelevelpercentamplitudeforall
+parameterswhenmorethanonelevelisrequired.
+app.Measure.StdGateStart UsedbyWaveSurferstosetmeasuregatehorizontalstartposition.Range
+from
+-5to5div.
+app.Measure.StdGateStop UsedbyWaveSurferstosetmeasuregatehorizontalstartposition.Range
+from
+-5to5div.
+Actions
+Action Description
+app.Measure.ClearAll Resetsallparametersetups,turningeachoftheparametersviewto"off",
+theMeasurementTypeto"measure"andtheselectedparamEngineto"Null".
+app.Measure.ClearAllHelpMarkers Forceoffall'HelpMarkers',theon-traceannotationofmeasurements,when
+inMyMeasuremode.NotvalidonWaveSurfersorinStd.Hori-
+zontal/Verticalmode.
+app.Measure.ClearSweeps ClearstheaccumulatedstatisticsforparametersP1toPnaswellasthe
+acumulatedstatisticsfortheirassociatedhisticons.
+4-22
+
+----- 第 119 页 -----
+
+Part4:AutomationControlVariableReference
+Action Description
+app.Measure.HelpMarker Turnson(true)oroff(false)helpmarkersonallmeasurements..Validonly
+onWaveSurfersorwhenineitherStd.Vertical/Horizontalmeasurement
+modes.ForMyMeasure,seetheequivalentcontrolsunderapp.Measure.Pn.
+app.Measure.HistoOn Turnson(true)oroff(false)histogramsofallmeasurements.
+app.Measure.SetGateToDefault Setsthemeasuregatetoitsdefaultstate(-5to5Div).Validonlyon
+WaveSurfersorwhenineitherStd.VerticalorStd.Horizontalmeasurement
+modes.ForMyMeasure,seetheequivalentcontrolsunderapp.Measure.Pn.
+app.Measure.ShowAllHelpMarkers Forceonall'HelpMarkers'.NotvalidonWaveSurfers.
+app.Measure.ShowMeasure Usedtoturnon(true)oroff(false)displayofmeasurementsintable
+withoutclearingthemeasurementdefinitionsaswithapp.Meas-
+ure.ClearAll.
+app.Measure.StatsOn Turnson(true)oroff(false)statisticsdisplayforallmeasurements.
+app.Measure.Pn
+CVARsrelatedtoindividualmeasureparametersP1-Pnwhenin"MyMeasure"mode(validon
+WaveRunner-classoscilloscopesonly).
+Note:OnWaveSurferoscilloscopes,MAUIBrowserwillshowCVARsgroupedunderC1through
+Cn,buttheycannotbesetusingthatsyntax.UsetheCVARsintheapp.Measuretables.
+ChildObjects
+Object Description
+app.Measure.Pn.Accept Measurementresultfiltersettings.
+app.Measure.Pn.Operator Settingsrelatedtoselectedmeasurement.
+Actions
+Action Description
+app.Measure.Pn.HistogramThis Drawshistogramplotofmeasurementresults.
+app.Measure.Pn.ShowProcessingWeb OpensWebEditorwindowtocreateprocessingwebtoruninparameter.
+NotavailableonWaveSurferandHDO4000oscilloscopes.
+app.Measure.Pn.TrackThis Drawstrackplotofmeasurementresults.
+app.Measure.Pn.TrendThis Drawstrendplotofmeasurementresults.
+app.Measure.Pn.Accept.FindLevel Automaticallysetsfilterlevelbasedonsignalcharacteristics.
+app.Measure.Pn.Accept.FindRange Automaticallysetsfilterlevelrangebasedonsignalcharacteristics.
+app.Measure.Pn.Operator.FindLevel Automaticallyfindsmeasurementlevelbasedonsignalcharacteristics.
+4-23
+
+----- 第 120 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.Memory
+CVARsrelatedtotheinternalmemoriesM1throughMn.
+Namesoftheformapp.Memory.Memories("Mn").xxxxareanaliasCollection.Forexample:
+l app.Memory.Memories("Mn").Out.Resultisequivalenttoapp.Memory.Mn.Out.Result
+l app.Memory.Memories("Mn").Zoomisequivalenttoapp.Memory.Mn.Zoom
+ChildObjects
+Object Description
+app.Memory.Mn InternalmemoriesM1toMn.
+Actions
+Action Description
+app.Memory.ClearAllMem Clearsthecontentsofalltracememories.
+app.Memory.Mn
+CVARsrelatedtomemoriesM1-Mn.
+ChildObjects
+Object Description
+app.Memory.Mn.Zoom Memoryzoomscalesettings.
+Actions
+Action Description
+app.Memory.Mn.ClearMem Clearscontentsofmemory.
+app.Memory.Mn.ClearSweeps Clearsaccumulatedsweeps.
+app.Memory.Mn.Copy CopiesthetracespecifiedbytheSource1controlintothismemory.
+app.Memory.Mn.FPHit UsedinternallybyMAUItotoggleopen/closedMemorySetupdialogwhen
+frontpanelMembuttonispressed.Notrecommendedforuse.
+4-24
+
+----- 第 121 页 -----
+
+Part4:AutomationControlVariableReference
+app.PassFail
+CVARsrelatedtoPass/FailtestingandtestQualifiersQ1-Qn.
+Namesoftheformsapp.PassFail.PassFail("Qremote").xxxxandapp.PassFail.PassFail("Qn").xxxxarealias
+Collections.Forexample:
+l app.PassFail.PassFail("Qremote").Operatorisequivalenttoapp.PassFail.Qremote.Operator
+l app.PassFail.PassFail("Qn").Out.Resultisequivalenttoapp.PassFail.Qn.Out.Result
+ChildObjects
+Object Description
+app.PassFail.Qn Settingsrelatedtotestqualifier.
+app.PassFail.LastPass Returnslastpassedresult.SeeResultInterfacereference.
+app.PassFail.NumPass Returnsnumberofresultspassed.SeeResultInterfacereference.
+app.PassFail.Rate ReturnsPassFailrate.SeeResultInterfacereference.
+Actions
+Action Description
+app.PassFail.ClearSweeps Clearsaccumulateddataforsinglefunctiontrace.
+4-25
+
+----- 第 122 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.PassFail.Qn
+CVARsrelatedtoindividualPass/FailtestqualifiersQ1-Qn.NotavailableonWaveSurferandHDO4000
+oscilloscopes.
+ChildObjects
+Object Description
+app.PassFail.Qn.Operator Settingsrelatedtotestoperator.
+Actions
+Action Description
+app..PassFail.Qn.ClearSweeps Clearssweeps.
+app..PassFail.Qn.Operator.ClearSweeps Clearssweeps.
+app.PassFail.Qn.Operator.FindLimit Whenqualifierisperformingaparametercomparison(Condi-
+tion=Paramcompare),setsthemaximumvalueinOperator
+Limitfield.
+app.PassFail.Qn.Operator.FindLimitUsingnSigma Whenqualifierisperformingaparametercomparison(Condi-
+tion=Paramcompare),setsthevalueinOperatorLimitfield
+usingnSigma.n:={1,3,5}
+4-26
+
+----- 第 123 页 -----
+
+Part4:AutomationControlVariableReference
+app.Preferences
+ThissetofCVARscontrolsuserpreferencesfortheinstrumentsetupandoperation.
+Note:InMAUI,manyemailCVARshavebeenmovedtotheFile>FileSharingandEmail&Reports
+Settingsdialogs.ThereisnolongeranEmailPreferencesdialog.Seeapp.SaveRecall.
+ChildObjects
+Object Description
+app.Preferences.Display Touchscreendisplayandcolorpreferences.
+app.Preferences.Email Emailpreferences.
+Actions
+Action Description
+app.Preferences.LanguageIcon Displayslanguageselectionicon.Thisactionisonlyvalidonoscilloscope
+modelsthatallowlanguageselection.
+app.Preferences.Display.ClearSweepsSameasapp.Display.ClearSweeps.ClearaccumulatedsweepsifPer-
+sistencedisplayisenabled.
+app.Preferences.Display.FactoryDefaultRestoresallDisplaycolorCVARstofactorydefaultsettings.Linkedto
+Preferences>Color>Factorydefaultcolorsbutton.
+app.Preferences.Display.OpenMonitorControlsOpenWindowsdisplaypanelforexternalmonitorconfiguration.
+app.Preferences.Display.PreviewPrintColorsOpenspreviewwindowofimageusingprintcolorpalette.
+app.Preferences.Display.ResetAll Returnsalldisplaysettingstofactorydefault.
+app.Preferences.Email.ComposeMail Launchesdialogtocomposecoveremailwhenfile"printed"toemail.
+app.Preferences.Email.SendMail Sendsemailmessage.
+app.Preferences.Email.SendTestMail Sendsamessagebye-mailtotestthesystem.
+4-27
+
+----- 第 124 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.ProbesCal
+CVARsrelatedtoprobecalibrationfeature.NotavailableonWaveSurferandHDO4000oscilloscopes.
+Actions
+Action Description
+app.ProbesCal.CalibrateAlln Initiatesfullcalibrationofcorrespondingchanneln,whichincludes
+Gain/Offset,anddeskew.
+app.ProbesCal.Clearn Clearsallcalibrationcoefficientsforcorrespondingchanneln.
+app.ProbesCal.DcCaln InitiatesaDCcalibration(Gain/Offset)ofcorrespondingchanneln.
+app.ProbesCal.Deskewn Initiatesadeskewcalibrationofcorrespondingchanneln.
+app.ProbesCal.RecallCalSetup Wheneveraprobecalibrationisapplied,thescopesavestheinformationin
+afileonthedisk.Ifthescopemustberebootedforanyreason,theprobe
+calibrationinformationisalwayscleared,butcanberecalledusingthiscon-
+trol.
+4-28
+
+----- 第 125 页 -----
+
+Part4:AutomationControlVariableReference
+app.SpecAnalyzer
+CVARsrelatedtotheSpectrumAnalyzeroption.StandardonHDO6000,HDO8000,andMDAseries
+oscilloscopes.
+SeethetableofexampleVBSCommandstoReadfromSpectrumAnalyzer.
+ChildObjects
+Object Description
+app.SpecAnalyzer.SpecAn Post-processingspectrumtrace.
+app.SpecAnalyzer.SpecAnTable Spectrummeasurementtable.
+app.SpecAnalyzer.Spectro Spectrogramplot.
+app.SpecAnalyzer.SpecWindow SpectrumAnalyzerwindow.
+app.SpecAnalyzer.SpIn Spectrumsourcetrace.
+Actions
+Action Description
+app.SpecAnalyzer.AllMarkersOff Turnsoffallmarkers.
+app.SpecAnalyzer.MarkerToCenterFreq Movesmarkertocenterfrequency.
+app.SpecAnalyzer.MarkerToRefLevel Movesmarkertoreferencelevel.
+app.SpecAnalyzer.SetDefaultMarkers PlacesdefaultmarkersonSpecAntrace.
+app.SpecAnalyzer.SetHarmonicsMarkers PlacesharmonicfrequencymarkersonSpecAntrace.
+app.SpecAnalyzer.SetPeaksMarkers PlacespeaksmarkersonSpecAntrace.
+app.SpecAnalyzer.SpecAn.ClearSweeps ClearsanyaccumulatedresultdataforSpecAntrace.
+app.SpecAnalyzer.SpecAnTable.ClearSweepsClearsanyaccumulatedresultdatausedincomputationofSpecAn
+table.
+app.SpecAnalyzer.Spectro.ClearSweeps Clearsanyaccumulatedresultdataforspectrogramplot.
+app.SpecAnalyzer.SpecWindow.ClearSweepsClearsanyaccumulatedresultdatafor"window"ofgatedspectrum
+trace.
+app.SpecAnalyzer.SpIn.ClearSweeps Clearsanyaccumulatedresultdataforspectrumsourcetrace.
+4-29
+
+----- 第 126 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.SaveRecall
+CVARsrelatedtosavingorrecallingsetups,waveforms,andtabulardata.
+ChildObjects
+Object Description
+app.SaveRecall.Remote Controlsdefiningthescopeandformatofexportedwaveformdata.
+app.SaveRecall.Setup Controlsrelatedtosetuppaneldata.
+app.SaveRecall.Table Controlsrelatedtotabledata.
+app.SaveRecall.Utilities Controlsrelatedtothefiledirectorystructure.
+app.SaveRecall.Waveform Controlsrelatedtowaveformdata.
+Actions
+Action Description
+app.SaveRecall.DisableAutoSave TurnOFFAutoSavefeature/confirmdisableAutoSave.(TurnONAutoSave
+bysettingEnumapp.SaveRecall.AutoSavetoWraporFill.
+app.SaveRecall.ShowAutoSave DisplayAutoSavedialog.
+app.SaveRecall.ShowDiskUtilities DisplayDiskUtilitiesdialog.
+app.SaveRecall.ShowEmailReportSettingsDisplayEmail&ReportSettingsdialog.
+app.SaveRecall.ShowLSIBExport DisplayLSIBexportdialog.(OnlyworkswhenLSIBoptioninstalled.)
+app.SaveRecall.ShowPrint DisplayPrintdialog.
+app.SaveRecall.ShowRecall DisplayRecalldialog.
+app.SaveRecall.ShowRecallLabNotebookDisplayLabNotebooksettingsonRecalldialog.
+app.SaveRecall.ShowRecallSetup DisplaySetupsettingsonRecalldialog.
+app.SaveRecall.ShowRecallWaveformDisplayWaveformsettingsonRecalldialog.
+app.SaveRecall.ShowReportGeneratorDisplayReportGeneratordialog.
+app.SaveRecall.ShowSave DisplaySavedialog.
+app.SaveRecall.ShowSaveLabNotebookDisplayLabNotebooksettingsonSavedialog.
+app.SaveRecall.ShowSaveScreenImageDisplayScreenImagesettingsonSavedialog.
+app.SaveRecall.ShowSaveSetup DisplaySetupsettingsonSavedialog.
+app.SaveRecall.ShowSaveTable DisplayTablesettingsonSavedialog.
+app.SaveRecall.ShowSaveWaveform DisplayWaveformsettingsonSavedialog.
+app.SaveRecall.ShowSharing DisplayFileSharingdialog.
+4-30
+
+----- 第 127 页 -----
+
+Part4:AutomationControlVariableReference
+app.SaveRecall.Remote
+CVARsdefiningthescopeandformatofexportedwaveformdata.
+Actions
+Action Description
+app.SaveRecall.Remote.DoExport UsedinternallybyMAUItoimplementlegacystyleremotewaveformtrans-
+fer.Donotuse.
+app.SaveRecall.Remote.DoImport UsedinternallybyMAUItoimplementlegacystyleremotewaveformtrans-
+fer.Donotuse.
+4-31
+
+----- 第 128 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.SaveRecall.Setup
+CVARsrelatedtosavingorrecallingsetupdata.
+Actions
+Action Description
+app.SaveRecall.Setup.DoRecallDefaultNvlPanelRecallsthefactorysetNVL(preference)panelsettings.Thesearecon-
+trolswhicharenotaffectedwhenthedefaultpanelisrecalled,and
+includesitemssuchasthecolorpreferences,remotecontrolpref-
+erences,etc.Usewithcare,especiallywheninvokingoveraremotecon-
+nection,asitcouldresultinthecontrollerbeingdisconnectedwhenthe
+defaultportisselected.
+app.SaveRecall.Setup.DoRecallDefaultPanelRecallsfactorydefaultpanelsettings.EquivalenttopressingDefault
+SetuporRecallDefaultbutton.
+app.SaveRecall.Setup.DoRecallPanel Recallssetupfrominternalpanel.
+app.SaveRecall.Setup.DoRecallSetupFileDoc2Recallssetupfromselected.LSSfile.
+app.SaveRecall.Setup.DoSavePanel Savessetuptointernalpanel.
+app.SaveRecall.Setup.DoSavePanelWithPromptSavessetupto.LSSfilewithpromptforfilename.
+app.SaveRecall.Setup.DoSaveSetupFileDoc2Savessetuptoautogenerated.LSSfile.
+app.SaveRecall.Setup.NotifyRecallDefaultHookUsedinternallybyMAUI.Donotuse.
+app.SaveRecall.Setup.RecallInternaln Recallsetupsincorrespondinginternalpanel.
+app.SaveRecall.Setup.SaveInternaln Savecurrentsetuptocorrespondinginternalpanel.
+app.SaveRecall.Table
+CVARsrelatedtosavingtabledata.
+Actions
+Action Description
+app.SaveRecall.Table.DoSave Savesdisplayedtable(s)tofileusingapp.SaveRecall.Tablesettings.File
+nameisformatted<sourceprefix><filenamestring><counter>.csv
+app.SaveRecall.Table.SaveFile Savesdisplayedtable(s)tofileusingapp.SaveRecall.Tablesettings,insert-
+ingatwo-characterseparator("--")betweenthesourceprefix,filename
+stringandcounter,ifselected(e.g.,Decode1--USB3Decoding--0001.csv).
+4-32
+
+----- 第 129 页 -----
+
+Part4:AutomationControlVariableReference
+app.SaveRecall.Utilities
+CVARsrelatedtofiledirectorystructure.
+Actions
+Action Description
+app.SaveRecall.Utilities.CopyDir Copiesallfilesfrompathsetinapp.SaveRecall.Utilities.Directory
+app.SaveRecall.Utilities.CopyFile Copiesfileinpathapp.SaveRecall.Utilities.SelectedFiles
+app.SaveRecall.Utilities.CreateDir Createspathsetinapp.SaveRecall.Utilities.DestDirectory
+app.SaveRecall.Utilities.DeleteAll Deletesallfilesfrompathsetinapp.SaveRecall.Utilities.Directory
+app.SaveRecall.Utilities.DeleteFile Deletesfilefrompathsetinapp.SaveRecall.Utilities.SelectedFiles
+app.SaveRecall.Utilities.EmailSelectedFilesNowEmailsfilesfrompathsetin
+app.SaveRecall.Utilities.SelectedFiles
+app.SaveRecall.Utilities.NextFile Showsnextfileinpathsetinapp.SaveRecall.Utilities.Directory
+app.SaveRecall.Utilities.PrevFile Showsprev.fileinpathsetinapp.SaveRecall.Utilities.Directory
+app.SaveRecall.Utilities.SaveSelectedFilesToZipNowZipsfilesinpathsetinapp.SaveRecall.Utilities.SelectedFiles
+app.SaveRecall.Waveform
+CVARsrelatedtosavingwaveformdatatoexternalfilesandrecallingwaveformfiles.
+Actions
+Action Description
+app.SaveRecall.Waveform.DoRecall RecallwaveformfrominternalMemory.
+(Useapp.SaveRecall.Remote.DoImporttoimportfromremotedirectory.)
+app.SaveRecall.Waveform.NextFile Displaynextwaveformfileindirectory.
+app.SaveRecall.Waveform.PrevFile Displaypreviouswaveformfileindirectory.
+app.SaveRecall.Waveform.SaveFile Saveactivewaveformtofileusingapp.SaveRecall.Waveformsettings,
+insertingatwo-characterseparator("--")betweenthesourceprefix,file-
+namestringandcounter,ifselected(e.g.,C1--MyTrace--0001.trc).
+(Useapp.SaveRecall.Remote.DoExporttosavetoremotedirectory.)
+4-33
+
+----- 第 130 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.TriggerScan
+CVARsrelatedtotheTriggerScanfeature.NotavailableonWaveSurferandHDO4000oscilloscopes.
+Actions
+Action Description
+app.TriggerScan.AddNewSetup AppendsthecurrenttriggersetuptothelistofTriggerScantriggers.
+app.TriggerScan.DeleteAll Deletesallstoredtriggersetupsfromthetriggerlist.
+app.TriggerScan.DeleteSelected Deletestheselectedtriggersetupfromthetriggerlist.
+app.TriggerScan.LoadSelected Loadsthetriggersetupselectedinthetriggerlistintothecurrenttrigger
+setup.
+app.TriggerScan.LoadSetup LoadsthetriggerlistfromthefilespecifiedintheSetupFileNamecontrol.
+app.TriggerScan.SaveSetup SavesthecurrenttriggerlistintothefilespecifiedintheSetupFileName
+control.
+app.TriggerScan.StartScan Startsscanning.PlacesthescopeinNormaltriggermode,andstartswalk-
+ingdownthelistoftriggersetups.
+app.TriggerScan.StartTraining Startstraining.Thiswilltakeanacquisitiononthechannelspecifiedinthe
+TrainerSourcecontrol,anddependinguponthestateoftheTrainEdges,
+TrainGlitches,TrainIntervals,TrainRunts,TrainWidthscontrols,createsa
+listoftriggersetups.
+app.TriggerScan.StopScan Stopsscanning.
+app.TriggerScan.UpdateSelected UpdatesthecurrentlyselectedTriggerScansetupwiththecurrenttrigger
+setup.
+4-34
+
+----- 第 131 页 -----
+
+Part4:AutomationControlVariableReference
+app.Utility
+CVARsrelatedtooscilloscopeUtilitiesdialogsettings.
+ChildObjects
+Object Description
+app.Utility.DateTimeSetup Data/Timecontrols.
+app.Utility.Options Optionkeyinstallation/activationcontrols.
+app.Utility.Remote Remotecontrolsettings.
+Actions
+Action Description
+app.Utility.DateTimeSetup.AddOneHour Addsonehourtocurrenttime.
+app.Utility.DateTimeSetup.BackOneHour Removesonehourfromcurrenttime.
+app.Utility.DateTimeSetup.SetFromSNTP Setstherealtimeclockfromthesimplenetworktimepro-
+tocol.
+app.Utility.DateTimeSetup.ShowProperties Launchesmodaldialogshowingcurrentdate/timesettings.
+app.Utility.DateTimeSetup.Validate Validatesanynewsettings.Thisactionisequivalenttoclick-
+ing'ValidateChanges'ontheDate/Timepage.
+4-35
+
+----- 第 132 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.WaveScan
+CVARsrelatedtotheWaveScanfeature.
+ChildObjects
+Object Description
+app.WaveScan.ScanDecode ScanDecodetableviewcontrols.
+app.WaveScan.ScanHisto ScanHistogramviewcontrols.
+app.WaveScan.ScanOverlay ScanOverlay(marker)viewcontrols.
+Actions
+Action Description
+app.WaveScan.FindRarenSigma Presetsthefilterlimitanddeltatofindrareevents.Usesthehistory
+ofmeasurementssincethelastClearSweeps,orcontrolchange,to
+setthelimitanddeltatocapture+/-nsigmaevents.n:={1,3,5}
+app.WaveScan.FindSelectRarest Presetsthefiltertofindraresteventinacquisition.
+app.WaveScan.FindUseMean Setupthefiltertofindmeasurementswithvalues>thecurrentstat-
+isticalmean.
+app.WaveScan.ScanDecode.ClearSweeps Clearsanyaccumulatedresultdata.
+app.WaveScan.ScanHisto.ClearSweeps Clearsanyaccumulatedresultdata.
+app.WaveScan.ScanHisto.Histogram.ClearSweepsClearsanyaccumulatedresultdata.
+app.WaveScan.ScanHisto.Histogram.FindScaleAutomaticallydetermineanappropriatehorizontalscaleforthehis-
+togram,usingthevaluescurrentlyinthehistogrambuffer.
+app.WaveScan.ScanHisto.Zoom.ResetZoomResetsthezoomsettingstotheirdefaultvalues.
+app.WaveScan.ScanOverlay.ClearSweeps Clearsanyaccumulatedresultdata.
+4-36
+
+----- 第 133 页 -----
+
+Part4:AutomationControlVariableReference
+app.WebEditor
+CVARsrelatedtotheWebEditor,whichisusedtocreatecustomprocessingchains("webs")associated
+withasinglefunction,parameter,orPass/Failqualifier.
+Tip:TheeasiestwaytodeterminethepropersyntaxforWedEditorobjectsistosetupthe
+WebEditorontheoscilloscopeasyouwouldlike,thensaveasetupfile.The.lssfilewillembedthe
+AutomationobjectsforthatWebEditorfunction.Thistipcanbeappliedtoanytypeofsetupyou
+wishtoperformremotely.
+Actions
+Action Description
+app.WebEditor.ClearSweeps ClearsanyaccumulateddatafornodessuchasAverage,Persistence,etc.
+thatresideintheprocessingweb.
+Methods
+app.WebEditor.AddConnection([in]VARIANTdestProcessor,[in]VARIANTdestInputPin,[in]VARIANT
+sourceProcessor,[in]VARIANTsourceOutputPin)
+Addsaconnectionbetweentwo'pins'ofnodesplacedwithintheWebEditor.Pinsaredescribedbythe
+nameofthenode,andthezero-basedindexofthepinonthatnode.
+app.WebEditor.AddPreview([in]VARIANTsourceProcessor,[in]VARIANTsourcePin,[in]BSTR
+previewName,[in]doublexPosition,[in]doubleyPosition,[in]BSTRassociatedExecName)
+AddsaPreviewtothespecifiedpinofthespecifiednode.Thecoordinatesspecifywherethepreviewwill
+appearontheWeb,with0,0beingthetopleft-handcorner.
+app.WebEditor.AddProcessor([in]VARIANTprocessorOrClassId,[in]BSTRrequestedName,[in]double
+xPosition,[in]doubleyPosition)
+Addsanamed'processor'totheweb.Todeterminethenameofaprocessorjustplaceitonthewebusing
+theGUIandhoverthemouseoverthenode.The'ProgID'ofthenode,intheformatLeCroy.<procName>'
+willappear.NotethatwhenaddingprocessorsfromautomationthereisnodistinctionbetweenMeasure,
+Math,andPass/Failprocessors.
+' Createa WaveformAverager,nameit"MyAvg",andplaceitatx=200,y=30
+app.WebEditor.AddProcessor"LeCroy.Average","MyAvg",200,30
+4-37
+
+----- 第 134 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+app.WebEditor.GetProcessor([in]VARIANTprocessor)
+RetrievesareferencetoaprocessorthathasbeenaddedtotheWeb.Thisreferencemaythenbeusedto
+accesstheprocessor'scontrols.
+' Retrievea pointertotheMyAvgaveragerandsetit'snumberofsweeps
+tothevalue1234
+setmyAverager= app.WebEditor.GetProcessor("MyAvg")
+myAverager.Sweeps= 1234
+app.WebEditor.RemoveAll()
+Removesallprocessorsfromtheweb.
+' ShowtheWebEditorandremoveallprocessorsfromit
+app.ActiveView= "WebEdit"
+app.WebEditor.RemoveAll
+app.WebEditor.RemoveConnection([in]VARIANTdestProcessor,[in]VARIANTdestInputPin)
+Removesaconnectionbetweentwopinsontheweb.
+app.WebEditor.RemovePreview([in]VARIANTprocessor)
+Removesthenamedpreviewdisplay.
+app.WebEditor.RemoveProcessor([in]VARIANTprocessor)
+RemovesthenamedprocessorfromtheWeb.
+4-38
+
+----- 第 135 页 -----
+
+Part4:AutomationControlVariableReference
+app.Zoom
+CVARsrelatedtoZoom(Zn)traces.
+ChildObjects
+Object Description
+app.Zoom.Zn ZoomsZ1toZn.Thenumberdependsonyouroscilloscopemodel.
+Actions
+Action Description
+app.Zoom.GoToEnd WheninMultiZoommode,scrolltotheendofthesourcewaveform,whose
+lastpointwillbecenteredonthegraticule.
+app.Zoom.GoToStart WheninMultiZoommode,scrolltothestartofthesourcewaveform,
+whosefirstpointwillbecenteredonthegraticule.
+app.Zoom.HorZoomIn HorizontallyzoominallthetracesincludedinMultiZoom.
+app.Zoom.HorZoomOut HorizontallyzoomoutallthetracesincludedinMultiZoom.
+app.Zoom.ResetAll Resetallzoomtracestotheirdefaultsettings.
+app.Zoom.ResetZoom Resetsthegeneralzoomsettingstotheirdefaultvalues.
+app.Zoom.Zn.ClearSweeps ClearsanyaccumulatedresultdataforindividualzoomtraceZn.
+app.Zoom.Zn.DoStoreToMemoryTrace StoresthecontentofZnintothecorrespondingmemory(Mn).
+4-39
+
+----- 第 136 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+4-40
+
+----- 第 137 页 -----
+
+Part5:AutomationResultInterfaceReference
+Part5:AutomationResultInterfaceReference
+Thefollowingresultinterfaces(Out.Resultobjects)appearthroughouttheXStreamDSOobjecthierarchy.
+Theirpropertieswillgenerallybethesameregardlessofthesubsystemtowhichtheyapply.
+Base 5-4
+BinPopulations 5-4
+Bins 5-4
+BinWidth 5-5
+BusName 5-5
+CellType 5-5
+CellValue 5-6
+Columns 5-7
+DataArray 5-8
+ExtendedStatus 5-11
+FirstEventTime 5-12
+FirstPopulatedBin 5-12
+HorizontalFrameStart 5-13
+HorizontalFrameStop 5-13
+HorizontalOffset 5-13
+HorizontalPerColumn 5-13
+HorizontalPerStep 5-14
+HorizontalResolution 5-14
+HorizontalUnits 5-14
+HorizontalVarianceArray 5-14
+HorizontalVariances 5-14
+IndexOfFirstSampleInFrame 5-15
+LastEventTime 5-15
+LastPopulatedBin 5-15
+Levels 5-15
+LineAliasName 5-15
+5-1
+
+----- 第 138 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+LineName 5-16
+Lines 5-16
+Max 5-16
+MaxPopulation 5-16
+MaxPopulationBin 5-16
+MaxPopulationInRectangle 5-17
+Mean 5-17
+Min 5-17
+NumFrameDimensions 5-18
+NumSamplesInFrame 5-18
+OffsetAtLeftEdge 5-18
+Peaks 5-19
+PeakInfo 5-19
+PopulationInside 5-20
+PopulationOfRectangle 5-20
+PopulationOver 5-20
+PopulationUnder 5-21
+RMS 5-21
+Rows 5-21
+Samples 5-21
+Sdev 5-21
+Status 5-22
+StatusDescription 5-23
+Sweeps 5-24
+Top 5-24
+UniformInterval 5-24
+UpdateTime 5-24
+Value 5-25
+ValueArray 5-26
+5-2
+
+----- 第 139 页 -----
+
+Part5:AutomationResultInterfaceReference
+VerticalFrameStart 5-27
+VerticalFrameStop 5-27
+VerticalMaxPossible 5-27
+VerticalMinPossible 5-27
+VerticalOffset 5-27
+VerticalPerRow 5-28
+VerticalPerStep 5-28
+VerticalResolution 5-28
+VerticalUnits 5-28
+XFrameStart 5-28
+XFrameStop 5-29
+XMaxPossible 5-29
+XMinPossible 5-29
+XOffset 5-29
+XPerStep 5-29
+XResolution 5-30
+XUnits 5-30
+YFrameStart 5-30
+YFrameStop 5-30
+YMaxPossible 5-30
+YMinPossible 5-31
+YOffset 5-31
+YPerStep 5-31
+YResolution 5-31
+YUnits 5-31
+5-3
+
+----- 第 140 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Base
+Horizontalcoordinateoftheleftmostofthetwomostpopulatedhistogrampeaks.Itisequivalenttothe
+paramaterhbase.
+Appliesto:Histogram
+DimhbaseasDouble
+hbase= app.Math.F1.Out.Result.Base
+BinPopulations
+Variantarraycontainingthepopulationsofeachbin.Bin0isthefirstbin.Indexthearraytoretrievethe
+numberofcountsinagivenbin.
+Appliesto:Histogram
+ReadoutBinPopulationsbyindexingthearrayusingtheFirstPopulatedBinandLastPopulatedBin
+propertiesasboundariesAlsoshowscodefordeterminingcoordinateofbincenters.
+ConstSTARTROW= 5
+Dimi AsInteger
+DimBinPops
+DimFirstPopulatedBin,LastPopulatedBinAsInteger
+DimOffsetAtLeftEdgeAsDouble
+DimBinWidthAsDouble
+BinPops= app.Math.F1.Out.Result.BinPopulations
+FirstPopulatedBin= app.Math.F1.Out.Result.FirstPopulatedBin
+LastPopulatedBin= app.Math.F1.Out.Result.LastPopulatedBin
+OffsetAtLeftEdge= app.Math.F1.Out.Result.OffsetAtLeftEdge
+BinWidth= app.Math.F1.Out.Result.BinWidth
+Fori = FirstPopulatedBinToLastPopulatedBin
+Cells(i- FirstPopulatedBin+ STARTROW+ 1,7)= i
+Cells(i- FirstPopulatedBin+ STARTROW+ 1,8)= OffsetAtLeftEdge+
+(BinWidth/ 2)+ BinWidth* i
+Cells(i- FirstPopulatedBin+ STARTROW+ 1,9)= BinPops(i)
+Nexti
+Bins
+Numberofbinsinthehistogram.
+Appliesto:Histogram
+DimBinsasInteger
+Bins= app.Math.F1.Out.Result.Bins
+5-4
+
+----- 第 141 页 -----
+
+Part5:AutomationResultInterfaceReference
+BinWidth
+Widthofeachbininthehistogram.
+Appliesto:Histogram
+DimBinWidthasdouble
+BinWidth= app.Math.F1.Out.Result.BinWidth
+BusName
+Nameofthebus,whichcanbeconfiguredviatheuserinterfaceorbytheautomationproperty
+app.LogicAnalyzer.Digital1.BusName.
+Appliesto:Digital
+DimBusNameAsString
+BusName= app.LogicAnalyzer.Digital1.Out.Result.BusName
+CellType
+Datatypefortheselectedcellinatable.ThisisusedinordertoproperlyreadouttheCellValue.Variant
+typecellsusuallycontainasecondDataArray(i.e.,tablewithinatable)thatmustbeindexedinadditionto
+theprincipaltableinordertoreturnthecorrectvalue.SeeExposingTableDataforexamplesandhelper
+scripts.
+Appliesto:Table
+Arguments
+Row Long 0=firstrow,usuallyheader
+withcolumndescriptors
+0-basedindexoftherowcontainingthecell.UsetheRows
+propertytodeterminethemaximumnumberofrows.
+Column Long 0=firstcolumn,usuallyrow
+indexnumber
+0-basedindexofthecolumncontainingthecell.Usethe
+Columnspropertytodeterminethemaximumnumberof
+columns.
+Result Enum 0=variant
+2=parameter
+3=Boolean
+4=histicon
+Resulttype.OthervaluesexistbutdonotapplytotheTable
+interface.
+Example
+DimCellTypeAsInteger
+CellType= app.SerialDecode.Decode1.Out.Result.CellType(1,1)
+TheexampleabovereturnstheCellTypeforrow1,column1.
+5-5
+
+----- 第 142 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CellValue
+Thevaluefortheselectedcellinatable.ThemethodforreadingbackCellValuedependsonthecell’s
+CellTypeproperty:
+CellType=0(Variant),CellValueisprobablyanarraywiththelastsamplevalueplusotherresults,which
+mustbeindexedinadditiontotheprincipaltable.SeeExposingTableData.
+CellType=2,CellValueisParameterresultwithadiscretevalue.
+CellType=3,CellValueisaBooleanresult.
+CellType=4,CellValueisahisticon.
+Appliesto:Table
+Arguments
+Row Long 0=firstrow 0-basedindexoftherowcontainingthecell.UsetheRows
+propertytodeterminethemaximumnumberofrows.
+Column Long 0=firstcolumn 0-basedindexofthecolumncontainingthecell.Usethe
+Columnspropertytodeterminethemaximumnumberof
+columns.
+Example
+WhentheCellType=0,readoutthevalueofanumericcellbyadding(0,0)tothecellindex,asin:
+DimCellValue
+CellValue= app.SerialDecode.Decode1.Out.Result.CellValue(3,2)(0,0)
+Theabovewouldreturnthevalueshowninrow3,column,2oftheSerialDecodetable.
+Tip:Oscilloscopesthathaveaserialdecoderoptioninstalledincludethefile
+D:\Scripts\TableExport.lss,aVBScriptfordeterminingthedecodertablestructureandoutputting
+thedecodedvalues.
+WhentheCellType=2,readoutthevalueasfollows:
+DimDecoderTableResultAsObject
+SetDecoderTableResult= app.SerialDecode.Decode1.Out.Result
+DimCellValueObAsObject
+SetCellValueOb= DecoderTableResult.CellValue(1,2)
+CellValue= CellValueOb.Value
+5-6
+
+----- 第 143 页 -----
+
+Part5:AutomationResultInterfaceReference
+Columns
+NumberofcolumnsintheDataArray.Typicallyequalto1000forPersistwaveforms.ForTables,theresult
+canvarydependingontheapplication.
+Appliesto:Persist,Table
+PersistExample
+DimColumnsAsInteger
+Columns= app.SDA.Eye.Out.Result.Columns
+TableExample
+DimColumnsAsInteger
+Columns= app.SerialDecode.Decode1.Out.Result.Columns
+5-7
+
+----- 第 144 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DataArray
+Variantarraycontainingdataforatrace.Theimplementationdependsonthetypeofwaveform.
+Appliesto:Digital,Persist,Waveform,XY
+XYInterface
+Arguments(optional)
+arrayValuesScaledBoolean 1(TRUE)=dataisscaled
+0(FALSE)=dataisraw
+Determineswhetherreturnedvaluesarescaledorraw.
+PassingTRUEindicatesscaleddata;FALSEindicates
+rawdata.DefaultisTRUE.Scaledvaluesaredoublepre-
+cision;rawvaluesare16-bitsignedintegers.Seethe
+propertiesXVerticalPerStep,XVerticalResolutionand
+XVerticalOffset(andthecorrespondingYcoordinate)for
+moreinformation.
+numSamples Long -1=retrievealldata Numberofsamplestoretrieved.Defaultis-1.
+startIndex Long 0=firstsample Indexofthefirstsampletoberetrieved.Defaultis0.
+sparsingFactor Long 1=nosparsing Determinesthesparsingfactortouse.Defaultis1.A
+sparsingfactorof5meanstoretrieveevery5thpoint.
+UsethemathfunctionSparsetoconfiguresparsingoff-
+set.
+Example
+ReadsvaluestouseforDataArrayargumentsfromaspreadsheet,thenloopsthroughtheretrievedarray,
+savingthedatatothespreadsheetalongwithsampleindexandsampletime.
+ConstROWOFFSET= 10
+ConstCOLOFFSET= 7
+DimHorizontalPerStepAsDouble
+DimHorizontalOffsetAsDouble
+DimScaleArrayAsBoolean
+DimnSamplesAsLong
+DimstartIndexAsLong
+DimsparseFactorAsLong
+DimXYwform
+ScaleArray= Cells(9,5)nSamples= Cells(10,5)startIndex= Cells(11,5)
+sparseFactor= Cells(12,5)
+XYwform= app.Math.XY.Out.Result.DataArray
+HorizontalPerStep= app.Math.XY.Out.Result.HorizontalPerStep
+HorizontalOffset= app.Math.XY.Out.Result.HorizontalOffset
+Fori = 0 ToUBound(XYwform)
+Forj = 0 To1 Cells(i+ ROWOFFSET,COLOFFSET)= i
+Cells(i+ ROWOFFSET,COLOFFSET+ 1)= HorizontalPerStep* i HorizontalOffset
+Cells(i+ ROWOFFSET,COLOFFSET+ 2)= XYwform(i,0)
+Cells(i+ ROWOFFSET,COLOFFSET+ 3)= XYwform(i,1)
+Nextj
+Nexti
+5-8
+
+----- 第 145 页 -----
+
+Part5:AutomationResultInterfaceReference
+WaveformInterface
+Arguments(optional)
+arrayValuesScaledBoolean 1(TRUE)=dataisscaled
+0(FALSE)=dataisraw
+Determineswhetherreturnedvaluesarescaledorraw.
+PassingTRUEindicatesscaleddata;FALSEindicatesraw
+data.DefaultisTRUE.Scaledvaluesaredoubleprecision;
+rawvaluesare16-bitsignedintegers.Seetheproperties
+VerticalPerStep,VerticalResolutionandVerticalOffsetfor
+moreinformation.
+numSamples Long -1=retrievealldata Numberofsamplestoretrieve.Defaultis-1.
+startIndex Long 0=firstsample Indexofthefirstsampletoberetrieved.Defaultis0.
+sparsingFactor Long 1=nosparsing Determinesthesparsingfactortouse.Defaultis1.For
+example,asparsingfactorof5meanstoretreiveevery5th
+point.UsethemathfunctionSparseinordertoconfigure
+sparsingoffset.
+Example
+ReadsvaluestouseforDataArrayargumentsfromaspreadsheet,thenloopsthroughtheretrievedarray,
+savingthedatatothespreadsheetalongwithsampleindexandsampletime.
+ConstROWOFFSET= 10
+ConstCOLOFFSET= 7
+DimHorizontalPerStepAsDouble
+DimHorizontalOffsetAsDouble
+DimScaleArrayAsBoolean
+DimnSamplesAsLong
+DimstartIndexAsLong
+DimsparseFactorAsLong
+Dimwform
+ScaleArray= Cells(9,5)nSamples= Cells(10,5)startIndex= Cells(11,5)
+sparseFactor= Cells(12,5)
+wform= app.Acquisition.C1.Out.Result.DataArray
+HorizontalPerStep= app.Acquisition.C1.Out.Result.HorizontalPerStep
+HorizontalOffset= app.Acquisition.C1.Out.Result.HorizontalOffset
+Fori = 0 ToUBound(wform)
+Cells(i+ ROWOFFSET,COLOFFSET)= i
+Cells(i+ ROWOFFSET,COLOFFSET+1)= HorizontalPerStep* i +HorizontalOffset
+Cells(i+ ROWOFFSET,COLOFFSET+2)= wform(i)
+Nexti
+5-9
+
+----- 第 146 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PersistInterface
+Retrievesa2Darraycontaininghitsineachcelloftherectangleselectedviatheinputarguments.
+Arguments(optional)
+numColumns Long -1=retrieveallcolumns Numberofcolumnstoretrieve.Defaultis-1.
+numRows Long -1=retrieveallrows Numberofrowstoretrieve.Defaultis-1.
+startColumn Long 0=firstsample Indexofthefirstcolumntoberetrieved.Defaultis0.
+startRow Long 0=firstrow Indexofthefirstrowtoberetrieved.Defaultis0.
+Example
+ReadsvaluestouseforDataArrayargumentsfromaspreadsheet,thenloopsthroughtheretrievedarray,
+savingthedatatothespreadsheet.
+ConstROWOFFSET= 10
+ConstCOLOFFSET= 7
+DimnumColumnsAsLong
+DimnumRowsAsLong
+DimstartColumnAsLong
+DimstartRowAsLong
+Dimwform
+numColumns= Cells(9,5)numRows= Cells(10,5)startColumn= Cells(11,5)startRow
+= Cells(12,5)
+wform= app.SDA.Eye.Out.Result.DataArray(numColumns,numRows,startColumn,
+startRow)
+Fori = 0 TonumRows- 1
+Forj = 0 TonumColumns- 1
+Cells(i+ ROWOFFSET,j + COLOFFSET)= wform(i,j)
+Nextj
+Nexti
+5-10
+
+----- 第 147 页 -----
+
+Part5:AutomationResultInterfaceReference
+DigitalInterface
+Retrievesa2Darraycontainingthestateofeachsampleoneachline.Thevalue1isreturnedifhesample
+wasabovethethreshhold,0ifbelow.
+Arguments(optional)
+numSamples Long -1=retrievealldata Numberofsamplestoretrieve.Defaultis-1.
+numLines Long -1=retrievealldigitallines Numberoflinestoretrieve.Defaultis-1.
+startIndex Long 0=firstindex Indexofthefirstsampletoberetrieved.Defaultis0.
+startLine Long 0=firstdigitalline Indexofthefirstlinetoberetrieved.Defaultis0.Theuser
+selectswhichlinestoenable;onlydatafromenabledlinesare
+includedintheDataArray
+Example
+ReadsvaluestouseforDataArrayargumentsfromaspreadsheet,thenloopsthroughtheretrievedarray,
+savingthedatatothespreadsheet.
+ConstROWOFFSET= 10
+ConstCOLOFFSET= 7
+DimnSamplesAsLong
+DimnLinesAsLong
+DimstartIndexAsLong
+DimstartLineAsLong
+Dimwform
+nSamples= Cells(9,5)nLines= Cells(10,5)startIndex= Cells(11,5)startLine=
+Cells(12,5)
+wform= app.LogicAnalyzer.Digital1.Out.Result.DataArray(nSamples,nLines,
+startIndex,startLine)
+Savestheretrievedsamplestoaspreadsheet,witheachdigitallineinacolumn:
+Forj = 0 ToUBound(wform,2)
+Fori = 0 ToUBound(wform,1)
+Cells(i+ ROWOFFSET,j + COLOFFSET)= wform(i,j)
+Nextj
+Nexti
+ExtendedStatus
+Reservedforfutureuse.
+Appliesto:allResultInterfaces.
+5-11
+
+----- 第 148 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+FirstEventTime
+Absolutetriggertimeoftheacquisition,orthetimeofthefirsttriggerinanacquisitionthatutilizes
+multiplesweeps.Examplesofmulti-sweepacquisitionsareSequenceModeandwhenasourcechannel
+isconfiguredforpre-processoraveraging.Timesarereturnedencodedasacurrencyvalue(VT_CY)within
+avariant,whichallowstheuseofthefull64-bitresolutionofthetimestampvalue.Valuesarereferenced
+to1stJan2000,with1nsresolution.NotethatVT_CYvaluesarestoredas64-bit(8byte)two's
+complementintegers,scaledby10,000togiveafixed-pointnumberwith15digitstotheleftofthe
+decimalpoint,and4digitsafter.Seetheexamplefordetailsondecoding FirstEventTimeaswellasother
+propertiesthatreturntimes,suchasLastEventTimeandUpdateTime.
+Appliesto:allResultInterfaces
+DimFirstEventTime
+DimTimeStringasString
+FirstEventTime= app.Acquisition.C1.Out.Result.FirstEventTime
+timeString= DecodeTimeProperty(FirstEventTime)
+' DecodetheFirstEventTime,LastEventTimeandUpdateTimeproperties.
+FunctionDecodeTimeProperty(ByValEventTime)AsString
+Dimdays,thedate,hours,thehour,minutes,theminute,seconds
+DimoutstringAsString
+days= EventTime/ (86400* 100000#)
+thedate= DateAdd("d",days,"1-Jan-00")
+hours= (days- Int(days))* 24
+thehour= Int(hours)
+minutes= (hours- thehour)* 60
+theminute= Int(minutes)
+seconds= (minutes- theminute)* 60
+' Formatoutputstring:
+DecodeTimeProperty= thedate& " " & thehour& ":"& theminute& ":"&seconds
+EndFunction
+FirstPopulatedBin
+Indexofthefirstpopulatedbin.(Thefirstbinofthehistogramisbin0).
+Appliesto:Histogram
+DimFirstPopulatedBinasInteger
+FirstPopulatedBin= app.Math.F1.Out.Result.FirstPopulatedBin
+5-12
+
+----- 第 149 页 -----
+
+Part5:AutomationResultInterfaceReference
+HorizontalFrameStart
+Coordinateoftheleftedgeofthegraticulecontainingthetracerelativetothetriggertime,whichisattime
+=0.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimXFrameStartAsDouble
+XFrameStart= app.Acquisition.C1.Out.Result.HorizontalFrameStart
+HorizontalFrameStop
+Coordinateoftherightedgeofthegraticulecontainingthetracerelativetothetriggertime,whichisat
+time=0.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimXFrameStopAsDouble
+XFrameStop= app.Acquisition.C1.Out.Result.HorizontalFrameStop
+HorizontalOffset
+Timeofthefirstsample.Notethatthefirstsampleistypicallyjustoffscreen,totheleftofthegrid.Use
+thisvaluewhencalculatingthetimeforeachsample.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimHorizontalOffsetAsDouble
+HorizontalOffset= app.Acquisition.C1.Out.Result.HorizontalOffset
+DimHorizontalPerStepAsDouble
+HorizontalPerStep= app.Acquisition.C1.Out.Result.HorizontalPerStep
+DimSampleTimeasDouble
+Dimi asLong
+Fori = 0 tonumPoints-1
+SampleTime= HorizontalPerStep* i + HorizontalOffset
+Next
+Foramorecompleteexample,seetheWaveformexampleinDataArrayaswellasthefunction
+GetDataArray_Click.
+HorizontalPerColumn
+Differenceinthehorizontalcoordinateofadjacentcolumns(typicallyinseconds).Use
+HorizontalPerColumntodeterminethetiminginformationforeachcolumnoftheDataArray.
+Appliesto:Persist
+DimHorizontalPerColumnAsDouble
+HorizontalPerColumn= app.SDA.Eye.Out.Result.HorizontalPerColumn
+5-13
+
+----- 第 150 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+HorizontalPerStep
+Timebetweensamples,otherwiseknownasthesampleinterval.ThisistheinverseoftheSampleRate.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimHorizontalPerStepAsDouble
+HorizontalPerStep= app.Acquisition.C1.Out.Result.HorizontalPerStep
+HorizontalResolution
+Resolutionofthereadoutofhorizontalvalues.Notdirectlyrelatedtothesampleperiod.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimHorizontalResolutionAsDouble
+HorizontalResolution= app.Acquisition.C1.Out.Result.HorizontalResolution
+HorizontalUnits
+Unitsusedforthehorizontalaxis.TypicallySforSeconds,butotherunitsarepossible.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimHorizontalUnitsAsString
+HorizontalUnits= app.Acquisition.C1.Out.Result.HorizontalUnits
+HorizontalVarianceArray
+Variantarraywiththevariancesfromthenominalsampletimes.UsedonWaveExpertoscilloscopes.
+Appliesto:Waveform,XY
+DimHorizontalUnitsAsDouble
+HorizontalUnits= app.Acquisition.C1.Out.Result.HorizontalUnits
+HorizontalVariances
+NumberofelementsinHorizontalVarianceArray.UsedonWaveExpertoscilloscopes.
+Appliesto:Waveform,XY
+DimHorizontalVarianceArray
+HorizontalVarianceArray=
+app.Acquisition.C1.Out.Result.HorizontalVarianceArray
+5-14
+
+----- 第 151 页 -----
+
+Part5:AutomationResultInterfaceReference
+IndexOfFirstSampleInFrame
+Indexofthefirstsamplethatappearsinthegraticule.Thisistypicallyindex1,sinceindex0isoff-gridto
+theleftwhentracesarezoomed.
+Appliesto:Waveform
+DimIndexOfFirstSampleInFrameasLong
+IndexOfFirstSampleInFrame=
+app.Acquisition.C1.Out.Result.IndexOfFirstSampleInFrame
+LastEventTime
+Timeofthelastcontributingeventinaset.Usefulonlywhentheresultincludesdataproducedbya
+sequenceacquisition,oracumulativeoperationsuchasaveraging.Timesarereturnedencodedasa
+currencyvalue(VT_CY)withinavariant;seedescriptionforFirstEventTimefordecodingdetails.
+Appliesto:AllResultinterfaces.
+DimLastEventTime
+DimTimeStringasString
+LastEventTime= app.Acquisition.C1.Out.Result.FirstEventTime
+TimeString= DecodeTimeProperty(LastEventTime)
+SeeFirstEventTimeforanexampleofdecodingLastEventTime.
+LastPopulatedBin
+Indexofthelastpopulatedbin.(Thefirstbinofthehistogramisbin0).
+Appliesto:Histogram
+DimLastPopulatedBinasLong
+LastPopulatedBin= app.Math.F1.Out.Result.LastPopulatedBin
+Levels
+Returnsthevalue2,correspondingtothenumberoflevelspossible.
+Appliesto:Digital
+DimLevelsAsInteger
+Levels= app.LogicAnalyzer.Digital1.Out.Result.Levels
+LineAliasName
+Aliasofthelinenamebasedontheinputindex.Thealiasforthelineisdisplayedontherightsideofthe
+grid,andhavevaluesoftheform"D0","D1",etc.
+Appliesto:Digital
+DimLineAliasName0
+LineAliasName0= app.LogicAnalyzer.Digital1.Out.Result.LineAliasName(0)
+5-15
+
+----- 第 152 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+LineName
+Nameoftheline.Thiscanbemodifiedviatheuserinterfaceorviatheproperty
+app.LogicAnalyzer.Digital1.LineNames.
+Appliesto:Digital
+DimLineName0
+LineName0= app.LogicAnalyzer.Digital1.Out.Result.LineName(0)
+Lines
+Numberoflinesinthedigitalbus.
+Appliesto:Digital
+DimLines
+Lines= app.LogicAnalyzer.Digital1.Out.Result.Lines
+Max
+Horizontalcoordinateoftheleftedgeofthelastpopulatedbin.Itisequivalenttothehmaxparameter.
+Appliesto:Histogram
+DimMaxasdouble
+Max= app.Math.F1.Out.Result.Max
+MaxPopulation
+Modeofthehistogram(populationofthebinwiththemosthits).
+Appliesto:Histogram
+DimMaxPopulationasLong
+MaxPopulation= app.Math.F1.Out.Result.MaxPopulation
+MaxPopulationBin
+Indexofthebinwiththehighestpopulation.(Thefirstbinofthehistogramisbin0).
+Appliesto:Histogram
+DimMaxPopulationBinasInteger
+MaxPopulationBin= app.Math.F1.Out.Result.MaxPopulationBin
+5-16
+
+----- 第 153 页 -----
+
+Part5:AutomationResultInterfaceReference
+MaxPopulationInRectangle
+Populationofthelargestelementintheselectedrectangle.
+Appliesto:Persist
+Arguments
+numColumns Long -1=useallcolumns Numberofcolumnstouse.Defaultis-1.
+numRows Long -1=useallrows Numberofrowstouse.Defaultis-1.
+startColumn Long 0=firstsample Indexofthefirstcolumn.Defaultis0.
+startRow Long 0=firstrow Indexofthefirstrow.Defaultis0.
+Example
+Determiningthemaximumpopulationintherectangle.
+DimnumColumnsAsLong
+DimnumRowsAsLong
+DimstartColumnAsLong
+DimstartRowAsLong
+DimMaxPopulationInRectangleAsLong
+numColumns= Cells(9,5)
+numRows= Cells(10,5)
+startColumn= Cells(11,5)
+startRow= Cells(12,5)
+MaxPopulationInRectangle=
+app.SDA.Eye.Out.Result.MaxPopulationInRectangle
+(numColumns,numRows,startColumn,startRow)
+Usenoargumentstoselectthefullrectangle:
+MaxPopulationInRectangle= app.SDA.Eye.Out.Result.MaxPopulationInRectangle
+Mean
+Returnsthemeanvalueofthehistogam.Itisequivalenttothehmeanparameter.
+Appliesto:Histogram
+Dimhmeanasdouble
+hmean= app.Math.F1.Out.Result.Mean
+Min
+Horizontalcoordinateoftheleftedgeofthefirstpopulatedbin.Itisequivalenttothehminparameter.
+Appliesto:Histogram
+Dimhminasdouble
+hmin= app.Math.F1.Out.Result.Min
+5-17
+
+----- 第 154 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+NumFrameDimensions
+Numberofdimensionsinthecurrentresult.Forwaveforms,thisistypically=2,(Voltageandtime)
+dimensions).ForX-Ymodetheresultis3.
+Appliesto:allResultInterfaces.
+DimNumFrameDimensionsasInteger
+NumFrameDimensions= app.Acquisition.C1.Out.Result.NumFrameDimensions
+NumSamplesInFrame
+Numberofsampleswithinthegraticule.
+Appliesto:Waveform
+DimNumSamplesInFrameasLong
+NumSamplesInFrame= app.Acquisition.C1.Out.Result.NumSamplesInFrame
+OffsetAtLeftEdge
+Horizontalcoordinateofleftedgeofthefirstbin(eitherpopulatedorunpopulated)displayedonthegrid.
+UseOffsetAtLeftEdgeasanoffsetforcalculatingthepositionofeachbin.
+Appliesto:Histogram
+ReadoutBinPopulationsbyindexingthearrayusingtheFirstPopulatedBinandLastPopulatedBin
+propertiesasboundariesAlsoshowscodefordeterminingcoordinateofbincenters.
+ConstSTARTROW= 5
+Dimi AsInteger
+DimBinPops
+DimFirstPopulatedBin,LastPopulatedBinAsInteger
+DimOffsetAtLeftEdgeAsDouble
+DimBinWidthAsDouble
+BinPops= app.Math.F1.Out.Result.BinPopulations
+FirstPopulatedBin= app.Math.F1.Out.Result.FirstPopulatedBin
+LastPopulatedBin= app.Math.F1.Out.Result.LastPopulatedBin
+OffsetAtLeftEdge= app.Math.F1.Out.Result.OffsetAtLeftEdge
+BinWidth= app.Math.F1.Out.Result.BinWidth
+Fori = FirstPopulatedBinToLastPopulatedBin
+Cells(i- FirstPopulatedBin+ STARTROW+ 1,7)= i
+' CalculateBinCenter:
+Cells(i- FirstPopulatedBin+ STARTROW+ 1,8)= OffsetAtLeftEdge+
+(BinWidth/ 2)+ BinWidth* i
+Cells(i- FirstPopulatedBin+ STARTROW+ 1,9)= BinPops(i)
+Next
+5-18
+
+----- 第 155 页 -----
+
+Part5:AutomationResultInterfaceReference
+Peaks
+Numberofpeaksinthehistogram.
+Appliesto:Histogram
+DimNumPeaksasInteger
+NumPeaks= app.Math.F1.Out.Result.Peaks
+PeakInfo
+Variantarrayreturninginformationaboutthepeakselectedintheinputargument.Sending0returns
+informationfortheentirehistogram;inputvaluesfrom1toPeaks+1returnsinformationaboutthe
+requestedpeak.
+Appliesto:Histogram
+Arguments(optional)
+peakIndex Long 0=mean
+1=sigma
+2=unused
+3=unused
+4=FirstPopulatedBin
+5=LastPopulatedBin
+6=MaxPopulationBin
+7=MaxPopulation
+8=PopulationInside
+Selectsthepeakofinterest.0requestsinformationaboutthe
+entirehistogram;>0requestsinformationaboutasingle
+peak.Defaultis0.
+Example
+' ReadoutcompletePeakInfoarraysforeachpeak.
+ConstSTARTROW= 10
+ConstSTARTCOL= 13
+DimPeakInfo
+Dimi,j AsInteger
+DimNumPeaksasInteger
+NumPeaks= app.Math.F1.Out.Result.Peaks
+Fori = 0 ToNumPeaks
+' Indexouta peak(index0 istheentirehistogram):
+PeakInfo= app.Math.F1.Out.Result.PeakInfo(i)
+Cells(STARTROW,STARTCOL+ i)= i
+' LoopthrougheachelementoftheselectedPeakInfoarray(therearenine
+elements):
+Forj = 0 To8
+Cells(STARTROW+ j + 1,STARTCOL+ i)= PeakInfo(j)
+Next
+Next
+5-19
+
+----- 第 156 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PopulationInside
+Populationofthehistogramforeventscontainedwithinthenumberofbinsconfigured.
+Appliesto:Histogram
+DimPopInsideasLong
+PopInside= app.Math.F1.Out.Result.PopulationInside
+PopulationOfRectangle
+Populationoftheselectedrectangle.
+Appliesto:Persist
+Arguments
+numColumns Long -1=retrieveallcolumns Numberofcolumnstoretrieve.Defaultis-1.
+numRows Long -1=retrieveallrows Numberofrowstoretrieve.Defaultis-1.
+startColumn Long 0=firstsample Indexofthefirstcolumntoberetrieved.Defaultis0.
+startRow Long 0=firstrow Indexofthefirstrowtoberetrieved.Defaultis0.
+Example
+DimnumColumnsAsLong
+DimnumRowsAsLong
+DimstartColumnAsLong
+DimstartRowAsLong
+DimPopulationOfRectangleAsLong
+numColumns= Cells(9,5)
+numRows= Cells(10,5)
+startColumn= Cells(11,5)
+startRow= Cells(12,5)
+PopulationOfRectangle=
+app.SDA.Eye.Out.Result.PopulationOfRectangle
+(numColumns,numRows,startColumn,startRow)
+PopulationOfRectangle= app.SDA.Eye.Out.Result.PopulationOfRectangle
+(numColumns,numRows,startColumn,startRow)
+PopulationOver
+Populationoftheeventsgreaterthanthelastbin.
+Appliesto:Histogram
+DimPopOverasLong
+PopOver= app.Math.F1.Out.Result.PopulationOver
+5-20
+
+----- 第 157 页 -----
+
+Part5:AutomationResultInterfaceReference
+PopulationUnder
+Populationoftheeventslessthanthefirstbin.
+Appliesto:Histogram
+DimPopUnderasLong
+PopUnder= app.Math.F1.Out.Result.PopulationUnder
+RMS
+RMSvalueofthehistogram.Equivalenttotheparameterhrms.
+Appliesto:Histogram
+DimhRMSasDouble
+hRMS= app.Math.F1.Out.Result.RMS
+Rows
+NumberofrowsintheDataArray(Persist)orinthetable.Typicallyequalto256forPersistwaveforms.
+ForTables,theresultcanvarydependingontheapplication.
+Appliesto:Persist,Table
+DimRowsAsInteger
+Rows= app.SDA.Eye.Out.Result.Rows
+Samples
+Numberofsamplesinthewaveform.FortheWaveformandXYinterface,thisistypicallythenumberof
+samplesconfiguredfortheacquisition(e.g.500)plus2.Theadditionaltwopointsareoff-grid,oneon
+eachside.FortheDigitalinterface,thisisthenumberofsamplesineachdigitalline+1.
+Appliesto:Digital,Waveform,XY
+DimSamplesasLong
+Samples= app.Acquisition.C1.Out.Result.Samples
+Sdev
+Standarddeviationofthehistogram.Equivalenttotheparameterhsdev.
+Appliesto:Histogram
+DimhsdevasDouble
+hsdev= app.Math.F1.Out.Result.Sdev
+5-21
+
+----- 第 158 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Status
+Resultstatus.Statusisreturnedasadecimalvalue,butshouldbetreatedlikearegisterwiththefollowing
+bitvalues.SeetheexamplefordecodingtheStatusresult.
+64-bitHex VT_Decimal Status Description
+ValueshowninMAUI
+Browser
+Valuereturned
+fromStatus
+property
+0x1 0.0001 Invalidresult IndicatethatthisResultcannotbeusedforany
+calculation.
+0x2 0.0002 Dataoverflow ResultcontainsOverflowdataoriscalculatedfroma
+ResultcontainingOverflows.
+0x4 0.0004 Dataunderflow ResultcontainsUnderflowdataoriscalculatedfroma
+ResultcontainingUnderflows.
+0x8 0.0008 Somevaluesare
+undefined
+Resultcontainssomevaluesordatathatare
+undefined.
+0x10 0.0016 Lessthan Actualvalueislikelytobelessthanthecalculated
+value.Mostlyusedforparametermeasurements.
+0x20 0.0032 Greaterthan Actualvalueislikelytobegreaterthanthecalculated
+value.Mostlyusedforparametermeasurements.
+0x40 0.0064 Notapulse Analyzedsignalisnotrecognizedasapulse;mostly
+usedforpulseparametermeasurements.
+0x80 0.0128 Notcyclic Containssomevaluesmeasuredonnon-cyclicsignal.
+0x100 0.0256 Dataaveraged Calculatedvalueistheresultofanaverageofmultiple
+measurements.
+0x200 0.0512 UnlockedPLL UnlockedPLL
+0x400 0.1024 Othererror Indicatessomeothererrorcondition,usually
+accompaniedbyaprocessor-specificstatus
+description.
+0x800 0.2048 Otherwarning Indicatessomeotherwarningcondition,usually
+accompaniedbyaprocessor-specificstatus
+description.
+0x1000 0.4096 Otherinfo Indicatessomeotherinformativecondition,usually
+accompaniedbyaprocessor-specificstatus
+description.
+0x2000 0.8192 Cumulativeresult Cumulativeprocessingsomewhereinthechain
+0x4000to
+0x200000
+1.6384to
+209.7152
+Reserved
+0x400000 419.4304 NotanNRZEye NotanNRZEye
+0x800000 838.8608 NotanRZEye NotanRZEye
+0x1000000to
+0x80000000
+1677.7216to
+214748.3648
+Reserved
+5-22
+
+----- 第 159 页 -----
+
+Part5:AutomationResultInterfaceReference
+64-bitHex VT_Decimal Status Description
+0x100000000 429496.7296 InputsincompatibleSomeincompatibilityexistsbetweeninputs(e.g.units,
+frame,samplerate)
+0x200000000 858993.4592 Algorithmlimits
+reached
+Algorithmcouldn'tconvergeorsomeotheralgorithmic
+limitationreached.
+0x400000000 1717986.918 Badsettings Combinationofsettingsisn'tcorrect.
+0x800000000 3435973.837 Toolittledata Notenoughdatatoaccuratelyperformcalculation.
+0x1000000000 6871947.674 Toomuchdata Toomuchdatatoperformcalculation.
+0x2000000000 13743895.35 Requiresuniform
+horizontalinterval
+Uniformhorizontalintervalrequired.
+0x4000000000 27487790.69 Badunits Incorrectorinvalidunits
+0x8000000000 54975581.39 Datarangetoolow Rangeofdatavaluesistooclosetotheresolution(e.g.
+badsignaltonoiseratio).
+0x10000000000 109951162.8 DataundersampledSampleratetoolow
+0x20000000000 219902325.6 Poorstatistics Toofewsamples(e.g.,topopulateadatahistogramto
+haveenoughstatistics).
+0x40000000000 439804651.1 Slowtransitiontime Transitiontimetooslow(e.g.,JTAtimemeasurement
+accuracyforclockthatrequiresfastedges).
+0x80000000000 879609302.2 Dataresampled Dataisresampled
+0x100000000000 1759218604 Datainterpolated Dataisinterpolated(e.g.,interpolatingmissingpointsin
+RIS).
+0x200000000000 3518437209 Measurementscale
+imprecise
+Ifallthedatafallsinthesamehistogrambin,oneline
+fortrend,onepixelforXY,etc.
+0x400000000000 7036874418 Nodataavailable Datanotavailable(e.g.,processinginputs
+disconnectedorclearsweepsoncumulative
+processing).
+0x800000000000 14073748836 Someaccumulated
+resultsinvalid
+Oneormoreresultsorvalueswithintheaccumulated
+resultwereinvalidandwereskipped.
+0x1000000000000 28147497671 InsufficientMemory Memorylimitationsreached,attemptedallocations
+failed.
+0x2000000000000 56294995342 Channelnotactive Sourcechannelinactive.
+0x4000000000000 1.1259E+11 Usestatusdescription(customstring)
+0x8000000000000to
+0x8000000000000000
+Reserved
+StatusDescription
+Descriptionforeachstatuscode.Seetheabovetable.
+5-23
+
+----- 第 160 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Sweeps
+Numberofsweepsusedforresultsthatarebasedonmultiplesweeps,suchasaverages,histograms,eye
+diagrams,etc.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimSweepsasLong
+Sweeps= app.Acquisition.C1.Out.Result.Sweeps
+Top
+Horizontalcoordinateoftherightmostofthetwomostpopulatedhistogrampeaks.Itisequivalenttothe
+paramaterhtop.
+Appliesto:Histogram
+DimhtopasDouble
+htop= app.Math.F1.Out.Result.Top
+UniformInterval
+Returnsifthesamplesareevenlyspacedintime.Currentlyalwaystrue.
+Appliesto:Digital
+UpdateTime
+Indicatesthetimethatparticularresultwasmostrecentlyupdated.Often,thispropertywillshowthe
+samevalueasLastEventTime,butfortracessuchasmemories(M1,M2,etc)thiswillbethetimethatthe
+waveformwasstoredtothememorytrace.Timesarereturnedencodedasacurrencyvalue(VT_CY)
+withinavariant;seedescriptionforFirstEventTimefordecodingdetails.
+Appliesto:allResultInterfaces.
+DimUpdateTime
+DimTimeStringasString
+UpdateTime= app.Memory.M1.Out.Result.UpdateTime
+TimeString= DecodeTimeProperty(UpdateTime)
+SeeFirstEventTimeforthecodeforthefunctionDecodeTimeProperty,whichistheexampleofdecoding
+UpdateTime.
+5-24
+
+----- 第 161 页 -----
+
+Part5:AutomationResultInterfaceReference
+Value
+Valueofaparameterorofastatisticinthemeasurementsystem.Whenthescopehasnoresult,itwill
+show"---"inthemeasuretable.Whenthisisdisplayed,theValuepropertyisnotaccessible.Errorhandling
+shouldbeemployedtocatcherrorsthatmayoccur.
+UsetheOnErrorResumeNextstatementtohandlesituationswhereameasurementisnotavailable,
+suchasattemptingtoreadbackthefrequencyofaDClevel,ortryingtoreadtheSdevstatisticwhenthere
+isonly1measurement.
+Appliesto:Param
+' ReadoutallelementsofthemeasurementparameterforP1
+OnErrorResumeNext
+DimValue,Mean,Min,Max,Sdev,NumAsDouble
+Value= app.measure.p1.out.Result.Value
+Mean= app.measure.p1.Mean.Result.Value
+Min= app.measure.p1.Min.Result.Value
+Max= app.measure.p1.Max.Result.Value
+Sdev= app.measure.p1.Sdev.Result.Value
+Num= app.measure.p1.Num.Result.Value
+5-25
+
+----- 第 162 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ValueArray
+Appliesto:Param
+Description:Retrievesa1Darrayofvalues,typicallyusedtoreturnmeasurementresultsformulti-value
+parameterssuchasPeriod,Frequency,TIE@level,etc.ValueArraycanalsoreturnthestarttime,stoptime,
+andstatus(edgepolarity)ofeachmeasurementtakeninthesweep.
+Arguments
+numSamples Long -1=retrievealldata Numberofresultstoberetrieved.Defaultis-1.
+startIndex Long 0=firstresult Indexofthefirstresulttoberetrieved.Defaultis0.
+valueType Integer
+(enum)
+1=parametervalue
+2=measurementstarttime
+4=measurementstoptime
+8=statusvalue
+Determinesthevaluetoreadback.Defaultis1.UseStatus(8)
+todetermineifedgemeasurementsareofpositiveornegative
+polarity.
+Example
+Toreturnmultiplepropertiesforagivenparameter,setthevalueTypeargumenttothesumofthedesired
+properties.Forexample,toreturnboththeparametervalue(1)andthestoptime(4),setvalueTypeto5.
+UsetheOnErrorResumeNextstatementtohandlesituationswherenomeasurementsweretaken.The
+scopewillshow"---"whenthereisnoresulttoreadback.
+ConstROWOFFSET= 16
+ConstCOLOFFSET= 2
+DimnumValuesAsLong
+DimstartIndexAsLong
+DimvalueTypeAsInteger
+DimvalArray
+numValues= Cells(9,5)startIndex= Cells(10,5)
+valArray= app.measure.p1.out.Result.ValueArray(numSamples,startIndex,1)
+startTimes= app.measure.p1.out.Result.ValueArray(numSamples,startIndex,2)
+stopTimes= app.measure.p1.out.Result.ValueArray(numSamples,startIndex,4)
+statusVals= app.measure.p1.out.Result.ValueArray(numSamples,startIndex,8)
+DimValue,Mean,Min,Max,Sdev,NumAsDouble
+Fori = 0 ToUBound(valArray)
+Cells(i+ ROWOFFSET,COLOFFSET)= i
+Cells(i+ ROWOFFSET,COLOFFSET+ 1)= valArray(i)
+Cells(i+ ROWOFFSET,COLOFFSET+ 2)= startTimes(i)
+Cells(i+ ROWOFFSET,COLOFFSET+ 3)= stopTimes(i)
+Cells(i+ ROWOFFSET,COLOFFSET+ 4)= statusVals(i)
+Nexti
+5-26
+
+----- 第 163 页 -----
+
+Part5:AutomationResultInterfaceReference
+VerticalFrameStart
+Verticalcoordinateofthebottomedgeofthegraticulecontainingthetrace.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimYFrameStartAsDouble
+YFrameStart= app.Acquisition.C1.Out.Result.VerticalFrameStart
+VerticalFrameStop
+Verticalcoordinateofthetopedgeofthegraticulecontainingthetrace.
+Appliesto:Digital,Histogram,Persist,Waveform,XY
+DimYFrameStopAsDouble
+YFrameStop= app.Acquisition.C1.Out.Result.VerticalFrameStop
+VerticalMaxPossible
+Returnsthemaximumvoltagethatcanbereturned.
+Appliesto:Waveform
+DimVerticalMaxPossibleAsDouble
+VerticalMaxPossible= app.Acquisition.C1.Out.Result.VerticalMaxPossible
+VerticalMinPossible
+Returnstheminimumvoltagethatcanbereturned.
+Appliesto:Waveform
+DimVerticalMinPossibleAsDouble
+VerticalMinPossible= app.Acquisition.C1.Out.Result.VerticalMinPossible
+VerticalOffset
+Potentialdifferencebetweengroundandthecenterofthescreen.WithVerticalOffset=+50mV,the
+centerofthescreenrepresents-50mV:withanoffsetof-21mV,thecenterrepresents+21mV.(i.e.,
+centerlinevoltage+VerticalOffset=0)
+Appliesto:Persist,Waveform
+DimVerticalOffsetAsDouble
+VerticalOffset= app.Acquisition.C1.Out.Result.VerticalOffset
+5-27
+
+----- 第 164 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+VerticalPerRow
+Returnstheincrementoftheverticalcoordinatebetweenrows(typicallyinvolts).UseVerticalPerRowto
+determinethevoltageinformationforeachrowoftheDataArray.
+Appliesto:Persist
+DimVerticalPerRowAsDouble
+VerticalPerRow= app.SDA.Eye.Out.Result.VerticalPerRow
+VerticalPerStep
+SmalleststepsizeinthenumericalvaluesthatcanbereadoutfromtheDataArray,whichutilizes16-bit
+signedintegervalues.Notethattheverticalrangeisalmostexactly65536*VerticalPerStep.(See
+VerticalMaxPossibleandVerticalMinPossible.)
+Appliesto:Waveform
+DimVerticalPerStepasDouble
+VerticalPerStep= app.Acquisition.C1.Out.Result.VerticalPerStep
+VerticalResolution
+VerticalresolutionoftheYcoordinate,whichistheactualsmallestdifferencethatcanbepractically
+resolved.Usingaveragingcanimprovetheresolutionbythesquarerootofthenumberofsweepsinthe
+average.Forexample,if16averagesaresetviapre-processoraveragingorbyusingtheAveragemath
+function,theresolutionisimprovedbyafactorof4.For100sweepsitimprovesbyafactorof10.
+Appliesto:Param,Waveform
+DimVerticalResolutionasDouble
+VerticalResolution= app.Acquisition.C1.Out.Result.VerticalResolution
+VerticalUnits
+Unitsusedfortheverticalaxis.TypicallyVforVolts,butotherunitsarepossible.
+Appliesto:Histogram,Param,Persist,Waveform
+DimVerticalUnitsasString
+VerticalUnits= app.Acquisition.C1.Out.Result.VerticalUnits
+XFrameStart
+CoordinateoftheleftedgeoftheXYgraticule.
+Appliesto:XY
+DimXFrameStartAsDouble
+XFrameStart= app.Math.XY.Out.Result.XFrameStart
+5-28
+
+----- 第 165 页 -----
+
+Part5:AutomationResultInterfaceReference
+XFrameStop
+CoordinateoftherightedgeoftheXYgraticule.
+Appliesto:XY
+DimXFrameStopAsDouble
+XFrameStop= app.Math.XY.Out.Result.XFrameStop
+XMaxPossible
+MaximumpossiblevalueoftheXcoordinate
+Appliesto:XY
+DimXMaxPossibleAsDouble
+XMaxPossible= app.Math.XY.Out.Result.XMaxPossible
+XMinPossible
+MinimumpossiblevalueoftheXcoordinate
+Appliesto:XY
+DimXMinPossibleAsDouble
+XMinPossible= app.Math.XY.Out.Result.XMinPossible
+XOffset
+PotentialdifferencebetweengroundandthehorizontalcenteroftheXYgrid.Forexample,with
+VerticalOffsetoftheXcoordinate’ssourcetrace=+50mV,thecenterofthescreenrepresents-50mV:
+withanoffsetof-21mV,thecenterrepresents+21mV.(I.e.centerlinevoltage+VerticalOffset=0)
+Appliesto:XY
+DimXOffsetAsDouble
+XOffset= app.Math.XY.Out.Result.XOffset
+XPerStep
+SmalleststepsizeinthenumericalvaluesthatcanbereadoutfromtheDataArrayutilzing16bitsigned
+integervalues.NotethattheXrangeisjustabout65536*XPerStep.(SeeXMaxPossibleand
+XMinPossible.)
+Appliesto:XY
+DimXPerStepAsDouble
+XPerStep= app.Math.XY.Out.Result.XPerStep
+5-29
+
+----- 第 166 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+XResolution
+VerticalresolutionoftheXcoordinate,whichistheactualsmallestdifferencethatcanbepractically
+resolved.Usingaveragingcanimprovetheresolutionbythesquarerootofthenumberofsweepsinthe
+average.Forexample,if16averagesaresetviapre-processoraveragingorbyusingtheAveragemath
+function,theresolutionisimprovedbyafactorof4.For100sweepsitimprovesbyafactorof10.
+Appliesto:XY
+DimXResolutionAsDouble
+XResolution= app.Math.XY.Out.Result.XResolution
+XUnits
+UnitsoftheXcoordinate.TypicallyVforVolts,unlessacurrentprobeisinuse,inwhichcaseitisAfor
+Amperes.
+Appliesto:XY
+DimXUnitsAsString
+XUnits= app.Math.XY.Out.Result.XUnits
+YFrameStart
+CoordinateofthebottomedgeoftheXYgraticule.
+Appliesto:XY
+DimYFrameStartAsDouble
+YFrameStart= app.Math.XY.Out.Result.YFrameStart
+YFrameStop
+CoordinateofthetopedgeoftheXYgraticule.
+Appliesto:XY
+DimYFrameStartAsDouble
+YFrameStart= app.Math.XY.Out.Result.YFrameStart
+YMaxPossible
+MinimumpossiblevalueoftheYcoordinate.
+Appliesto:XY
+DimYMaxPossibleAsDouble
+YMaxPossible= app.Math.XY.Out.Result.YMaxPossible
+5-30
+
+----- 第 167 页 -----
+
+Part5:AutomationResultInterfaceReference
+YMinPossible
+MinimumpossiblevalueoftheYcoordinate.
+Appliesto:XY
+DimYMinPossibleAsDouble
+YMinPossible= app.Math.XY.Out.Result.YMinPossible
+YOffset
+PotentialdifferencebetweengroundandtheverticalcenteroftheXYgrid.Forexample,with
+VerticalOffsetoftheYcoordinate’ssourcetrace=+50mV,thecenterofthescreenrepresents-50mV:
+withanoffsetof-21mV,thecenterrepresents+21mV.(centerlinevoltage+VerticalOffset=0)
+Appliesto:XY
+DimYOffsetAsDouble
+YOffset= app.Math.XY.Out.Result.YOffset
+YPerStep
+SmalleststepsizeinthenumericalvaluesthatcanbereadoutfromtheDataArrayutilzing16bitsigned
+integervalues.NotethattheYrangeisjustabout65536*YPerStep.(SeeYMaxPossibleand
+YMinPossible.)
+Appliesto:XY
+DimYPerStepAsDouble
+YPerStep= app.Math.XY.Out.Result.YPerStep
+YResolution
+VerticalresolutionoftheYcoordinate,whichistheactualsmallestdifferencethatcanbepractically
+resolved.Usingaveragingcanimprovetheresolutionbythesquarerootofthenumberofsweepsinthe
+average.If16sweepsareaveragedviapre-processoraveragingorbyusingtheAveragemathfunction,
+theresolutionisimprovedbyafactorof4;over100sweeps,itimprovesbyafactorof10.
+Appliesto:XY
+DimYResolutionAsDouble
+YResolution= app.Math.XY.Out.Result.YResolution
+YUnits
+UnitsoftheYcoordinate.TypicallyVforVolts,TypicallyVforVolts,unlessacurrentprobeisinuse,in
+whichcaseitisAforAmperes.
+Appliesto:XY
+DimYUnitsAsString
+YUnits= app.Math.XY.Out.Result.YUnits
+5-31
+
+----- 第 168 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+5-32
+
+----- 第 169 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+Part6:IEEE488.2ProgrammingReference
+TeledyneLeCroyimplementedasubsetoftheIEEE488.2GeneralPurposeInterfaceBus(GPIB)for
+remotecontrolofoscilloscopesfromaPCorothercontrollerdevice.Theoriginalimplementationutilized
+aGPIBinterface,andsubsequentlydriversandutilitieswereaddedforsendingencapsulatedGPIB
+commandsoverENETandotherinterfaces.
+TheexamplesinthisreferenceareintendedtoshowIEEE488.2commandsyntax,ratherthantodetail
+howtoprogramaGPIBinterface.However,whereexamplesaregiven,theyassumetheuseofaNational
+InstrumentsGPIBcardandsomeformoftheBASICprogramminglanguage:
+l Variablesendingwith%areintegers.
+l Variablesendingwith$ arestrings.
+l WhereINCLUDESarementioned,thispointstotheneedtocoupletheprogramtotheGPIBby
+includingsomedrivers.
+Note:ItisnotnecessarytouseaGPIBinterfaceinordertousethelegacy488.2commandswith
+TeledyneLeCroyoscilloscopes.TheremoteinterfacetotheoscilloscopecanbemadeoveraLAN
+usingNI-VISA,ActiveDSO,etc.IfyouareusingtheGPIBinterface,anyprogramminglanguagecan
+beusedprovideditcanbelinkedtoGPIB.
+GPIBOverview 6-2
+InterfaceDefinitions 6-2
+IEEE488.1StandardMessages 6-3
+ProgramMessageFormat 6-4
+DataTypes 6-7
+ResponseMessages 6-8
+I/OBuffers 6-9
+MakingServiceRequests 6-10
+TakingInstrumentPolls 6-11
+TimingandSynchronization 6-15
+WaveformTransfer 6-18
+6-1
+
+----- 第 170 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+GPIBOverview
+TheIEEE488.2GeneralPurposeInterfaceBus(GPIB)issimilartoastandardcomputerbus.Whilethe
+computerinterconnectscircuitcardsbymeansofabackplanebus,theGPIBinterconnectsindependent
+devices(oscilloscopesandcomputers,forexample)bymeansofacablebus.
+TheGPIBcarriesbothinterfaceandprogrammessages.
+l Interfacemessagesmanagethebusitself.Theyperformfunctionssuchastheinitialization,
+addressingandunaddressingofdevices,andthesettingofremoteandlocalmodes.
+l Programmessages(oftencalleddevice-dependentmessages)containprogramminginstructions,
+statusinformation,anddata—suchasoscilloscopesetupinstructionsandmeasurementdata.
+DevicesconnectedbyGPIBcanbelisteners,talkers,orcontrollers.Atalkersendsprogrammessagesto
+oneormorelisteners,whileacontrollermanagestheflowofinformationonthebusbysendinginterface
+messagestothedevices.
+WhenGPIBisimplementedwithTeledyneLeCroyoscilloscopes,theoscilloscopecanbeatalkeror
+listener,butnotacontroller.Thecontrollerfunctionsarehandledbyanotherinstrument,usuallyaPC.The
+hostcomputermustbeabletoplayallthreeroles.
+ThedetailsofhowthecontrollerconfigurestheGPIBfordifferentfunctionsisspecifictoeachGPIB
+interfaceandcanbefoundintheGPIBinterfacemanufacturer'smanual.
+Note:VISAandActiveDSOdriversperformallGPIBinterfacefunctionality,soyoudonotneedto
+learnthelower-leveldetailsoftheGPIBbustousetheIEEE488.2commands.
+InterfaceDefinitions
+TeledyneLeCroyoscilloscopeinterfacecapabilitiesincludethefollowingIEEE488.1definitions:
+l AH1-CompleteAcceptorHandshake
+l SH1-CompleteSourceHandshake
+l L4-PartialListenerFunction
+l T5-CompleteTalkerFunction
+l SR1-CompleteServiceRequestFunction
+l RL1-CompleteRemote/LocalFunction
+l DC1-CompleteDeviceClearFunction
+l DT1-CompleteDeviceTrigger
+l PP1-ParallelPolling:remoteconfigurable
+l C0-NoControllerFunctions
+l E2-Tri-stateDrivers
+6-2
+
+----- 第 171 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+IEEE488.1StandardMessages
+TheIEEE488.1standard(ofwhichIEEE488.2canbeconsideredanextension)specifiesnotonlythe
+mechanicalandelectricalaspectsoftheGPIB,butalsothelow-leveltransferprotocol.Forinstance,it
+defineshowacontrolleraddressesdevices,turnsthemintotalkersorlisteners,resetsthem,orputsthem
+intheremotestate.Suchinterfacemessagesareexecutedthroughtheinterfacemanagementlinesofthe
+GPIB,usuallywithATNtrue.AllthesemessagesexceptGETareexecutedimmediatelyuponreceipt.
+TheCommandReferenceinthismanualdoesnotcontainacommandforclearingtheinputoroutput
+buffersorforsettingtheoscilloscopetotheremotestatebecausesuchcommandsarealreadyspecified
+asIEEE488.1standardmessages.RefertotheGPIBinterfacemanualofthehostcontrolleraswell
+regardingitssupportprograms,whichshouldcontainspecialcallsfortheexecutionofthesemessages.
+Note:InadditiontotheIEEE488.1interfacemessagestandards,theIEEE488.2standard
+specifiescertainstandardizedprogrammessages(orcommandheaders).Theyareidentifiedin
+theCommandReferencesectionwithaleadingasterisk*.
+RemoteEnable,RWLS
+TeledyneLeCroyoscilloscopesdonotlockoutanylocalcontrolswhenplacedintheremotestate,orin
+RWLS.Theyalwaysacceptremoteandlocalcontrolinputs(unlesstheremotecontrolcapabilityisturned
+off).
+DeviceClear,DCL
+InresponsetoauniversalDeviceCLear(DCL)oraSelectedDeviceClearmessage(SDC),theoscilloscope
+clearstheinputoroutputbuffers,cancelstheinterpretationofthecurrentcommand(ifany)andclears
+pendingcommands.However,statusregistersandstatus-enableregistersarenotcleared.AlthoughDCL
+willhaveanimmediateeffect,itcantakeseveralsecondstoexecuteiftheoscilloscopeisbusy.
+GroupExecuteTrigger
+TheGroupExecuteTriggermessage(GET)causestheoscilloscopetoarmthetriggersystem,andis
+functionallyidenticaltothe*TRGcommand.
+InterfaceClear,IFC
+TheInterfaceClearmessage(IFC)initializestheGPIBbuthasnoeffectontheoperationofthe
+oscilloscope.
+6-3
+
+----- 第 172 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ProgramMessageFormat
+GPIBprogrammessagesarecomposedofcommandsand/orqueriesseparatedbysemicolonsand
+endingwithaterminator:
+<command/query>;. . . ;<command/query><terminator>
+Note:Aterminatorisrequiredbutisnotshowninexamplesbecauseusuallyitisautomatically
+addedbytheinterfacedriverroutinewritingtoGPIB.
+Thegeneralformofacommandoraqueryconsistsofanoptionalheaderpath,followedbyacommand
+header,followedbyoneorseveralparameters:
+[headerpath:]<header>[?][<parameter>,...,<parameter>]
+Thefollowingrulesapply:
+l Thereisaspacebetweentheheaderandthefirstparameter.
+l Commasseparateparameters.
+l Thequestionmark[?]isoptionalandturnsthecommandintoaquery.
+l Youcanuseuppercaseorlowercasecharacters,orboth,inprogrammessages;theoscilloscope
+doesnotdistinguishbetweenthem.AnexceptionistheMESSAGEcommand,whichcanfaithfully
+transmitstringscontainingbothlowercaseanduppercaseletters.
+Commandsandqueriesareexecutedintheorderinwhichtheyarereceivedthroughremote
+transmission.
+CommandsandQueries
+Programmessagesaremadeupofoneormorecommandsorqueries:
+o Commandsdirecttheoscilloscopetochangeitsstate,forexample,itstimebaseorvertical
+sensitivity.
+o Queriesasktheoscilloscopetoreturndata,suchasameasurement,registervalueorstate
+information.Theyarerecognizedby?followingtheheader.
+Usually,youwillusethesamecharactersforacommandandaquery,thequerybeingidentifiedby"?"as
+thefinalcharacter.Theportionoftheheaderprecedingthequestionmarkisrepeatedaspartofthe
+responsemessage.
+Forexample,tochangethetimebaseto2 ms/div,sendthiscommandtotheoscilloscope:
+TIME_DIV2E-3
+Toasktheoscilloscopeaboutitstimebasesetting,sendthisquery:
+TIME_DIV?
+6-4
+
+----- 第 173 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+Youwillreceivearesponselike:
+TIME_DIV2E-3 S
+Tip:Queryingcanbeausefulwayofgeneratingacommandthatisknowntobecorrect,andthe
+responsecopiedstraightintoyourprogram.Therepeatedheadertextcanbesuppressedwiththe
+commandCOMM_HEADER.
+Headerpath
+Certaincommandsorqueriesapplytoasubsectionoftheoscilloscope,suchasasingleinputchannelor
+trace.Thesecommandsmusthavetheirheadersprefixedwithapathnameindicatingtherecipientofthe
+command.
+Theheaderpathnormallyconsistsofatwo-letterpathnamefollowedbyacolon:immediatelypreceding
+thecommandheader.
+EXAMPLE:C1:OFST-300MVisacommandtosettheoffsetofChannel1to-300mV.
+Thetargetwaveformtraceisspecifiedusingthefollowingheaderpathnames:
+HeaderPathName WaveformTrace
+C1toCn Channels
+M1toMn Memorytraces
+F1toFn Mathfunctiontraces
+TA,TB,TC,TD EquivalenttoF1throughF4,forbackwardcompatibilitywithlegacyinstruments
+EX,EX10,EX5 Externaltrigger
+LINE LINEsourcefortrigger
+Note:Whenoldertracenamesareused,suchasTC,theoscilloscoperesponseshowsthenew
+labelequivalent.So,aTCheaderpathquerywouldreturnasanF3headerpathresponse.
+Headerpathsneedonlyneedbespecifiedonceuntilthepathchanges.Subsequentcommandswithout
+headerpathsareassumedtorefertothemostrecentlydefinedpath.
+Althoughoptional,it'srecommendedtoalwaysuseheaderpathstominimizetheriskoferrorifthe
+commandorderchanges.
+6-5
+
+----- 第 174 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Header
+Theheaderisthemnemonicformoftheoperationtobeperformedbytheoscilloscope,whatweusually
+thinkofasthecommandorquery.Mostcommandandqueryheadershavealongform,whichallows
+themtobereadmoreeasilybypeople,andashortformforbettertransferanddecodingspeed.Thetwo
+arefullyequivalentandcanbeusedinterchangeably.
+EXAMPLE: TRIG_MODEAUTOandTRMDAUTOaretwoseparatebutequivalentcommandsfor
+switchingtotheautomatictriggermode.
+SomecommandorquerymnemonicsareimposedbytheIEEE488.2standard.Theyarestandardizedso
+differentoscilloscopespresentthesameprogramminginterfaceforsimilarfunctions.Allthese
+mnemonicsbeginwithanasterisk*.
+Parameters
+Wheneveracommandorqueryusesadditionalparametervalues,thevaluesareexpressedasASCII
+characters.
+ASCIIdatacantaketheformofcharacter,numeric,string,orblockdata.SeeDataTypes.
+Thereisasingleexception:thetransferofwaveformswiththeWAVEFORMcommand/query,wherethe
+waveformcanbeexpressedasasequenceofbinarydatavalues.RefertotheWaveformTransfertopic
+fordetails.
+Terminator
+Theoscilloscopedoesnotdecodeanincomingprogrammessagebeforereceivingitsterminatorunless
+themessageislongerthanthe256byteinputbuffer(atwhichpointtheoscilloscopestartsanalyzingthe
+messageoncethebufferisfull).
+Mostinterfacedriversoftwarewillsendtheprogrammessagewiththerequiredterminators.Youdonot
+havetoincludetheminyourprograms.SeeI/OBuffersformoreinformation.
+6-6
+
+----- 第 175 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+DataTypes
+ASCIIdatacanhavetheformofcharacter,numeric,string,orblockdata.
+CharacterData
+Thesearesimplewordsorabbreviationsindicatingaspecificaction.
+F3:TRAON
+ThedatavalueONcommandsthetraceF3tobeturnedon(thedatavalueOFFhastheoppositeeffect).
+Thisexamplecanbecomemorecomplex.Insomecommands,whereyoucanspecifyasmanyasa
+dozendifferentparameters,orwherenotalltheparametersareapplicableatthesametime,theformat
+requirespairsofdatavalues.Thefirstvaluenamestheparametertobemodified,whilethesecondgives
+itsvalue.Onlytheparameterpairstobechangedmustbespecified.
+HARDCOPY_SETUPDEV,EPSON,PORT,GPIB
+Here,twopairsofparametersareused.ThefirstspecifiesthedeviceasanEPSON(orcompatible)printer,
+whilethesecondindicatestheGPIBport.
+ThecommandHARDCOPY_SETUPallowsmanymoreparametersotherthantheonesspecifiedhere.
+Eithertheyarenotrelevantforprintersortheyareleftunchanged.
+NumericData
+Thenumericdatatypeisusedtoenterquantitativeinformation.Numberscanbeenteredasintegers,
+fractions,orexponents:
+l F1:VPOS-5-MovethedisplayofTraceAdownwardbyfivedivisions.
+l C2:OFST3.56-SettheDCoffsetofChannel2to3.56V.
+l TDIV5.0E-6-Adjustthetimebaseto5µsec/div.
+Therearemanywaystosettheoscilloscope'stimebaseto5µsec/div,suchas:
+l TDIV5E-6-Exponentialnotation,withoutanysuffix.
+l TDIV5 US-withmultiplierU(1E-6)and(optional)unitSforseconds
+StringData
+Thisdatatypeenablesyoutotransfera(long)stringofcharactersasasingleparameter.Simplyenclose
+anysequenceofASCIIcharactersbetweensingleordoublequotationmarks:
+MESSAGE'ConnectprobetopointJ3'
+Note:Theoscilloscopedisplaysthismessageinthemessagebaratthebottomofthetouch
+screendisplay.
+6-7
+
+----- 第 176 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+BlockData
+ThesearebinarydatavaluescodedinhexadecimalASCII:four-bitnibblestranslatedintothedigits0
+through9orAthroughF,andtransmittedasASCIIcharacters.Theyareusedonlyforthetransferof
+waveformsfromtheoscilloscopetothecontroller(WAVEFORM)andforinstrumentpanelsetups
+(PANEL_SETUP).
+ResponseMessages
+Theoscilloscopesendsaresponsemessagetothecontrollerinanswertoaquery.Theformatofsuch
+messagesisthesameasthatofprogrammessages:individualresponsesintheformatofcommands,
+separatedbysemicolons;andendinginterminators(notshownintheseexamples).Thesemessages
+canbesentbacktotheoscilloscopeintheforminwhichtheywerereceivedasvalidcommands.
+Forexample,whenthecontrollersendstheprogrammessage:
+TIME_DIV?;TRIG_MODENORM;C1:COUPLING?
+Theoscilloscopemightrespondwith:
+TIME_DIV50NS;C1:COUPLINGD50
+Theresponsemessagerefersonlytothequeries:theTRIG_MODEcommandisleftout.Ifthisresponseis
+sentbacktotheoscilloscope,itisavalidprogrammessageforsettingitstimebaseto50 ns/divandthe
+inputcouplingofChannel1to50 Ω.
+Thistableoutlinessyntacticalvariationsbetweenprogrammessagesandresponsemessages.The
+oscilloscopekeepstostricterrulesforresponsemessagesthanforacceptanceofprogrammessages.
+Program Response
+Uppercaseorlowercasecharacters Alwaysuppercasecharacters
+Maycontainextraneousspacesortabs(whitespace) Noextraneousspacesortabs(whitespace)
+Maycontainamixtureofshortandlongcommandorquery
+headers
+Useshortheadersbydefault
+CanuseCOMM_HEADERcommandtoforcetheoscilloscope
+touselongheaders,ornoneatall
+Tip:ManydriverssetupCOMM_HEADERinanInitializationfunction.COMM_HEADERneedonly
+besetuponce,typicallyintheconfigurationstageofyourapplication.Theremaybe
+programmaticadvantagestoremovingtheheadersfromresponses,especiallyifthereturndata
+willbereadintoanotherprogram.
+WaveformsyouobtainfromtheoscilloscopeusingthequeryWAVEFORM?areaspecialkindofresponse
+message.ControltheirexactformatbyusingtheCOMM_FORMATandCOMM_ORDERcommands.
+Wheneveryouexpectaresponsefromtheoscilloscope,youmusthavethecontrolprograminstructthe
+bustoreadfromtheoscilloscope.Ifthecontrollersendsanotherprogrammessagewithoutreadingthe
+responsetothepreviousone,theresponsemessageintheoutputbufferoftheoscilloscopeisdiscarded.
+Dependingonthestateoftheoscilloscopeandthecomputationtobedone,severalsecondsmaypass
+beforearesponsetoaqueryisreceived.
+6-8
+
+----- 第 177 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+Note:Remotecommandinterpretationdoesnothavepriorityoverotheroscilloscopeactivities.
+SetthecontrollerI/Otimeoutconditionstothreeormoresecondstogivetheoscilloscopetimeto
+respond.Anincorrectquerywillnotgetaresponse,butabeepwillsoundiftheRemoteControl
+Assistantisenabled.
+I/OBuffers
+Theoscilloscopehas256-byteinputandoutputbuffers.Anincomingprogrammessageisnotdecoded
+beforeamessageterminatorhasbeenreceived.
+ValidGPIBterminatorsare:
+l <NL> -Newlinecharacter,meaning,theASCIInew-linecharacter(decimalvalueis10).
+l <NL><EOI>-NewLinecharacterwithasimultaneous<EOI>signal.
+l <EOI><EOI>-Signaltogetherwiththelastcharacteroftheprogrammessage.
+Note:Terminatorsareoftennotshowninexamplesbecausetheyarehandledbythedriver
+software,althoughtheyarerequired.The<NL><EOI>terminatorisalwaysusedinresponse
+messagessentbytheoscilloscopetothecontroller.
+However,iftheinputbufferbecomesfull(becausetheprogrammessageislongerthanthebuffer),the
+oscilloscopestartsanalyzingthemessage.Inthiscase,datatransmissionistemporarilyhalted,andthe
+controllermaygenerateatimeoutifthelimitwassettoolow.
+6-9
+
+----- 第 178 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+MakingServiceRequests
+Whentheoscilloscopeisusedinaremoteapplication,eventsoftenoccurasynchronously;meaning,at
+unpredictabletimesforthehostcomputer.Themostcommonexampleofthisisatriggerwaitafterthe
+oscilloscopeisarmed.Insuchacase,thecontrollermustwaituntiltheacquisitionisfinishedbeforeitcan
+readtheacquiredwaveform.
+Thesimplestwayofcheckingifacertaineventhasoccurredisbyeithercontinuouslyorperiodically
+readingthestatusbitassociatedwithituntiltherequiredtransitionisdetected.
+AmoreefficientwayofdetectingeventsoccurringintheoscilloscopeistouseServiceRequest(SRQ).
+ThisGPIBinterruptlinecanbeusedtointerruptprogramexecutioninthecontroller.Thecontrollercan
+thenexecuteotherprogramswhilewaitingfortheoscilloscope.
+TheSRQbitislatcheduntilthecontrollerreadstheStatusByteRegister(STB).Theactionofreadingthe
+STBwiththecommand*STB?clearstheregistercontentsexcepttheMAVbit(bit4)untilanewevent
+occurs.ServicerequestingcanbedisabledbyclearingtheSREregisterwiththe*SRE0command.
+Unfortunately,notallinterfacemanufacturerssupporttheprogrammingofinterruptserviceroutines.In
+particular,NationalInstrumentssupportsonlytheSRQbitwithintheISTA%statusword.Thisrequiresyou
+tocontinuouslyorperiodicallycheckthisword,eitherexplicitlyorwiththefunctioncallIBWAIT.
+EnablingSRQ
+Inthedefaultstate,SRQisdisabled.ToenableSRQ,settheServiceRequestEnableregisterwiththe*SRE
+command,specifyingwhicheventshouldgenerateanSRQ.
+Theoscilloscopetheninterruptsthecontrollerwhentheselectedevent(s)occurbyassertingtheSRQ
+interfaceline.IfseveraldevicesareconnectedtotheGPIB,youmayberequiredtoidentifywhich
+oscilloscopecausedtheinterruptbyserialpollingthevariousdevices.
+INRandINB
+ThiseventistrackedbytheINRregister,whichisreflectedintheSREregisterastheINBsummarybitin
+position0.Sincebitposition0hasthevalue1,thecommand*SRE1enablesthegenerationofSRQ
+whenevertheINBsummarybitisset.
+Inaddition,theeventsoftheINRregisterthatmaybesummarizedintheINBbitmustbespecified.The
+event"newsignalacquired"correspondstoINEbit0(value1)whiletheevent"return-to-local"isassigned
+toINEbit2(value4).Thetotalsumis1 + 4 = 5.So,thecommandINE5isneeded:
+CMD$ = "INE5 ; *SRE1": CALLIBWRT(SCOPE%,CMD$)
+6-10
+
+----- 第 179 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+TakingInstrumentPolls
+Youcanregularlymonitorstatetransitionswithintheoscilloscopebypollingselectedinternalstatus
+registers.
+Fourbasicpollingmethodsareusedtodetecttheoccurrenceofagivenevent:continuous,serial,parallel,
+and*IST.Thesimplestoftheseiscontinuouspollingwhiletheothersareappropriateonlywheninterrupt-
+serviceroutines(servicingtheSRQline)aresupported,ormultipledevicesonGPIBrequireconstant
+monitoring.
+Thefollowingexamplesaccomplishthesamegoal(determiningwhetheranewacquisitionhastaken
+place)inordertoemphasizethedifferencesbetweenthepollingmethods.Theexamplesuseboard-level
+GPIBfunctioncalls.Itisassumedthatthecontroller(board)andtheoscilloscope(device)arelocatedat
+addresses0and4,respectively.
+Thelistenerandtalkeraddressesforthecontrollerandtheoscilloscopeare:
+LogicDevice ListenerAddress TalkerAddress
+ExternalController 32(ASCII<space>) 64(ASCII@)
+Oscilloscope 32+4=36(ASCII$) 64+4=68(ASCIID)
+ContinuousPolling
+Astatusregisteriscontinuouslymonitoreduntilatransitionisobserved.Thisisthemoststraightforward
+methodfordetectingstatechanges,butmaynotbepracticalincertainsituations,especiallywithmultiple
+deviceconfigurations.
+Inthefollowingexample,theevent"newsignalacquired"isobservedbycontinuouslypollingtheInternal
+StateChangeRegister(INR)untilthecorrespondingbit(inthiscasebit0,orvalue1)isnon-zero,
+indicatinganewwaveformhasbeenacquired.ReadingINRclearsthisatthesametime,sothereisno
+needforanadditionalclearingactionafteranon-zerovalueisdetected.TheCHDROFFcommand
+instructstheoscilloscopetoomitanycommandheaderswhenrespondingtoaquery,simplifyingthe
+decodingoftheresponse.Theoscilloscopethensends"1"insteadof"INR1"asfollows:
+Example:ContinuousPolling
+CMD$ = "CHDROFF"
+CALLIBWRT(SCOPE%,CMD$)
+MASK%= 1 ' NewSignalBithasvalue1
+DO
+CMD$ = "INR?"
+CALLIBWRT(SCOPE%,CMD$)
+CALLIBRD(SCOPE%,RD$)
+NEWSIG%= VAL(RD$)ANDMASK%
+LOOPUNTILNEWSIG%= MASK%
+6-11
+
+----- 第 180 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+SerialPolling
+SerialpollingtakesplaceoncetheSRQinterruptlinehasbeenasserted,andisonlyadvantageouswhen
+youareusingseveraloscilloscopesatonce.Thecontrollerfindswhichoscilloscopehasgeneratedthe
+interruptbyinspectingtheSRQbitintheSTBregisterofeach.Becausetheservicerequestisbasedonan
+interruptmechanism,serialpollingoffersareasonablecompromiseintermsofservicingspeedin
+multiple-deviceconfigurations.
+ThefollowingexampleusesthecommandINE1toenabletheevent"newsignalacquired"forreporting
+theINRtotheINBbitofthestatusbyteSTB.Thecommand*SRE1enablestheINBofthestatusbyteto
+generateanSRQwheneveritisset.ThefunctioncallIBWAITinstructsthecomputertowaituntiloneof
+threeconditionsoccurs:
+l &H8000inthemask(MASK%)correspondstoaGPIBerror.
+l &H4000toatimeouterror. 
+l &H0800tothedetectionofRQS(ReQuestforService)generatedbytheSRQbit.
+WheneverIBWAITdetectsRQS,itautomaticallyperformsaserialpolltofindoutwhichoscilloscope
+generatedtheinterrupt.Itonlyexitsifatimeoutoccursoriftheoscilloscope(SCOPE%)generatedSRQ.
+TheadditionalfunctioncallIBRSPfetchesthevalueofthestatusbyte,whichmaybefurtherinterpreted.
+Toworkproperly,thevalueof"DisableAutoSerialPolling"mustbesetto"off"intheGPIBhandler(use
+IBCONF.EXEtocheck).
+Example:SerialPolling
+CMD$ = "*CLS; INE1;*SRE1"
+CALLIBWRT(SCOPE%,CMD$)
+MASK%= &HC800
+CALLIBWAIT(SCOPE%,MASK%)
+IF(IBSTA%AND&HC000)<>0 THENPRINT"GPIBorTimeoutError": STOP
+CALLIBRSP(SCOPE%,SPR%)
+PRINT"StatusByte=.",SPR%
+Aftertheserialpolliscompleted,theRQSbitintheSTBstatusregisteriscleared.NotethattheotherSTB
+registerbitsremainsetuntiltheyareclearedbymeansofa*CLScommandortheoscilloscopeisreset.If
+thesebitsarenotcleared,theycannotgenerateanotherinterrupt.
+6-12
+
+----- 第 181 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+ParallelPolling
+Likeserialpolling,thisisonlyusefulwhenseveraloscilloscopesareconnected.Thecontroller
+simultaneouslyreadstheIndividualSTatusbit(IST)ofalloscilloscopestodeterminewhichoneneeds
+service.Thismethodallowsuptoeightdifferentoscilloscopestobepolledatthesametime.
+Whenaparallelpollisinitiated,eachoscilloscopereturnsastatusbitoveroneoftheDIOdatalines.
+Devicesmayrespondeitherindividually,usingaseparateDIOline,orcollectivelyonasingledataline.
+Data-lineassignmentsaremadebythecontrollerusingaParallelPollConfigure(PPC)sequence.
+ThefollowingexampleusestheINE1commandtoenabletheevent"newsignalacquired"intheINRfor
+reportingtotheINBbitofthestatusbyteSTB.ThePaRallelpollEnableregister(PRE)determineswhich
+eventsaresummarizedintheISTstatusbit.Thecommand*PRE1enablestheINBbit(whenfirstset
+itself)tosettheISTbit.Onceparallelpollingisestablished,theparallel-pollstatusisexamineduntila
+changeondatabuslineDIO2takesplace.
+Example:ParallelPolling,Stage1
+EnabletheINEandPREregisters;configurethecontrollerforparallelpoll;instructtheoscilloscopeto
+respondondataline2(DIO2)usingthesecommands:
+CMD1$ = DSOListenPCTalk$     'Asdefinedearlier
+CALLIBCMD(BRD0%,CMD1$)
+CMD$ = "INE1;*PRE1"
+CALLIBWRT(BRD0%,CMD$)
+PPE$ = Chr$ (&H5)              'GPIBParallelPollEnable
+MSA9$ = Chr$ (&H69)            'GPIBSecondaryAddress9
+CMD4$ = PPE$ + MSA9$ + UnListen$
+CALLIBCMD(BRD0%,CMD4$)
+Example:ParallelPolling,Stage2
+ParallelpolltheoscilloscopeuntilDIO2issetusingthesecommands:
+Do
+CALLIBRPP(BRD0%,PPR%)
+LoopUntil(PPR%AND&H2)= 2
+Example:ParallelPolling,Stage3
+Disableparallelpolling(hex15)andcleartheparallelpollregisterusingthesecommands:
+PPU$ = Chr$ (&H15)           'GPIBParallelPollUnconfigure
+CALLIBCMD(BRD0%,PPU$)
+CALLIBCMD(BRD0%,CMD1$)   'Asdefinedearlier
+CMD$ = "*PRE0": CALLIBWRT(BRD0%,CMD$):
+6-13
+
+----- 第 182 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*ISTPolling
+ReadthestateoftheIndividualSTatusbit(IST)returnedduringparallelpollingbysendingthe*IST?query.
+Enablethispollmode,byinitializingtheoscilloscopeforparallelpollingbywritingintothePREregister.
+Since*ISTemulatesparallelpolling,applythismethodwhereverparallelpollingisnotsupportedbythe
+controller.
+Inthefollowingexample,thecommandINE1enablestheevent"newsignalacquired"intheINRfor
+reportingtotheINBbitofthestatusbyteSTB.Thecommand*PRE1enablestheINBbit(whenfirstset
+itself)tosettheISTbit.ThecommandCHDROFFsuppressesthecommandheaderintheoscilloscope's
+response,simplifyingtheinterpretation.ThestatusoftheISTbitisthencontinuouslymonitoreduntilset
+bytheoscilloscope:
+Example:*ISTPolling
+CMD$ = "CHDROFF;INE1;*PRE1"
+CALLIBWRT(SCOPE%,CMD$)
+DO
+CMD$ = "*IST?"
+CALLIBWRT(SCOPE%,CMD$)
+CALLIBRD(SCOPE%,RD$)
+LOOPUNTILVAL(RD$)= 1
+6-14
+
+----- 第 183 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+TimingandSynchronization
+Dependingonhowyourremoteprogramiswritten,itmaybeaffectedbytimingchangesbetween
+differentoscilloscopes.Mosttimingandsynchronizationproblemsarerelatedtochangingacquisitions,
+orthecompletionofanalysisafteranacquisitionoccurs.
+SaythatyouchangetheOffsetofC1whiletheoscilloscopeisinAutotriggermode,andthenusethe
+PAVA?querytoreadaparametercomputedonC1.Inneweroscilloscopes,theprocessingisoverlapped
+withthenextacquisitionand,asaconsequence,thePAVA?resultmayhavecomefromtheacquisition
+priortotheoffsetchange.
+Thereareseveralwaystoensureyourprogramprovidescorrectresultswhenremotelycontrollingthe
+oscilloscope.
+ControltheTriggerMode
+WheninSingletriggermode,acquisitionsdonotoverlap.Youcanusethestatusregistersavailableinthe
+instrument,orthe*OPC?queryandtheWAITcommandtodetectacquisitionandprocessingcompletion.
+WhenyouarmtheoscilloscopebysendingtheTRMDSINGLEcommand,theinstrumentautomatically
+performsanynecessarycalibrationsbeforeitacquiresanydata.Thesecalibrationsmaytakeseveral
+seconds,soifyouquerythestatusimmediatelyaftersendingtheTRMDSINGLEcommand,settheGPIB
+(orremote)timeouttoleast10secondsandpreventatimeoutbeforereceivingthecorrectresults.
+AcasewhereyoumayneedtouseNormalorAutotriggermodeinvolvestheaccumulationofmany
+acquisitionsforaveragingorhistogrammingfunctions.Inthiscase,itisbesttostoptheacquisitions,set
+uptheoscilloscope,andthensetthetriggermodetoNormalwhenacquiringthedata.
+ApossiblealternativewouldbetouseSequencetriggermode.Itisfaster,butdoesrequireknowinghow
+manyacquisitionstoaccumulate.Thisnumbercanbespecifiedandcapturedusingsequencemode.
+ReduceCalibrations
+WhenoperatinginDynamicCalibrationmode,thedefaultonolderMAUIoscilloscopes,calibrationsare
+performedwheneveryourprogramchangessomeacquisitionsettingssuchasVolts/Divorthenumberof
+activechannels.Calibrationsarealsoperformediftheoscilloscopetemperaturesignificantlychanged.
+ThecalibrationsmaybedisabledbysendingtheAUTO_CALIBRATEOFFcommand.Whileoscilloscope
+performancemaybedegradedifthetemperaturechangesanddoesnotself-calibrate,acalibrationcan
+alwaysbeforcedbyissuingthe*CAL?command.
+Usingthisforcedcalibrationtechniqueallowsyoutocontroltheirtimingsotheydonotinterferewhile
+acquiringimportantdata.
+6-15
+
+----- 第 184 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+UseStatusRegisters
+Statusregistersstorearecordofeventsandconditionsoccurringinsidetheoscilloscope.Someofthe
+eventsrecordedinclude:
+l Theacquisitionofnewdata
+l Whenprocessingcompletes
+l Whenprinting(hardcopy)completes
+l Whenanerroroccurs
+Programmerscanusetheregisterstosensetheinstrument'sconditionbypollinguntilthedesiredstatus
+bitisset.Astatusregistercanbepolledbyqueryingitsassociatedremotecommand(*STB,INR?,*ESR).
+Alternatively,theoscilloscopecanrequestservicefromthecontrollerbyusingthemaskregistersto
+selecttheeventsofinterest.
+Thefollowingprocedureshowsthestepsnecessaryforacquiringdatausingthestatusregistersfor
+synchronization.
+1. STOPtheacquisition.
+2. (Commandsto)setuptheoscilloscope.
+3. Clearstatusregisters.
+4. Setupmaskregister(ifneeded).
+5. ARMorTRMDSINGLEtostarttheacquisition.
+6. Pollstatusregistersorwaitforservicerequest.
+(Variouscommands/queries)toreaddata,cursors,andparametermeasurements.
+Ifthedatahasalreadybeenacquiredandyouwanttoperformfurtheranalysis(math,parameters,
+cursors),youcanproceedasfollows:
+1. Clearstatusregisters.
+2. Setupmaskregister(ifneeded).
+3. (Commandsto)changemathfunctions,parameters,cursors,etc.asrequiredforanalysis.
+4. Pollstatusregistersorwaitforservicerequest.
+5. (Commands/queriesto)readdata,cursors,andparametermeasurements.
+6-16
+
+----- 第 185 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+Use*OPC?andWAIT
+TheacquisitionWAITcommand(nottobeconfusedwiththeIEEE488.2standard*WAIcommand):
+l Waitsfortheacquisitiontocomplete,butdoesnotwaitfortheprocessing.
+l Allowsyoutospecifyanoptionaltimeoutsothatiftheoscilloscopedoesnottrigger,yourprogram
+doesnothang.
+Note:Ifyouusethetimeoutmethod,itisstronglyadvisedtothencheckthestatusregisterswith
+*OPC?toensuretheoscilloscopeactuallytriggeredandanyprocessinghascompleted.
+The*OPC?queryreturnsa1whenthepreviouscommandshavefinished.Thismeansyoucanusethis
+querywiththeWAITcommandtosynchronizetheoscilloscopewithyourcontroller,usingtheprocedure
+shownhere:
+1. STOPtheacquisition.
+2. (Commandsto)setuptheoscilloscope.
+3. ARMorTRMDSINGLEtostarttheacquisition.
+4. WAITfortriggerandacquisitiontocomplete.
+5. *OPC?toensureprocessingiscomplete.
+6. (Commands/queriesto)readdata,cursors,andmeasurementparameters.
+6-17
+
+----- 第 186 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WaveformTransfer
+Awaveformcanbesaidtohavetwomainparts:
+l Itsbasicdataarray:rawdatavaluesfromtheoscilloscope'sADCs(Analog-to-DigitalConverters)
+obtainedduringthewaveformcapture.
+l Thedescriptionaccompanyingthisrawdata:verticalandhorizontalscaleortimeofday,for
+example,necessaryforafullunderstandingoftheinformationcontainedinthewaveform.
+Whenthesepartsaretransmittedtogether,thedescriptorcomesfirst.Youcanaccessthewaveform
+descriptiveinformationbyremotecontrolusingtheINSPECT?query,whichinterpretsitinASCIItextform.
+Waveformdatacanthenbeeither:
+l ReadofftheoscilloscopeusingtheWAVEFORM?query
+l WrittenbackintotheoscilloscopewiththeWAVEFORMcommand
+UsingtheSTOREandSTORE_SETUPcommands,youcanalsostorewaveformdatainpreformatted
+ASCIIoutputforpopularspreadsheetandmathprocessingpackages.
+AnalogWaveformTemplate
+Yourinstrumentcontainsacommentedwaveformtemplatefile(LeCroy<version>.tpl)thatprovidesa
+detaileddescriptionoftheanalogwaveformfileformat.UsetheTEMPLATE?querytoaccessthe
+templatefileusedbytheoscilloscope.Thiscanbedonelocallyontheoscilloscope,withnoneedfora
+remoteconnection,usingthesesteps:
+1. ChooseFile>MinimizetoshowtheWindowsdesktop.
+2. LaunchtheWaveStudiosoftware.
+3. AddScopeusingtheNetworkconnection.Enter"localhost"intheaddressfield.
+4. OpentheTerminalandenterthequeryTEMPLATE?.
+5. Tosavethecontentsofthewindowtoafile:
+l OpenNotepad.
+l IntheWaveStudioTerminalwindow,right-click(touch-and-hold)andSelectAll.
+l Right-clickagainandCopy.
+l PastethecontentsintoNotePadandsaveasa.txtfile.
+Tip:IfyouhaveWaveStudioinstalledonaPC,thesamecanbedoneremotelyusingwhatever
+connectiontypeisconfiguredontheoscilloscopeandtheappropriateaddress.
+Note:OlderversionsofthewaveformtemplatefilecanbeaccessedusingtheTMPL?querywith
+the<version>argument,forexample:TMPL?"2_3".
+6-18
+
+----- 第 187 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+WaveformFileFormat
+Bydefault,theoscilloscopesaveswaveformdataasbinaryfiles(.trc).Thepropertiesofthetracefileare
+shownbythewaveformdescriptorblock,whichappearsimmediatelyafterthefileheader.Thewaveform
+descriptoristhekeytounderstandingthedatathatfollows.
+Currentlyinuseintemplateversion2_4:
+l WAVEDESC1definesthewaveformfileformatthathasbeenusedsincetheintroductionof64-bit
+LeCroyDSOs.Thisdescribesallwaveformfilesthatare≤2GBinlengthe
+l WAVEDESC2definestheextendedtracefileformatthatwasintroducedwiththelongmemoryHD
+oscilloscopes.Thisdescriptorappearsonlyin>2GBwaveformfilesinasecondsectionofthefile
+followingthevariablesdescribedbyWAVEDESC1.
+Whenanacquisitionis>2GB,theTRIGTIME_2,DATA_ARRAY_3andDATA_ARRAY_4blocks(alldefinedin
+WAVEDESC2)containthebalanceofthewaveformdatathatdoesnotfitintothelegacyformat.Toexport
+thecompletewaveformtootherprograms,thedataintheseblocksshouldbeappendedtothedatain
+TRIGTIME,DATA_ARRAY_1andDATA_ARRAY_2,accordingtothepropertiesthatwillappearinthe
+WAVEDESC1andWAVEDESC2.
+6-19
+
+----- 第 188 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WaveformFileFormat,continued
+Section BlockID Type Size Description
+1:Legacyfile
+format
+Onlythissectionis
+usedwhenthe
+waveformsizeis
+≤2GB.
+Ifthewaveform
+sizeis>2GB,this
+sectionofthefile
+containsalldataup
+to2GB.
+TheWAVEDESC1
+blockdescribesthe
+propertiesofthis
+partofthe
+waveform.
+#NnnnnnnnnnnHeader 11-17 Thespecialcharacter'#';thenone
+HexadecimaldigitN(0-9,A-F);thenN
+decimaldigitsthatdenotethepositive
+integersizeofthissection.Thenumber
+ofdigits'nnnnnnnnnn'isequaltoN,
+representingtheblocksizeofSection1.
+WAVEDESC1 Block 344 Waveformdescriptorofprimarysection.
+Seetablebelowforadefinitionofitscom-
+ponents.
+USERTEXT Block variableUserdefinedtext.
+TRIGTIME Trigger
+Time
+Array
+variableThetotalsizeisdefinedin
+WAVEDESC1>TRIGTIME_ARRAY.
+Eachtriggertimeelementisdefinedas:
+{doubleTRIGGER_TIME;
+doubleTRIGGER_OFFSET}
+RISTIME Double
+Array
+variableThetotalsizeisdefinedin
+WAVEDESC1>RIS_TIME_ARRAY.
+Thetypeofeachelementisdouble.
+DATA_ARRAY_1 Array variableThetotalsizeisdefinedin
+WAVEDESC1>WAVE_ARRAY_1.
+Thedataformatisdefinedin
+WAVEDESC1>COMM_TYPE.
+DATA_ARRAY_2 Array variableThetotalsizeisdefinedin
+WAVEDESC1>WAVE_ARRAY_2.
+Thedataformatisdefinedin
+WAVEDESC1>COMM_TYPE.
+6-20
+
+----- 第 189 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+Section BlockID Type Size Description
+2:Extendedfile
+format
+Ifthewaveform
+sizeis>2GB,this
+sectionofthefile
+containsalldata>2
+GB.
+TheWAVEDESC2
+blockdescribesthe
+propertiesofthis
+partofthe
+waveform.
+#NnnnnnnnnnnHeader 11-17 Thespecialcharacter'#';thenone
+HexadecimaldigitN(0-9,A-F);thenN
+decimaldigitsthatdenotethepositive
+integersizeofthissection.Thenumber
+ofdigits'nnnnnnnnnn'isequaltoN,
+representingtheblocksizeofSection2.
+WAVEDESC2 Block 672 Waveformdescriptorofextendedsec-
+tion.Note:Partsofthisblockreplaceequi-
+valentpartsofWAVEDESC1;see
+WAVEDESC2below.
+USERTEXT Block variableUserdefinedtext.
+TRIGTIME_2 Trigger
+Time
+Array
+variableThetotalsizeisdefinedin
+WAVEDESC2>TRIGTIME_ARRAY.
+Eachtriggertimeelementisdefinedas:
+{doubleTRIGGER_TIME;
+doubleTRIGGER_OFFSET}
+RISTIME Double
+Array
+variableThetotalsizeisdefinedin
+WAVEDESC2>RIS_TIME_ARRAY.
+Thetypeofeachelementisdouble.
+DATA_ARRAY_3 Array variableThedatainthisblockfollowsDATA_
+ARRAY_1.Togetthefullwaveform,
+DATA_ARRAY_1andDATA_ARRAY_3
+mustbecombined.
+Thetotalsizeisdefinedin
+WAVEDESC1>WAVE_ARRAY_3.
+Thedataformatisdefinedin
+WAVEDESC1>COMM_TYPE.
+DATA_ARRAY_4 Array variableThedatainthisblockfollowsDATA_
+ARRAY_2.Togetthefullwaveform,
+DATA_ARRAY_2andDATA_ARRAY_4
+mustbecombined.
+Thetotalsizeisdefinedin
+WAVEDESC2>WAVE_ARRAY_4.
+Thedataformatisdefinedin
+WAVEDESC2>COMM_TYPE.
+6-21
+
+----- 第 190 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WAVEDESC1
+Offset
+(bytes)
+Size
+(Bytes) Type VariableName Description
+0 16 string DESCRIPTOR_NAME Willcontain"WAVEDESC"
+16 16 string TEMPLATE_NAME Nameofthetemplate
+32 2 short COMM_TYPE Dataformat:0=byte;1=word
+34 2 short COMM_ORDER Dataorder:0=HiFirst;1=LoFirst
+Thefollowingvariablesspecifythelengthsofallblocksofwhichtheentirewaveform(asitiscurrently
+beingread)iscomposed.Ifablocklengthiszero,thatblockis(currently)notpresent.Blocksandarrays
+thatarepresentwillbefoundinthesameorderasshownbelow.
+36 4 long WAVE_DESC_LENGTH LengthinbytesofWAVEDESC1block
+40 4 long USER_TEXT_LENGTH LengthinbytesofUSERTEXTblock
+44 4 long RES_DESC1 Reserved
+48 4 long TRIG_TIME_ARRAY LengthinbytesofTRIGTIMEarray
+52 4 long RIS_TIME_ARRAY LengthinbytesofRISTIMEarray
+56 4 long RES_ARRAY_1 Reserved
+60 4 long WAVE_ARRAY_1 Lengthinbytesoffirstsimpledataarray
+64 4 long WAVE_ARRAY_2 Lengthinbytesofsecondsimpledataarray
+68 4 long RES_ARRAY_2 Reserved
+72 4 long RES_ARRAY_3 Reserved
+Thefollowingvariablesidentifytheinstrument.
+76 16 string INSTRUMENT_NAME
+92 4 ULONGINSTRUMENT_NUMBER
+96 16 string TRACE_LABEL Waveformidentifier
+112 4 long RESERVED_DATA_COUNTReserved
+Thefollowingvariablesdescribethewaveformtypeandthetimeatwhichthewaveformwasgenerated.
+116 4 long WAVE_ARRAY_COUNT Numberofdatapointsinadataarray.If
+therearetwoarrays(e.g.,FFTorExtrema
+waveform),thisnumberappliestoeach
+arrayseparately.
+120 4 long POINTS_PER_SCREEN Nominalnumberofdatapointsonthe
+screen
+124 4 long FIRST_VALID Numberofpointstoskipbeforefirstgood
+point.FIRST_VALID_POINT=0fornormal
+waveforms.
+128 4 long LAST_VALID Indexoflastgooddatapointinrecord
+beforepadding(blanking)wasstarted.
+LAST_VALID_POINT=WAVE_ARRAY_
+COUNT-1exceptforabortedSequenceand
+RollModeacquisitions.
+132 4 long FIRST_POINT Indicatesthedataoffsetrelativetothe
+beginningofthetracebuffer
+136 4 long SPARSING_FACTOR Indicatesthesparsingintodatablock
+140 4 long SEGMENT_NO ForSequencewaveforms,indexoftheseg-
+ment
+6-22
+
+----- 第 191 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+Offset
+(bytes)
+Size
+(Bytes) Type VariableName Description
+144 4 long SUBARRAY_COUNT ForSequencewaveforms,acquiredseg-
+mentcount,between0andNOM_
+SUBARRAY_COUNT
+148 4 long SWEEPS_PER_ACQ ForAverageorExtremawaveforms,number
+ofsweepsaccumulated,else1
+152 2 short POINTS_PER_PAIR ForPeakDectectwaveforms(whichalways
+includedatapointsinDATA_ARRAY_1and
+min/maxpairsinDATA_ARRAY_2),thenum-
+berofdatapointsforeachmin/maxpair
+154 2 short PAIR_OFFSET ForPeakDectectwaveforms,thenumberof
+datapointsbywhichthefirstmin/maxpair
+inDATA_ARRAY_2isoffsetrelativetothe
+firstdatavalueinDATA_ARRAY_1
+156 4 float VERTICAL_GAIN Totalgainofwaveform,unitsperlsb
+160 4 float VERTICAL_OFFSET Totalverticaloffsetofwaveform.Toget
+floatingvaluesfromrawdata:
+VERTICAL_GAIN*data-VERTICAL_OFFSET
+164 4 float MAX_VALUE Maximumallowedvalue;correspondstothe
+upperedgeofthegrid
+168 4 float MIN_VALUE Minimumallowedvalue;correspondstothe
+loweredgeofthegrid
+172 2 short NOMINAL_BITS Intrinsicprecisionoftheobservation
+174 2 short NOM_SUBARRAY_COUNTForSequencewaveforms,nominalsegment
+count,else1
+176 4 float HORIZONTAL_INTERVALSamplinginterval,thenominaltimebetween
+successivepointsinthedata
+180 8 doubleHORIZONTAL_OFFSET Triggeroffsetintimedomainforzero'th
+sweepoftrigger,measuredasseconds
+fromtriggertozero'thdatapoint(i.e.,actual
+triggerdelay)
+188 8 doublePIXEL_OFFSET Timefromtriggertozero'thpixelofdisplay
+segmentintimedomain,measuredin
+seconds(i.e.,nominaltriggerdelay)
+196 48 string VERTUNIT Verticalaxisunit
+244 48 string HORUNIT Horizontalaxisunit
+292 4 float HORIZ_UNCERTAINTYUncertaintyfromoneacquisitiontothenext,
+ofthehorizontaloffsetinseconds
+296 16 structureTRIGGER_TIME Timeofthetrigger,listedinthestructure:
+doubleseconds;charminutes;charhours;
+chardays;charmonths;shortyear;short
+dummy
+312 4 float ACQ_DURATION Durationoftheacquisition(insec)formulti-
+triggerwaveforms(e.g.,Sequence,RISand
+Average)
+316 2 short CA_RECORD_TYPE Typeofwaveform
+6-23
+
+----- 第 192 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Offset
+(bytes)
+Size
+(Bytes) Type VariableName Description
+318 2 short PROCESSING_DONE Indicationofanyprocessingdone.0=no
+processing;
+1=firfilter;2=interpolated;3=sparsed;4=
+autoscaled;5=noresult;6=rolling;7=
+cumulative.
+320 2 short RESERVEDS
+322 2 short RIS_SWEEPS ForRISacquisitions,numberofsweeps
+fromwhichwaveformiscalculated,else1
+**Theinformationbelowisbasedonthelegacyenumerationlist.Itmaynotbevalidforneweroscil-
+loscopemodels.
+324 2 short TIME_BASE Enumeratedtime/div**
+326 2 short VERTICAL_COUPLING Enumeratedchannelcouplingvalue
+328 4 float PROBE_ATTENUATIONProbeattenuationvalue
+332 2 short FIXED_VERTICAL_GAIN Enumeratedverticalgain**
+334 2 short BAND_WIDTH_LIMIT
+336 4 float VERTICAL_VERNIER
+340 4 float ACQ_VERTICAL_OFFSET
+344 2 short WAVE_SOURCE Waveformsourceinput
+6-24
+
+----- 第 193 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+WAVEDESC2
+Offset
+(bytes)
+Size
+(Bytes) Type VariableName Description
+0 16 string DESCRIPTOR_NAME Willcontain"BLOCK2"
+16 16 string TEMPLATE_NAME Nameofthetemplate
+32 16 string VERSION
+Thefollowingvariablesspecifythelengthsofallblocksofwhichtheentirewaveform(asitiscurrently
+beingread)iscomposed.Ifablocklengthiszero,thatblockis(currently)notpresent.Blocksandarrays
+thatarepresentwillbefoundinthesameorderasshownbelow.
+48 8 int64 WAVE_DESC_LENGTH_2 LengthinbytesofWAVEDESC2block
+56 8 int64 TRIG_TIME_ARRAY LengthinbytesofTRIGTIME_2array
+64 8 int64 WAVE_ARRAY_3 Lengthinbytesofdataarray3
+72 8 int64 WAVE_ARRAY_4 Lengthinbytesofdataarray4
+80 8 int64 WAVE_ARRAY_COUNT Numberofdatapointsineachdataarray.If
+therearetwodataarrays(e.g.,FFTor
+Extrema),thisnumberappliestoeacharray
+separately.
+96 8 int64 FIRST_VALID Numberofpointstoskipbeforefirstgood
+point.FIRST_VALID_POINT=0fornormal
+waveforms.
+104 8 int64 LAST_VALID Indexoflastgooddatapointinrecord
+beforepadding(blanking)wasstarted.
+LAST_VALID_POINT=WAVE_ARRAY_
+COUNT-1exceptforabortedSequenceand
+RollModeacquisitions.
+Thefollowingvariablesdescribewaveformpropertiesofalldatainfilesections1and2.Thesevalues
+replaceequivalentsinWAVEDESC1.
+88 8 int64 POINTS_PER_SCREEN Nominalnumberofdatapointsonthe
+screen
+112 8 int64 FIRST_POINT Indicatesthedataoffsetrelativetothe
+beginningofthetracebuffer
+120 8 int64 SPARSING_FACTOR Indicatesthesparsingintodatablock
+128 8 int64 SEGMENT_NO ForSequencewaveforms,indexoftheseg-
+ment
+136 4 int SUBARRAY_COUNT ForSequencewaveforms,acquiredseg-
+mentcount,between0andNOM_
+SUBARRAY_COUNT
+140 8 int64 SWEEPS_PER_ACQ ForAverageorExtremawaveforms,number
+ofsweepsaccumulated,else1
+148 4 int NOM_SUBARRAY_COUNTForSequencewaveforms,nominalsegment
+count,else1
+152 8 doubleHORIZONTAL_OFFSET Triggeroffsetintimedomainforzero'th
+sweepoftrigger,measuredasseconds
+fromtriggertozero'thdatapoint(i.e.,actual
+triggerdelay)
+160 512 bytes[512]RESERVED Reservedforfutureuse
+6-25
+
+----- 第 194 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+InspectingWaveformContents
+UsetheINSPECT?querytoexaminethecontentsofyourwaveform.
+ThewaveformtemplateexplainstheWAVEDESCblockandotherlogicalblocksthatmaybereturnedby
+theINSPECT?query.
+Tip:UsetheTMPL?querytogetacopyofthefullwaveformtemplateinuseonyouroscilloscope.
+YoucanaccessareadabletranslationofsingleentitiesintheWaveformDescriptorblockbyusingthe
+queryINSPECT?"<WAVEDESCvariable>".Atypicalexchangemightbe:
+Query:C1:INSPECT?"VERTICAL_OFFSET"
+Response:"VERTICAL_OFFSET:-4.0000e-002"
+Query:C1:INSPECT?"TRIGGER_TIME"
+Response:"TRIGGER_TIME:Date= APR8,2016,Time= 10:29:0.311462573"
+Also,useINSPECT?"SIMPLE"toexaminethemeasureddatavaluesofawaveform.Forexample,the
+replytoanacquisitionwith52pointswouldlooklikethefollowing:
+INSPECT?"SIMPLE"
+C1:INSP"
+0.0005225 0.0006475 -0.00029 -0.000915 2.25001E-05 0.000835
+0.0001475 -0.0013525 -0.00204 -4E-05 0.0011475 0.0011475
+-0.000915 -0.00179 -0.0002275 0.0011475 0.001085 -0.00079
+-0.00179 -0.0002275 0.00071 0.00096 -0.0003525 -0.00104
+0.0002725 0.0007725 0.00071 -0.0003525 -0.00129 -0.0002275
+0.0005225 0.00046 -0.00104 -0.00154 0.0005225 0.0012725
+0.001335 -0.0009775 -0.001915 -0.000165 0.0012725 0.00096
+-0.000665 -0.001665 -0.0001025 0.0010225 0.00096 -0.0003525
+-0.000915 8.50001E-05 0.000835 0.0005225
+"
+Thenumbersintheprevioustablearethefully-convertedmeasurementsinvolts.
+Dependingontheapplication,youmaypreferthetoseethedatausingeitheraBYTE(8bits)oraWORD
+(16bits)foreachdatavalue.Inthatcase,useeither:
+INSPECT?"SIMPLE",BYTE
+INSPECT?"SIMPLE",WORD
+Theexaminationofdatavaluesforwaveformswithtwodataarrayscanbeperformedasfollows:
+6-26
+
+----- 第 195 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+INSPECT?"DUAL"togetpairsofdatavaluesonasingleline
+INSPECT?"DATA_ARRAY_1"togetthevaluesofthefirstdataarray
+INSPECT?"DATA_ARRAY_2"togetthevaluesoftheseconddataarray
+INSPECT?hasitslimitations;itisuseful,butwordy.INSPECT?cannotbeusedtoquicklytransferanentire
+waveformtoandfromtheoscilloscope.Todothis,usetheWAVEFORM?queryandWAVEFORM
+command,instead.WithWAVEFORM_SETUP,youcaninspectasparseformofthewaveform.
+IfyouareaBASICuser,youmightalsofinditconvenienttouseINSPECT?andWAVEFORM?togetherto
+constructfilescontainingaversionoftheWaveformDescriptorthatbothyouandBASICcanread.Stored
+waveformscanbereadinaformatsuitableforretransfertotheinstrumentusing:
+C1:INSPECT?"WAVEDESC";WAVEFORM?
+Placetheresponsedirectlyintoafile.
+UsingtheWaveformQuery
+TheWAVEFORM?queryisaneffectivewaytotransferwaveformdatainblockformatsdefinedbythe
+IEEE488.2standard.Theresultingfilescanbedownloadedbackintotheinstrumentbyusingthe
+WAVEFORMcommand.
+Alllogicalblocksinawaveformcanbereadwiththesimplequery:
+<trace>:WAVEFORM?
+Forexample:
+C1:WAVEFORM?
+Yourcanalsoqueryforasingleblockorarraybyaddingthenameasaparameter,forexample:
+C1:WAVEFORM?DATA_ARRAY_1
+Thewaveformtemplatelistsallthelogicalblock/arraynamesforwhichyoucanquery.
+TheresponsetotheWAVEFORM?queryofanoscilloscopeinitsdefaultstatewillshowthewaveform
+datainhexadecimalformatwithanASCIItranslation.
+Note:WaveformdatareadusingtheWF?querycanonlybeloadedbackintooscilloscopeinternal
+memory(M1toMn),fromwhereitcanberecalledtothedisplay.Itmaybebeneficialtoremove
+headersfromthereadoutusingtheCOMM_HEADERcommandsothatthedatainmemoryis
+readytobecopiedtoa.TRCfileandrecalledasis.TheresponsetoaWF?querycaneasily
+containover16millionbytesifinbinaryformandtwiceasmuchiftheHEXoptionisused.
+TheWAVEFORM?querycanbeusedtoreaddigital,aswellasanalog,waveformssimplybynamingthe
+digitalgrouptobeaccessedbythecommand,asin(theshortformshownhere):
+DIGITAL1:WF?
+Whilethereisnodigitalwaveformtemplatefile,thedatacanbeinterpretedasshowninDigital
+Waveforms.ThereisalsoaDigTraceUtilityavailablefordownloadfromtheTeledyneLeCroywebsiteat:
+http://teledynelecroy.com/support/softwaredownload/digtrace.aspx?capid=106&mid=533&smid=
+6-27
+
+----- 第 196 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Thistoolwillallowyoutoview*.digXMLfilescreatedusingtheWF?query(ortheWaveMLoptiononthe
+oscilloscopeGUI)andresavethedatainseveralformats.
+Bytes Offset Color Contain
+0to8 pink Simplebeginningofaqueryresponse.TranslatedintoASCII,thisisWavedesc.
+9to19 yellow String#9002000348,signalingthebeginningofabinaryblockwherenineASCII
+integersareusedtogivethelengthoftheblock(2000348bytes).
+20to35 0 lightblue Actualbeginningofthewaveform:16-characterblockDESCRIPTOR_NAMEstring,
+inthiscaseWAVEDESC.
+36to51 16 green TEMPLATE_NAMEstring,translatedtoLECROY_2_4.
+52to53 32 orange COMM_TYPEbyte,byte(0)orword(1),inthiscasebyte.
+54to55 34 magenta COMM_ORDERbyte,whichgivestheorderofsubsequentbytesinthefile,high
+bytefirst(0)orlowbytefirst(1),inthiscaselowfirst.Allsubsequentreadingsof
+thefilemustusetheinformationgivenbythisbyte.
+56to59 36 darkblue LengthinbytesofWAVEDESCblock.
+60to63 40 red LengthinbytesofUSERTEXTblock.
+64to67 44 olive Reserved.
+68to97 48 grey LengthinbytesofforthcomingdataBLOCKSandARRAYS.
+96to111 76 salmon 16-characterINSTRUMENT_NAMEstring,translatedtoLECROYWR640Zi.
+InterpretingVerticalData
+Knowingnowhowtodecipherthedata,youmaywishtoconvertittotheappropriatemeasuredvalues.
+Theverticalreadingforeachdatapointdependsontheverticalgainandtheverticaloffsetgiveninthe
+descriptor.Foracquisitionwaveforms,thiscorrespondstothevolts/divandvoltageoffsetselectedafter
+conversionforthedatarepresentationbeingused.
+ThetemplatetellsusthattheverticalgainandoffsetcanbefoundatBytes156and160andarestoredas
+floatingpointnumbersintheIEEE32-bitformat.AnASCIIstringgivingtheverticalunitisfoundin
+VERTUNIT,byte196oftheWAVEDESCblock.Theverticalvalueisgivenbytherelationship:
+value=VERTICAL_GAINxdata-VERTICAL_OFFSET
+IfthecomputerorthesoftwareavailableisnotabletounderstandtheIEEEfloatingpointvalues,usethe
+descriptioninthetemplate.
+Thedatavaluesinawaveformmaynotcorrespondtomeasuredpoints.FIRST_VALID_PNTandLAST_
+VALID_PNTgivethenecessaryinformation.ThedescriptoralsorecordstheSPARSING_FACTOR,the
+FIRST_POINT,andtheSEGMENT_INDEXtoaidinterpretationiftheoptionsoftheWAVEFORM_SETUP
+commandhavebeenused.
+Forsequenceacquisitions,thedatavaluesforeachsegmentaregivenintheirnormalorderandthe
+segmentsarereadoutoneaftertheother.TheimportantdescriptorparametersaretheWAVE_ARRAY_
+COUNTandtheSUBARRAY_COUNT,givingthetotalnumberofpointsandthenumberofsegments.
+ForwaveformssuchastheextremaandthecomplexFFTtherearetwoarrays(oneaftertheother)forthe
+twooftheresult.
+6-28
+
+----- 第 197 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+CalculatingtheHorizontalPositionofDataPoints
+Eachverticaldatavaluehasacorrespondinghorizontalposition,usuallymeasuredintimeorfrequency
+units.Thecalculationofthispositiondependsonthetypeofwaveform.Eachdatavaluehasaposition,i,
+intheoriginalwaveform,withi=0correspondingtothefirstdatapointacquired.Thedescriptor
+parameterHORUNITgivesastringwiththenameofthehorizontalunit.
+SingleSweepWaveforms
+x[i] = HORIZ_INTERVAL* i + HORIZ_OFFSET
+Foracquisitionwaveformsthistimeisfromthetriggertothedatapointinquestion.Itsdifferentfrom
+acquisitiontoacquisitionsincetheHORIZ_OFFSETismeasuredforeachtrigger.
+SequenceWaveforms
+Thesearereallymanyindependentacquisitions,soeachsegmenthasitsownhorizontaloffset.These
+canbefoundintheTRIGTIMEarray.
+Forthenthsegment:
+x[i,n] = HORIZ_INTERVAL* i + TRIGGER_OFFSET[n]
+TheTRIGTIMEarraycancontainupto200segmentsoftiminginformationwithtwoeight-bytedouble
+precisionfloatingpointnumbersforeachsegment.
+RISWaveforms
+Thesearecomposedofmanyacquisitionsinterleavedtogether.Thedescriptorparameter,RIS_SWEEPS,
+givesthenumberofacquisitions.Theithpointbelongstothemthsegmentwhere:
+m = i modulo(RIS_SWEEPS)
+Hasavaluebetween0andRIS_SWEEPS-1.
+Thenwith:
+j = i - m
+x[i] = x[j,m] = HORIZ_INTERVAL* j + RIS_OFFSET[m]
+wheretheRIS_OFFSETcanbefoundintheRISTIMEarray.Therecanbeupto100eight-bytedouble
+precisionfloatingpointnumbersinthisblock.Theinstrumenttriestoacquiresegmentssuchthat:
+RIS_OFFSET[i]≈ PIXEL_OFFSET+ (i- 0.5)* HORIZ_INTERVAL
+DecodingFloatingPointNumbers
+Singleprecisionvaluesareheldinfourbytes.Ifthesearearrangedindecreasingvalueorder,wegetthe
+followingbits:
+bit31,bit30,bit29,bit28.....bit3,bit2,bit1,bit0
+Note:IfthebyteordercommandCORDissetforlowbytefirst,thebytesasreceivedina
+waveformdescriptorarereceivedinreverseorder.Withinabyte,thebitskeeptheirorder,highest
+attheleft.
+6-29
+
+----- 第 198 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Fromthesebitswearetoconstructthreenumbersthataretobemultiplied,SxExF:
+S=(-1)sE=2(e-127)F=1+f
+S,E,andFarecalculateddirectlyfromthe32bits.Thefollowingdiagramillustratesthecalculationofthe
+verticalgainexample:
+Inawaynotfollowingthebyteboundaries,bitsarethensegregatedasfollows:
+31,30,29...............24,23,22,21.................2,1,0
+signexponentbits.......fractionalbits................bit0.5,0.25,0.125...
+Thesignbitsis1foranegativenumberand0forapositivenumber,soitiseasytoconstructthesign
+fromthis:
+S=(-1)^s
+Theeightexponentbitshavethefollowingvalues:
+Bit23isworth1,bit24isworth2...bit29à isworth64,bit30isworth128,sotheresultingnumbercan
+rangefrom0to28-1,whichis255.
+127isthensubtractedfromthisvalueecreatingarangefrom-127to+128.Thisisthenusedasan
+exponenttoraisetwotoapowerthatis2^e,tocreateavalueE.
+Thenwehavetocreatethemultiplyingnumber.Thevaluesofthe23bitsareasfollows:
+Bit22isworth0.5,21isworth0.25,20isworth0.125,19isworth0.0625....
+Whenallthebitsareaddedtogether,weobtainapositivenumberfthatcanbeveryclosetoone,differing
+fromitonlybythevalueofthesmallestbit,ifallthebitsareones.(Generallythevaluewillbemuchless
+thanone.)Thenweaddonetotheresult,obtaining1+f=F.Theuseoftheaddedoneextendsthe
+dynamicrangeofthedata.Anotherwayofcalculatingfistotakethe23-bitnumberatfacevalue,and
+divideitby2^24.
+Finallywemultiplytogetherthesign,thevalueE,andthevalueFtocreatethefinalresult:
+Result=(-1)^sx2^(e-127)x(1+f)=SxExF
+6-30
+
+----- 第 199 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+UsingtheWaveformCommand
+WaveformsreadwiththeWAVEFORM?querycanbeloadedbackintotheinstrumentusingWAVEFORM
+andrelatedcommands.Sincethedescriptorcontainsallofthenecessaryinformation,youdon'tneedto
+beconcernedwithcommunicationformatparameters.Theoscilloscopelearnsallitneedstoknowfrom
+thewaveform.
+Tip:Waveformscanonlybesentbacktotheinstrumentinternalmemories(M1toMn).Consider
+usingtheCOMM_HEADERcommandtoremoveprefixesintheWFM?queryresponse.
+Whensynthesizingwaveformsfordisplayorcomparison,alwaysreadoutawaveformoftheappropriate
+size,andthenreplacethedatawiththedesiredvalues.Thisensuresthedescriptoriscoherent.
+HerearesomeofthemanywaystouseWAVEFORManditscommandstosimplifyyourwork:
+PartialWaveformReadout
+UseWAVEFORM_SETUPtospecifyashortpartofawaveformforreadoutandtoselectasparsingfactor
+forreadingonlyeverynthdatapoint.
+ByteSwapping
+TheCOMM_ORDERcommandallowsyoutoswaptwobytesofdatapresentedin16-bitwordformat,in
+thedescriptororinthedata/timearrays,whensendingthedataviaGPIBorLANports.Dependingonthe
+computersystemused,thisallowseasierdatainterpretation.
+ForIntel-basedcomputers,youshouldsendthedatawiththeLSBfirst;thecommandshouldbeCORD
+LO.ForMotorola-basedcomputers,sendthedatawiththeMSBfirst(CORDHI),thedefaultatpower-up.
+Note:Datawrittentotheinstrument'sharddisk,USB,orfloppyalwaysremaininLSBfirstformat
+(thedefaultDOSformat).YoucannotusetheCORDcommandinthesecases,sinceitisonly
+meantfordatasentusingGPIBandRS-232-Cports.
+DataLength,BlockFormat,andEncoding
+COMM_FORMATgivesyoucontrolovertheseparameters.Ifyoudonotneedtheextraprecisionofthe
+lowerorderbyteofthestandarddatavalue,theBYTEoptionenablesyoutosavetheamountofdata
+transferredorstoredbyafactoroftwo.Ifthecomputeryouareusingcannotreadbinarydata,theHEX
+optionallowsaresponseformwherethevalueofeachbyteisgivenbyapairofhexadecimaldigits.
+Data-OnlyTransfers
+COMM_HEADEROFFenablesaresponsetoWF?DAT1withdataonly(theC1:WFDAT1disappears).If
+youhavealsospecifiedCOMM_FORMATOFF,BYTE,BIN,theresponseisinbinarybytesonly(the
+#90000nnnnntranslationdisappears).RefertoUsingtheWaveformQueryformoreinformation.
+6-31
+
+----- 第 200 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DigitalWaveforms
+Whilethereisnocorrespondingtemplatefilefordigitalwaveforms,theyareorganizedsimilarlytoanalog
+waveforms,withatext-baseddescriptionoftheheader,followedbyaBase64encodingofthewaveform
+binarydata.
+InBase64encoding,4ASCIIcharacters(6bitspercharacter)areusedtorepresent3bytes,which,inthe
+caseofthedigitalwaveforms,correspondtothevalueof3bitsinthewaveform.Forexample,theinitial4
+bytes“AAEA”intheXMLdatafieldmaptothe3bits“010”.Thefollowingimageshowshowasmall
+sectionofthewaveformdatawouldtranslate.
+DigitalwaveformssavedfromtheoscilloscopeGUIareintext-basedformat,eitherExcelorWaveML,a
+proprietaryXMLformat(*.digXML).Whensavingmultipledigitalgroups("AllDisplayed"),thedefault
+selectionisASCII,andtheoutputwillbeseparateXMLfilesforeachdigitalbus.Digitalwaveformssaved
+usingremotecommands(e.g.,theWF?query)arealwaysin.digXMLformat.
+6-32
+
+----- 第 201 页 -----
+
+Part6:IEEE488.2ProgrammingReference
+TransferringHigh-SpeedWaveforms
+Severalimportantfactorsmustbeconsideredtoachievemaximum,continuousdatatransferratesfrom
+yourinstrumenttotheexternalcontroller.
+Thesinglemostimportantoftheseistolimittheamountofworkdonebythecomputer,meaning:
+l Avoidwritingdatatodiskwhereverpossible
+l Minimizeoperationssuchasper-data-pointcomputations
+l ReducethenumberofcallstotheI/Osystem
+Todothis,trythefollowing:
+l Reducethenumberofpointstobetransferredandthenumberofdatabytesperpoint.Thepulse
+parametercapabilityandtheprocessingfunctionscansaveagreatdealofcomputingandalotof
+datatransfertimeifemployedcreatively.
+l Attempttooverlapwaveformacquisitionwithwaveformtransfer.Theoscilloscopeiscapableof
+transferringanalreadyacquiredorprocessedwaveformafteranewacquisitionhasbeenstarted.
+Thetotaltimetheinstrumenttakestoacquireeventsisconsiderablyincreasedifitissettowaitfor
+triggers(livetime).
+l MinimizethenumberofwaveformtransfersbyusingSequencemodetoaccumulatemany
+triggersforeachtransfer.ThisispreferabletousingWAVEFORM_SETUPtoreducethenumberof
+datapointsfortransfer.Italsosignificantlyreducesoscilloscopetransferoverhead.Forexample,
+youcoulduseARM;WAIT;C1:WF?towaitfortheevent,transferthedata,andthenstartanew
+acquisition.Youcouldalsoloopthislineintheprogramassoonasithasfinishedreadingthe
+waveform.
+6-33
+
+----- 第 202 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+6-34
+
+----- 第 203 页 -----
+
+Part7:IEEE488.2CommandReference
+Part7:IEEE488.2CommandReference
+Throughoutthisreference,thefullcommandheaderislistedfirst,followedbytheshortform,asin
+DOT_JOIN,DTJN.Eitherformmaybeusedincommandsandqueries.
+ThesolutiontounavailablelegacycommandsistouseAutomationcommandsintegratedintoaremote
+controlprogramusingtheVBScommand.
+CommandsandQueriesbyShortForm 7-2
+CommandsandQueriesbySubsystem 7-8
+ACQUISITIONCommandsandQueries 7-15
+AUTOMATIONCommandsandQueries 7-43
+COMMUNICATIONCommandsandQueries 7-44
+CURSORCommandsandQueries 7-50
+DISPLAYCommandsandQueries 7-75
+FUNCTIONCommandsandQueries 7-91
+HARDCOPYCommandsandQueries 7-102
+MISCELLANEOUSCommandsandQueries 7-105
+PROBECommands 7-112
+SAVE/RECALLSETUPCommandsandQueries 7-115
+STATUSCommandsandQueries 7-122
+STORAGECommandsandQueries 7-141
+WAVEFORMTRANSFERCommandsandQueries 7-144
+DISKDRIVEANALYSIS(Option)CommandsandQueries 7-154
+ET-PMT(Option)CommandsandQueries 7-199
+7-1
+
+----- 第 204 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CommandsandQueriesbyShortForm
+Short Long Subsystem WhatTheCommandorQueryDoes
+3DB DD_CTAF_3DB DDA SetstheCTAFparameter,3dB.
+ACAL AUTO_CALIBRATE MISC Enablesanddisablesautomaticcalibration.
+ALST? ALL_STATUS? STATUS Readsandclearsthecontentsofallstatusregisters.
+ARM ARM_ACQUISITION ACQUISITIONChangesacquisitionmodefromStoppedtoSingle.
+ASET AUTO_SETUP ACQUISITIONAdjustsvertical,timebaseandtriggerparameters.
+ATTN ATTENUATION ACQUISITIONSelectstheverticalattenuationfactoroftheprobe.
+BUZZ BUZZER MISC Controlsthebuzzerintheinstrument.
+BWL BANDWIDTH_LIMIT ACQUISITIONEnables/disablesbandwidth-limitinglow-passfilter.
+*CAL? *CAL? MISC Performsacompleteinternalcalibrationoftheinstru-
+ment.
+CFMT COMM_FORMAT COMM Selectstheformatforsendingwaveformdata.
+CHDR COMM_HEADER COMM Controlsformattingofqueryresponses.
+CHL COMM_HELP_LOG COMM ReturnsthecontentsoftheRCAssistantlog.
+CHLP COMM_HELP COMM ControlsoperationalleveloftheRCAssistant.
+CLM CLEAR_MEMORY FUNCTION Clearsthespecifiedmemory.
+*CLS *CLS STATUS Clearsallstatusdataregisters.
+CLSW CLEAR_SWEEPS FUNCTION Restartsthecumulativeprocessingfunctions.
+CMR? CMR? STATUS ReadsandclearstheCoMmanderrorRegister(CMR).
+COMB COMBINE_CHANNELS ACQUISITIONControlsthechannelinterleavingfunction.
+CORD COMM_ORDER COMM Controlsthebyteorderofwaveformdatatransfers.
+COUT CAL_OUTPUT MISC SetssignaltypeputoutattheCALconnector.
+CPL COUPLING ACQUISITIONSelectsthespecifiedinputchannel'scouplingmode.
+CRMS CURSOR_MEASURE CURSOR Specifiesthetypeofcursor/parametermeasurement.
+CRS CURSORS CURSOR Setsthecursortype.
+CRST CURSOR_SET CURSOR Allowspositioningofanycursor.
+CRVA? CURSOR_VALUE? CURSOR Returnstracevaluesmeasuredbyspecifiedcursors.
+CUAP CUSTOM_APPLICATION ET-PMT TogglesbetweenMaskTesterandoscilloscopemode.
+CU_OPT? CUSTOM_OPTIONS? ET-PMT Returnsinstalledcustomoptions.
+DACT DD_ANALOG_COMP_THRESH DDA SetstheanalogthresholdvalueforAnalogCompare.
+DARD DD_ANALYZE_REGION_DISABLE DDA Disablestheuseoftheanalyzeregionmarkers.
+DARL DD_ANALYZE_REGION_LENGTH DDA Selectsthelengthofaregiontobeanalyzed.
+DARS DD_ANALYZE_REGION_START DDA Selectsthestartofaregiontobeanalyzed.
+DATE DATE MISC Changesthedate/timeoftheinternalreal-timeclock.
+7-2
+
+----- 第 205 页 -----
+
+Part7:IEEE488.2CommandReference
+Short Long Subsystem WhatTheCommandorQueryDoes
+DBIT DD_BITCELL DDA Entersthebitcelltimeoftheheadsignal.
+DBST DD_CTAF_BOOST DDA SetstheCTAFparameter,boost.
+DBYT DD_BYTE_OFFSET DDA Movestheheadtracetoshowthespecifiedbyte.
+DDFC DD_CTAF_FC DDA SetstheCTAFparameter,cut-offfrequencyfc.
+DDFM DD_FIND_METHOD DDA Selectstheerror-findingmethod.
+DDR? DDR? STATUS Reads,clearstheDeviceDependentRegister(DDR).
+DDSI DD_SIGNAL_INPUT DDA Sendsorreadsouttheassociationofasourcewitha
+particularDiskDrivesignal.
+DEF DEFINE FUNCTION Specifiesmathexpressionforfunctionevaluation.
+DELF DELETE_FILE STORAGE Deletesafilefromthecurrentlyselecteddirectory.
+DENC DD_ENCODING DDA Allowsselectionofthedata-encodingratioforlocating
+thebytesbybyteoffset.
+DERI? DD_ERR_INFO DDA Returnsthemeasuredvalueassociatedwiththelast
+errorpositionselected,andacodespecifyingwhatthe
+valuecontains.
+DERR DD_ERR_NUM DDA Displaysthesectionofwaveformcontainingthe
+specifiederrornumber.
+DFBIT DD_FIND_BITCELL DDA Looksattheheadsignalandattemptstodeterminethe
+bit-celltime.
+DFEN DD_FIR_ENABLE DDA EnablestheFIRfilterforPRMLchannelemulation.
+DFER DD_FIND_ERROR DDA CommandstheDDAtofinderrors.
+DFGD DD_CTAF_GROUP_DELAY DDA SetstheCTAFparameter,groupdelay.
+DFIR DD_FIR DDA StoresthesetupthatwillbeusediftheFIRfilteris
+enabledforuseinthechannelemulation.
+DHSC DD_HEADSIGNAL_CHANNEL DDA Specifiestheheadsignalsourcechannelormemoryfor
+channelemulationandservoanalysis.
+DIGS DD_IGNORE_SAMPLES DDA Definesthenumberofsamples tobeignoredatthe
+ReadGatesignalendforchannelemulationandanalog
+compare.
+DIR DIRECTORY STORAGE Creates,changesordeletesadirectory.
+DISP DISPLAY DISPLAY Controlsthedisplayscreen.
+DNER? DD_NUM_ERRORS DDA Returnsthenumberoferrorsfound.
+DOVL DD_OVERLAP_REF DDA sets astatevariable which determinesre-establishing
+theoverlapoftheheadsignal
+DPA DD_PES_ANALYSIS DDA StartsorabortsPES analysis.
+DPD? DD_PES_DATA DDA ReadsoutresultsofPESAnalysis.
+DPSD? DD_PES_SUMMARY_DATA DDA SummarizesPESAnalysisresults.
+DPSU DD_PES_SETUP DDA CommandsetsparametersforPESAnalysis.Thequery
+respondswiththecurrentstateofspecifiedkeywords.
+7-3
+
+----- 第 206 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Short Long Subsystem WhatTheCommandorQueryDoes
+DRAV DD_RESET_AVERAGE DDA Resetstheaverageddataandallsweeps;clearshis-
+togramsandparameters;allowsthestartofafreshana-
+lysis.
+DRCC DD_READCLOCK_CHANNEL DDA SpecifiestheinputchanneltowhichReadClockiscon-
+nectedorthememoryinwhichitisstored.
+DRGC DD_READGATE_CHANNEL DDA SpecifiestheinputchanneltowhichReadGateiscon-
+nectedorthememoryinwhichitisstored.
+DRGP DD_READ_GATE_POLARITY DDA SelectsthepolarityoftheReadGatesignal.
+DRLE DD_ML_RUN_LENGTH_LIMIT DDA Limitstherunlength,thenumberof“0”valuesinarow
+forthehead/analogsignalwhenchannelemulationis
+active.
+DRLM DD_ML_MIN_SPACING DDA Whenchannelemulationisactive,thissetsthemin-
+imumallowedspacingoftransitions.
+DSAV DD_START_AVERAGING DDA Changesthestateofthe“Avg.Samples”switchonthe
+Graphmenu.
+DSEG DD_BYTE_OFFSET_SEGMENT DDA Movestheheadtracetoshowthespecifiedsegment.
+DSF DD_SHOW_FILTERED DDA Enablesanddisablesthefilteringoftheheadsignal. 
+DSIG DD_SIGNAL_TYPE DDA SpecifiesPeakDetectoraparticularPRMLformatfor
+theheadsignal.
+DSLV DD_SHOW_LEVELS DDA DisplaysthelevelmarkersindicatingtheViterbilevelsof
+theMLsampleswhenchannelemulationisactive.
+DSML DD_SHOW_ML DDA Displays/hidesMLmarkers
+DSPH DD_SAMPLE_PHASE DDA AdjuststhephasebetweentheDDFAPLLsamplepoints
+andanexternalclockreference(whenRCLKiscon-
+nected).
+DSST DD_SHOW_SAMPLE_TIMES DDA Showsvertical-linecursorsonthegridateachsample
+timecorrespondingtothereadclock.
+DST DD_SAM_THRESH DDA SetstheSAMthresholdvalueforchannelemulation.
+DSTR DD_STORE_REFERENCE DDA StorestheheadsignaltooneoftheDDA’savailable
+memoriesforanalogcompareandchannelemulation
+withreference.
+DTF? DD_TRAIN_FILTER DDA CommandstheDDAtodeterminereasonablevaluesfor
+eachfilterparameter.
+DTJN DOT_JOIN DISPLAY Controlstheinterpolationlinesbetweendatapoints.
+DVSP DD_VCO_SYNCH_PATTERN DDA Definesthenumberofbitsperhalf-periodinthesyn-
+chronizationfield.
+DVTD DD_VCOSYNCH_TO_DATA DDA Specifiesthenumberofbytesontheanalogheadsignal
+waveformbetweentheendoftheVCOsyncfieldandthe
+actualdata.
+*ESE *ESE STATUS SetstheStandardEventStatusEnableregister(ESE).
+*ESR? *ESR? STATUS Reads,clearstheEventStatusRegister(ESR).
+EXR? EXR? STATUS Reads,clearstheEXecutionerrorRegister(EXR).
+7-4
+
+----- 第 207 页 -----
+
+Part7:IEEE488.2CommandReference
+Short Long Subsystem WhatTheCommandorQueryDoes
+FCR FIND_CENTER_RANGE FUNCTION Automaticallysetsthecenterandwidthofahistogram.
+FRST FUNCTION_RESET FUNCTION Resetsawaveform-processingfunction.
+FRTR FORCE_TRIGGER ACQUISITIONForcestheinstrumenttomakeoneacquisition.
+GRID GRID DISPLAY Specifiessingle-,dual-orquad-modegriddisplay.
+HCSU HARDCOPY_SETUP HARDCOPY Configuresthehard-copydriver.
+HMAG HOR_MAGNIFY DISPLAY Horizontallyexpandstheselectedexpansiontrace.
+HPOS HOR_POSITION DISPLAY Horizontallypositionsintensifiedzone'scenter.
+*IDN? *IDN? MISC Causesinstrumenttorespondwithidentifiers.
+INE INE STATUS SetstheInternalstatechangeEnableregister(INE).
+INR? INR? STATUS Reads,clearsInternalstatechangeRegister(INR).
+INSP? INSPECT? WAVEFORM
+TRANSFER
+Allowsacquiredwaveformpartstoberead.
+ILVD INTERLEAVED ACQUISITIONEnables/disablesRandomInterleavedSampling(RIS).
+INTS INTENSITY DISPLAY Controlsthebrightnessofthegrid.
+IST? IST? STATUS ReadsthecurrentstateoftheIEEE488.
+MSG MESSAGE DISPLAY Displaysacharacterstringontheinstrumentscreen.
+MSIZ MEMORY_SIZE ACQUISITIONSelectsmax.memorylength.
+MTFA MT_FAIL_ACTION ET-PMT Setsfailactions.
+MTOF MT_OFFSET ET-PMT SetstheoffsetforSTM-1E,STS-3E,and139M.
+MTOP? MT_OPC? ET-PMT Returnsstateoflastoperation.
+MTPC? MT_PF_COUNTERS? ET-PMT Returnspass/failresult.
+MTST MT_SELECT_TEST ET-PMT SelectsElectricalTelecommtestingstandard.
+MTSY? MT_SYMBOL? ET-PMT Returns1or0symbol,orposorneg.
+MTTS MT_TEST_STATE ET-PMT Controlstestingstatus:RUN,STOP,PAUSE,CONTINUE.
+MTVA MT_VERTICAL_ALIGN ET-PMT PerformsoffsetalignmentforSTM-1E,STS-3E,and
+139M.
+OFCT OFFSET_CONSTANT CURSOR Setsoffsettobefixedineitherdivisionsorvolts.
+OFST OFFSET ACQUISITIONAllowsoutputchannelverticaloffsetadjustment.
+*OPC *OPC STATUS SetstheOPCbitintheEventStatusRegister(ESR).
+*OPT? *OPT? MISC Identifiesoscilloscopeoptions.
+PACL PARAMETER_CLR CURSOR ClearsallcurrentparametersinCustom,Pass/Fail.
+PACU PARAMETER_CUSTOM CURSOR Controlsparameterswithcustomizablequalifiers.
+PADL PARAMETER_DELETE CURSOR DeletesaspecifiedparameterinCustom,Pass/Fail.
+PARM PARAMETER CURSOR Controlstheparametermode.
+PAST? PARAMETER_STATISTICS? CURSOR Returnsparameterstatisticsresults.
+7-5
+
+----- 第 208 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Short Long Subsystem WhatTheCommandorQueryDoes
+PAVA? PARAMETER_VALUE? CURSOR Returnscurrentparameter,masktestvalues.
+PECL PERSIST_COLOR DISPLAY Controlscolorrenderingmethodofpersistencetraces.
+PECS PER_CURSOR_SET CURSOR Positionsoneofthesixindependentcursors.
+PELT PERSIST_LAST DISPLAY Showsthelasttracedrawninapersistencedatamap.
+PERS PERSIST DISPLAY Enablesordisablesthepersistencedisplaymode.
+PESA PERSIST_SAT DISPLAY Setsthecolorsaturationlevelinpersistence.
+PESU PERSIST_SETUP DISPLAY Selectsdisplaypersistenceduration.
+PF PASS_FAIL CURSOR Setsuppassfailsystem.
+PFDO PASS_FAIL_DO CURSOR DefinesoutcomeandactionsforPass/Fail
+PNSU PANEL_SETUP SAVE/RECALLComplementsthe*SAV/*RSTcommands.
+PRCA? PROBE_CAL? PROBE InitiatesanAutoZerocycleandreturnscalibration
+status.
+PRDG? PROBE_DEGAUSS PROBE InitiatesaDegausscycleandreturnsDegausscode.
+*PRE *PRE STATUS SetsthePaRallelpollEnableregister(PRE).
+PRNA? PROBE_NAME? PROBE Identifiesaprobeconnectedtotheinstrument.
+*RCL *RCL SAVE/RECALLRecallsoneoffivenon-volatilepanelsetups.
+RCLK REFERENCE_CLOCK ACQUISITIONTogglesbetweeninternalclockandexternalclock.
+RCPN RECALL_PANEL SAVE/RECALLRecallsafrontpanelsetupfrommassstorage.
+*RST *RST SAVE/RECALLInitiatesadevicereset.
+*SAV *SAV SAVE/RECALLStorescurrentstateinnon-volatileinternalmemory.
+SCDP SCREEN_DUMP HARDCOPY Initiatesascreencapture.
+SCLK SAMPLE_CLOCK ACQUISITIONTogglesbetweeninternalclockandexternalclock.
+SEQ SEQUENCE ACQUISITIONControlsthesequencemodeofacquisition.
+*SRE *SRE STATUS SetstheServiceRequestEnableregister(SRE).
+*STB? *STB? STATUS ReadsthecontentsoftheIEEE488.
+STO STORE WAVEFORM
+TRANSFER
+Storesatraceininternalmemoryormassstorage.
+STOP STOP ACQUISITIONImmediatelystopssignalacquisition.
+STPN STORE_PANEL SAVE/RECALLStoresfrontpanelsetuptomassstorage.
+STST STORE_SETUP WAVEFORM
+TRANSFER
+Setsupwaveformstorage.
+TDIV TIME_DIV ACQUISITIONModifiesthetimebasesetting.
+TMPL? TEMPLATE? WAVEFORM
+TRANSFER
+Producesacompletewaveformtemplatecopy.
+TRA TRACE DISPLAY Enablesordisablesthedisplayofatrace.
+TRCP TRIG_COUPLING ACQUISITIONSetsthecouplingmodeofthespecifiedtriggersource.
+7-6
+
+----- 第 209 页 -----
+
+Part7:IEEE488.2CommandReference
+Short Long Subsystem WhatTheCommandorQueryDoes
+TRFL TRANSFER_FILE WAVEFORM
+TRANSFER
+TransfersASCIIfilestoandfromstoragemedia,or
+betweenscopeandcomputer.
+TRDL TRIG_DELAY ACQUISITIONSetsthetimeatwhichthetriggeristooccur.
+*TRG *TRG ACQUISITIONExecutesanARMcommand.
+TRLV TRIG_LEVEL ACQUISITIONAdjuststhetriggerlevelofthespecifiedtriggersource.
+TRMD TRIG_MODE ACQUISITIONSpecifiesthetriggermode.
+TRPA TRIG_PATTERN ACQUISITIONDefinesatriggerpattern.
+TRSE TRIG_SELECT ACQUISITIONSelectstheconditionthatwilltriggeracquisition.
+TRSL TRIG_SLOPE ACQUISITIONSetsthetriggerslopeofthespecifiedtriggersource.
+*TST? *TST? MISC Performsinternalself-test.
+VBS VBS AUTOMATIONSendsanautomationcommand.
+VDIV VOLT_DIV ACQUISITIONSetstheverticalsensitivity.
+VMAG VERT_MAGNIFY DISPLAY Verticallyexpandsthespecifiedtrace.
+VPOS VERT_POSITION DISPLAY Adjuststheverticalpositionofthespecifiedtrace.
+*WAI *WAI STATUS WAIttocontinue-requiredbytheIEEE488.
+WAIT WAIT ACQUISITIONPreventsnewanalysisuntilcurrentiscompleted.
+WF WAVEFORM WAVEFORM
+TRANSFER
+Transfersawaveformfromcontrollertoscope.
+WFSU WAVEFORM_SETUP WAVEFORM
+TRANSFER
+Specifiesamountofwaveformdatatogotocontroller.
+7-7
+
+----- 第 210 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CommandsandQueriesbySubsystem
+ACQUISITION-ControllingWaveformCaptures
+Short Long WhatTheCommandorQueryDoes
+ARM ARM_ACQUISITION Changesacquisitionstatefromstoppedtosingle.
+ASET AUTO_SETUP Adjustsvertical,timebaseandtriggerparameters.
+ATTN ATTENUATION Selectstheverticalattenuationfactoroftheprobe.
+BWL BANDWIDTH_LIMIT Enables/disablesbandwidth-limitinglow-passfilter.
+COMB COMBINE_CHANNELS Controlsthechannelinterleavingfunction.
+CPL COUPLING Selectsthespecifiedinputchannel'scouplingmode.
+FRTR FORCE_TRIGGER Forcestheinstrumenttomakeoneacquisition.
+ILVD INTERLEAVED Enables/disablesRandomInterleavedSampling(RIS).
+MSIZ MEMORY_SIZE Selectsmax.memorylength.
+OFST OFFSET Allowsoutputchannelverticaloffsetadjustment.
+RCLK REFERENCE_CLOCK Togglesbetweeninternalclockandexternalclock.
+SCLK SAMPLE_CLOCK Togglesbetweeninternalclockandexternalclock.
+SEQ SEQUENCE Controlsthesequencemodeofacquisition.
+STOP STOP Immediatelystopssignalacquisition.
+TDIV TIME_DIV Modifiesthetimebasesetting.
+TRCP TRIG_COUPLING Setsthecouplingmodeofthespecifiedtriggersource.
+TRDL TRIG_DELAY Setsthetimeatwhichthetriggeristooccur.
+*TRG *TRG ExecutesanARMcommand.
+TRLV TRIG_LEVEL Adjuststhetriggerlevelofthespecifiedtriggersource.
+TRMD TRIG_MODE Specifiesthetriggermode.
+TRPA TRIG_PATTERN Definesatriggerpattern.
+TRSE TRIG_SELECT Selectstheconditionthatwilltriggeracquisition.
+TRSL TRIG_SLOPE Setsthetriggerslopeofthespecifiedtriggersource.
+VDIV VOLT_DIV Setstheverticalsensitivity.
+WAIT WAIT Preventsnewanalysisuntilcurrentiscompleted.
+AUTOMATION-SendingAutomationCommands
+Short Long WhatTheCommandorQueryDoes
+VBS VBS SendsAutomationcommands.
+7-8
+
+----- 第 211 页 -----
+
+Part7:IEEE488.2CommandReference
+COMMUNICATION-SettingCommunicationCharacteristics
+Short Long WhatTheCommandorQueryDoes
+CFMT COMM_FORMAT Selectstheformatforsendingwaveformdata.
+CHDR COMM_HEADER Controlsformattingofqueryresponses.
+CHL COMM_HELP_LOG ReturnsthecontentsoftheRCAssistantlog.
+CHLP COMM_HELP ControlsoperationalleveloftheRCAssistant.
+CORD COMM_ORDER Controlsthebyteorderofwaveformdatatransfers.
+CURSOR-PerformingMeasurements
+Short Long WhatTheCommandorQueryDoes
+CRMS CURSOR_MEASURE Specifiesthetypeofcursor/parametermeasurement.
+CRS CURSORS Setsthecursortype.
+CRST CURSOR_SET Allowspositioningofanycursor.
+CRVA? CURSOR_VALUE? Returnstracevaluesmeasuredbyspecifiedcursors.
+OFCT OFFSET_CONSTANT Setsoffsettobefixedineitherdivisionsorvolts.
+PACL PARAMETER_CLR ClearsallcurrentparametersinCustom,Pass/Fail.
+PACU PARAMETER_CUSTOM Controlsparameterswithcustomizablequalifiers.
+PADL PARAMETER_DELETE DeletesaspecifiedparameterinCustom,Pass/Fail.
+PARM PARAMETER Controlstheparametermode,Standard,Custom,etc.
+PAST? PARAMETER_STATISTICS? Returnsparameterstatisticsresults.
+PAVA? PARAMETER_VALUE? Returnscurrentparameter,masktestvalues.
+PECS PER_CURSOR_SET Positionsoneofthesixindependentcursors.
+PF PASS_FAIL Setsuppassfailsystem.
+PFDO PASS_FAIL_DO DefinesoutcomeandactionsforPass/Failtests.
+DISPLAY-DisplayingWaveforms
+Short Long WhatTheCommandorQueryDoes
+DISP DISPLAY Controlsthedisplayscreen.
+DTJN DOT_JOIN Controlstheinterpolationlinesbetweendatapoints.
+GRID GRID Specifiessingle-,dual-orquad-modegriddisplay.
+HMAG HOR_MAGNIFY Horizontallyexpandstheselectedexpansiontrace.
+HPOS HOR_POSITION Horizontallypositionsintensifiedzone'scenter.
+INTS INTENSITY Controlsthebrightnessofthegrid.
+MAIL EMAIL Configuresoscilloscopeemailpreferences.
+MSG MESSAGE Displaysacharacterstringontheinstrumentscreen.
+7-9
+
+----- 第 212 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Short Long WhatTheCommandorQueryDoes
+PECL PERSIST_COLOR Controlscolorrenderingmethodofpersistencetraces.
+PELT PERSIST_LAST Showsthelasttracedrawninapersistencedatamap.
+PERS PERSIST Enablesordisablesthepersistencedisplaymode.
+PESA PERSIST_SAT Setsthecolorsaturationlevelinpersistence.
+PESU PERSIST_SETUP Selectsdisplaypersistenceduration.
+TRA TRACE Enablesordisablesthedisplayofatrace.
+VMAG VERT_MAGNIFY Verticallyexpandsthespecifiedtrace.
+VPOS VERT_POSITION Adjuststheverticalpositionofthespecifiedtrace.
+FUNCTION-PerformingWaveformMathematicalOperations
+Short Long WhatTheCommandorQueryDoes
+CLM CLEAR_MEMORY Clearsthespecifiedmemory.
+CLSW CLEAR_SWEEPS Restartsthecumulativeprocessingfunctions.
+DEF DEFINE Specifiesmathexpressionforfunctionevaluation.
+FCR FIND_CENTER_RANGE Automaticallysetsthecenterandwidthofahistogram.
+FRST FUNCTION_RESET Resetsawaveform-processingfunction.
+HARDCOPY-PrintingtheDisplay/ScreenCapture
+Short LongForm WhatTheCommandorQueryDoes
+HCSU HARDCOPY_SETUP Configuresthehard-copydriver.
+SCDP SCREEN_DUMP Initiatesascreendump.
+MISCELLANEOUS
+Short Long WhatTheCommandorQueryDoes
+ACAL AUTO_CALIBRATE Enablesanddisablesautomaticcalibration.
+BUZZ BUZZER Controlsthebuzzerintheinstrument.
+*CAL? *CAL? PerformsacompleteinternalcalibrationoftheDSO.
+COUT CAL_OUTPUT SetssignaltypeputoutattheCALconnector.
+DATE DATE Changesthedate/timeoftheinternalreal-timeclock.
+*IDN? *IDN? Foridentificationpurposes.
+*OPT? *OPT? Identifiesoscilloscopeoptions.
+*TST? *TST? Performsinternalself-test.
+7-10
+
+----- 第 213 页 -----
+
+Part7:IEEE488.2CommandReference
+PROBES-UsingProbes
+Short Long WhatTheCommandorQueryDoes
+PRCA? PROBE_CAL? InitiatesanAutoZerocycleandreturnscalibrationstatus.
+PRDG PROBE_DEGAUSS InitiatesaDegausscycle.
+PRNA? PROBE_NAME? Identifiesaprobeconnectedtotheinstrument.
+SAVE/RECALL SETUP-PerservingandRestoringPanelSettings
+Short Long WhatTheCommandorQueryDoes
+PNSU? PANEL_SETUP? ReturnspanelsetupsinASCII format.
+*RCL *RCL Recallsoneoffivenon-volatilepanelsetups.
+RCPN RECALL_PANEL Recallsapanelsetupfrommassstorage.
+*RST *RST Initiatesadevicereset.
+*SAV *SAV Storescurrentstateinnon-volatileinternalmemory.
+STPN STORE_PANEL Storesapanelsetuptomassstorage.
+STATUS-ObtainingStatusInformationandSetupServiceRequests
+Short Long WhatTheCommandorQueryDoes
+ALST? ALL_STATUS? Readsandclearsthecontentsofallstatusregisters.
+*CLS *CLS Clearsallstatusdataregisters.
+CMR? CMR? ReadsandclearstheCoMmanderrorRegister(CMR).
+DDR? DDR? ReadsandclearstheDeviceDependentRegister(DDR).
+*ESE *ESE SetstheStandardEventStatusEnableregister(ESE).
+*ESR? *ESR? ReadsandclearstheEventStatusRegister(ESR).
+EXR? EXR? ReadsandclearstheEXecutionerrorRegister(EXR).
+INE INE SetstheINternalstatechangeEnableregister(INE).
+INR? INR? ReadsandclearsINternalstatechangeRegister(INR).
+IST? IST? ReadsthecurrentstateoftheIEEE488.
+*OPC *OPC SetstheOPCbitintheEventStatusRegister(ESR).
+*PRE *PRE SetsthePaRallelpollEnableregister(PRE).
+*SRE *SRE SetstheServiceRequestEnableregister(SRE).
+*STB? *STB? ReadsthecontentsoftheIEEE488.
+*WAI *WAI WAIttocontinue-requiredbytheIEEE488.
+7-11
+
+----- 第 214 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+STORAGE
+Short Long WhatTheCommandorQueryDoes
+DELF DELETE_FILE Deletesfilesfrommassstoragedirectory.
+DIR DIRECTORY Creates,changesordeletesadirectory.
+TRFL TRANSFER_FILE Allowsfortransferringfilestoandfromstoragemedia,orbetween
+oscilloscopeandcomputer.
+WAVEFORMTRANSFER-PreservingandRestoringWaveforms
+Short Long WhatTheCommandorQueryDoes
+INSP? INSPECT? Allowsacquiredwaveformpartstoberead.
+REC RECALL Recallswaveformfrommassstoragetointernalmemory.
+STO STORE Storesawaveformininternalmemoryormassstorage.
+STST STORE_SETUP Controlsthewayinwhichwaveformsarestored.
+TMPL? TEMPLATE? Producesacopyofthetemplatedescribingacompletewaveform.
+WF WAVEFORM Querytransfersawaveformfromoscilloscopetocontrollerinre-load-
+ableformat;commandtransfersawaveformreadusingWF?fromcon-
+trollertoscope.
+WFSU WAVEFORM_SETUP Specifiesamountofwaveformdatatogotocontroller.
+DISKDRIVEANALYSIS(Option)—SpecializedDiskDriveMeasurements
+Short Long WhatTheCommandorQueryDoes
+3DB DD_CTAF_3DB SetstheCTAFparameter,3dB.
+DACT DD_ANALOG_COMP_THRESH SetstheanalogthresholdvalueforDDAanalogcompare.
+DARD DD_ANALYZE_REGION_DISABLE DisablestheuseoftheDDAanalyzeregionmarkers.
+DARL DD_ANALYZE_REGION_LENGTH SelectsthelengthofaregiontobeanalyzedbyDDA.
+DARS DD_ANALYZE_REGION_START SelectsthestartofaregiontobeanalyzedbyDDA.
+DBIT DD_BITCELL Entersthebitcelltimeofthedriveheadsignal.
+DBST DD_CTAF_BOOST SetstheDDACTAFparameter,boost.
+DBYT DD_BYTE_OFFSET MovestheheadtracetoshowthespecifiedbyteinDDA.
+DDFC DD_CTAF_FC SetstheDDACTAFparameter,cut-offfrequencyfc.
+DDFM DD_FIND_METHOD SelectstheDDAerror-findingmethod.
+DDSI DD_SIGNAL_INPUT SendsorreadsouttheassociationofaparticularDiskDrivesignalwith
+asource.
+DENC DD_ENCODING Allowsselectionofthedata-encodingratioforlocatingthebytesby
+byteoffsetinDDA.
+DERI? DD_ERR_INFO? ReturnsthemeasuredvalueassociatedwiththelastDDAerrorposition
+selected,andacodespecifyingwhatthevaluecontains.
+7-12
+
+----- 第 215 页 -----
+
+Part7:IEEE488.2CommandReference
+Short Long WhatTheCommandorQueryDoes
+DERR DD_ERR_NUM DisplaysthesectionofwaveformcontainingthespecifiedDDAerror
+number.
+DFBIT? DD_FIND_BITCELL? Looksattheheadsignalandattemptstodeterminethebit-celltime.
+DFEN DD_FIR_ENABLE EnablestheFIRfilterforPRMLchannelemulation.
+DFER DD_FIND_ERROR CommandstheDDAtofinderrors.
+DFGD DD_CTAF_GROUP_DELAY SetstheDDACTAFparameter,groupdelay.
+DFIR DD_FIR StoresthesetupthatwillbeusediftheFIRfilterisenabledforusein
+thechannelemulation.
+DHSC DD_HEADSIGNAL_CHANNEL Specifiestheheadsignalsourcechannelormemoryforchannel
+emulationandservoanalysis.
+DIGS DD_IGNORE_SAMPLES DefinesnumberofsamplestobeignoredattheReadGatesignalend
+forchannelemulationandanalogcompare.
+DNER? DD_NUM_ERRORS GivesthenumberofDDAerrorsfound.
+DOVL DD_OVERLAP_REF SetsastatevariablethatdetermineswhethertheDDA
+re-establishestheoverlapofthereferencesignalwheneverthehead
+traceismoved.
+DPA DD_PES_ANALYSIS Starts/abortsPESanalysis.
+DPD? DD_PES_DATA? ReadsoutresultsofPESAnalysis.
+DPSD? DD_PES_SUMMARY_DATA? SummarizesPESAnalysisresults.
+DPSU DD_PES_SETUP SetsparametersforPESAnalysis.
+DRAV DD_RESET_AVERAGE Resetstheaverageddataandallsweeps;clearshistogramsandpara-
+meters.
+DRCC DD_READCLOCK_CHANNEL SpecifiestheinputchanneltowhichReadClockisconnectedorthe
+memoryinwhichitisstored.
+DRGC DD_READGATE_CHANNEL SpecifiestheinputchanneltowhichReadGateisconnectedorthe
+memoryinwhichitisstored.
+DRGP DD_READ_GATE_POLARITY Selectsthepolarityofthereadgatesignal.
+DRLE DD_ML_RUN_LENGTH_LIMIT Limitstherunlength.
+DRLM DD_ML_MIN_SPACING Setstheminimumallowedtransitions.
+DSAV DD_START_AVERAGING Changesthestateofthe“Avg.Samples”switchontheGraphmenu.
+DSEG DD_BYTE_OFFSET_SEGMENT MovestheheadtracetoshowthespecifiedsegmentinDDA.
+DSF DD_SHOW_FILTERED Enablesanddisablesthefilteringoftheheadsignal.
+DSIG DD_SIGNAL_TYPE SpecifiesPeakDetectoraparticularPRMLformatforthehead
+signal.
+DSLV DD_SHOW_LEVELS DisplaysthelevelmarkersindicatingtheViterbilevelsoftheML
+sampleswhenchannelemulationisactive.
+DSML DD_SHOW_ML DisplaysMLmarkers.
+DSPH DD_SAMPLE_PHASE AdjuststhephasebetweentheDDFAPLLsamplepointsandan
+externalclockreference(whenRCLKisconnected).
+7-13
+
+----- 第 216 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Short Long WhatTheCommandorQueryDoes
+DSST DD_SHOW_SAMPLE_TIMES Showsvertical-linecursorsonthegridateachsampletime
+correspondingtothereadclock.
+DST DD_SAM_THRESH SetstheSAMthresholdvalueforchannelemulation.
+DSTR DD_STORE_REFERENCE StorestheheadsignaltooneoftheDDA’savailablememoriesforana-
+logcompareandchannelemulationwithreference.
+DTF DD_TRAIN_FILTER CommandstheDDAtodeterminereasonablevaluesforeachfilter
+parameter.
+DVSP DD_VCO_SYNCH_PATTERN Definesthenumberofbitsperhalf-periodinthesynchronizationfield.
+DVTD DD_VCOSYNCH_TO_DATA Specifiesthenumberofbytesontheanalogheadsignalwaveform
+betweentheendoftheVCOsyncfieldandtheactualdata.
+ET-PMT(Option)-ElectricalTelecommPulseMaskTesting
+Short Long WhatTheCommandorQueryDoes
+CU_OPT? CUSTOM_OPTIONS? Returnsinstalledcustomoptions.
+CUAP CUSTOM_APPLICATION TogglesbetweenMaskTestermodeandoscilloscopemode.
+MTFA MT_FAIL_ACTION Setsfailactions.
+MTOF MT_OFFSET SetstheoffsetforSTM-1E,STS-3E,and139M.
+MTOP? MT_OPC? Returnsstateoflastoperation.
+MTPC? MT_PF_COUNTERS? Returnspass/failresult.
+MTST MT_SELECT_TEST SelectsElectricalTelecommtestingstandard.
+MTSY? MT_SYMBOL? Returns1or0symbol,orposorneg.
+MTTS MT_TEST_STATE Controlstestingstatus:RUN,STOP,PAUSE,CONTINUE.
+MTVA MT_VERTICAL_ALIGN PerformsoffsetalignmentforSTM-1E,STS-3E,and139M.
+7-14
+
+----- 第 217 页 -----
+
+Part7:IEEE488.2CommandReference
+ACQUISITIONCommandsandQueries
+ARM_ACQUISITION,ARM
+Description
+TheARM_ACQUISITIONcommandarmsthescopeandforcesasingleacquisitionifitisalreadyarmed.
+CommandSyntax
+ARM_ACQUISITION
+Example(GPIB)
+Thefollowinginstructionenablessignalacquisition:
+CMD$="ARM":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+STOP,*TRG,TRIG_MODE,WAIT,FRTR
+7-15
+
+----- 第 218 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+AUTO_SETUP,ASET
+Description
+TheAUTO_SETUPcommandattemptstodisplaytheinputsignal(s)byadjustingthevertical,timebase
+andtriggerparameters.AUTO_SETUPoperatesonlyonthechannelswhosetracesarecurrentlyturned
+on.Ifnotracesareturnedon,AUTO_SETUPoperatesonallchannels.
+Ifsignalsaredetectedonseveralchannels,thelowestnumberedchannelwithasignaldeterminesthe
+selectionofthetimebaseandtriggersource.
+Ifonlyoneinputchannelisturnedon,thetimebasewillbeadjustedforthatchannel.
+TheAUTO_SETUPFINDcommandadjustsgainandoffsetonlyforthespecifiedchannel.
+CommandSyntax
+<channel>:AUTO_SETUP[FIND]
+<channel>:=<C1toCn>
+IftheFINDkeywordispresent,gainandoffsetadjustmentsareperformedonlyonthespecifiedchannel.
+Ifno<channel>prefixisadded,anauto-setupisperformedonthechannelusedonthelastASETFIND
+remotecommand.
+IntheabsenceoftheFINDkeyword,thenormalauto-setupisperformed,regardlessofthe<channel>
+prefix.
+Example(GPIB)
+Thefollowinginstructstheoscilloscopetoperformanauto-setup:
+CMD$="C1:ASET":CALLIBWRT(SCOPE%,CMD$)
+7-16
+
+----- 第 219 页 -----
+
+Part7:IEEE488.2CommandReference
+ATTENUATION,ATTN
+Description
+TheATTENUATIONcommandselectstheverticalattenuationfactoroftheprobe.Valuesupto10000can
+bespecified.
+TheATTENUATION?queryreturnstheattenuationfactorofthespecifiedchannel.
+CommandSyntax
+<channel>:ATTENUATION<attenuation>
+<channel>:=<C1toCn, EX,EX10>
+<attenuation>:={1,2,5,10,20,25,50,100,200,500,1000,10000}
+QuerySyntax
+<channel>:ATTENUATION?
+ResponseFormat
+<channel>:ATTENUATION<attenuation>
+Example(GPIB)
+ThefollowinginstructionsetstheattenuationfactorofC1to100:
+CMD$="C1:ATTN100":CALLIBWRT(SCOPE%,CMD$)
+7-17
+
+----- 第 220 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+BANDWIDTH_LIMIT,BWL
+Description
+TheBANDWIDTH_LIMITcommandenablesordisablesthebandwidth-limitinglow-passfilteronaper-
+channelbasis.Whenthe<channel>argumentisomitted,theBWLcommandappliestoallchannels.
+TheresponsetotheBANDWIDTH_LIMIT?queryshowsthebandwidthfiltersettingforeachchannel.
+CommandSyntax
+BANDWIDTH_LIMIT[<channel>,]<mode>[,<channel>,<mode>...]
+<channel>:=<C1toCn>
+<mode>:={OFF,20MHZ,200MHZ,500MHZ,1GHZ,2GHZ,3GHZ,4GHZ,6GHZ}
+Perchannelbandwidthmaybesetincrementally.
+The<mode>settingislimitedtothebandwidthfiltersavailableonyouroscilloscopemodel.500MHZand
+2GHZfiltersavailableonHDO9000modelsonly.MoresettingsareavailableforWaveMasterand
+LabMastermodels.Seetheproductdatasheetforspecifications.
+QuerySyntax
+BANDWIDTH_LIMIT?
+ResponseFormat
+BANDWIDTH_LIMIT<channel>,<mode>[,<channel>,<mode>...]
+Example(GPIB)
+Thefollowingturnsoffbandwidthlimitfiltersforallchannels:
+CMD$="BWLOFF":CALLIBWRT(SCOPE%,CMD$)
+Thefollowingturnsonthe200MHzbandwidthfilterforC1only:
+CMD$="BWLC1,200MHZ":CALLIBWRT(SCOPE%,CMD$)
+ThefollowingistheresponsetotheBWL?queryfollowingthelasttwocommands:
+BWLC1,200MHZ,C2,OFF,C3,OFF,C4,OFF
+7-18
+
+----- 第 221 页 -----
+
+Part7:IEEE488.2CommandReference
+COMBINE_CHANNELS,COMB
+Description
+TheCOMBINE_CHANNELScommandcontrolsthechannelinterleavingfunctionoftheacquisition
+system.TheCOMBINE_CHANNELS?queryreturnsthechannelinterleavingfunction'scurrentstatus.
+CommandSyntax
+COMBINE_CHANNELS<state>
+<state>: = {1,2,AUTO}
+Where1=nointerleaving;2=twointerleavedpairs;AUTO=oscilloscopedeterminesbasedontheactive
+channels.
+QuerySyntax
+COMBINE_CHANNELS?
+ResponseFormat
+COMB<state>
+Example(GPIB)
+ThefollowinginstructionengageschannelinterleavingofC1andC2,andC3andC4:
+CMD$="COMB2":CALLIBWRT(SCOPE%,CMD$)
+ThefollowinginstructionsetsAuto-Combinemode:
+CMD$="COMBAUTO":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TDIV
+7-19
+
+----- 第 222 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+COUPLING,CPL
+Description
+TheCOUPLINGcommandselectsthecouplingmodeofthespecifiedinput.
+TheCOUPLING?queryreturnsthecouplingmodeofthespecifiedchannel.
+CommandSyntax
+<channel>:COUPLING<coupling>
+<channel>:=<C1toCn, EX,EX10,ETM10>
+<coupling>:={A1M,D1M,D50,GND}
+Theselectedcouplingvaluemustbeonethatisavailableontheoscilloscope.Notallvaluesare
+supportedbyallinstruments.
+A1MandD1Mattenuationpertainsonlytoinstrumentswithaprobeconnected.
+QuerySyntax
+<channel>:COUPLING?
+ResponseFormat
+<channel>:COUPLING<coupling>
+<coupling>:={A1M,D1M,D50,GND,OVL}
+OVLisreturnedintheeventofsignaloverloadwhileinDC50Ωcoupling.Inthiscondition,the
+oscilloscopewilldisconnecttheinput.
+Example(GPIB)
+ThefollowinginstructionsetsthecouplingofC2to50ΩDC:
+CMD$="C2:CPLD50":CALLIBWRT(SCOPE%,CMD$)
+ThefollowinginstructionsetsofthecouplingoftheEXTinputtoDC1Mohm:
+CMD$="EX:CPLD1M":CALLIBWRT(SCOPE%,CMD$)
+7-20
+
+----- 第 223 页 -----
+
+Part7:IEEE488.2CommandReference
+FORCE_TRIGGER,FRTR
+Description
+Causestheinstrumenttomakeoneacquisitionifitisinanactivetriggermode.IftheinstrumentisinStop
+triggermode,thereisnoaction.
+CommandSyntax
+FORCE_TRIGGER
+Example(GPIB)
+Eitherofthefollowingprogramsforcestheoscilloscopetomakeoneacquisition:
+CMD$="TRMDSINGLE;ARM;FRTR"
+CALLIBWRT(Scope%,CMD$)
+CMD$ = "TRMDSTOP;ARM;FRTR"
+CALLIBWRT(Scope%,CMD$)
+7-21
+
+----- 第 224 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+INTERLEAVED,ILVD
+Description
+TheINTERLEAVEDcommandenablesordisablesrandominterleavedsampling(RIS)fortimebase
+settingswherebothsingleshotandRISmodeareavailable.
+RISisnotavailableforsequencemodeacquisitions.Ifsequencemodeison,ILVDONturnsitoff.
+TheresponsetotheINTERLEAVED?queryindicateswhethertheoscilloscopeisinRISmode.
+CommandSyntax
+INTERLEAVED<mode>
+<mode>:={ON,OFF}
+QuerySyntax
+INTERLEAVED?
+ResponseFormat
+INTERLEAVED<mode>
+Example(GPIB)
+ThefollowinginstructstheoscilloscopetouseRISmode:
+CMD$="ILVDON":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TIME_DIV,TRIG_MODE,MEMORY_SIZE,SEQUENCE
+7-22
+
+----- 第 225 页 -----
+
+Part7:IEEE488.2CommandReference
+MEMORY_SIZE,MSIZ
+Description
+Onmostmodelswherethiscommand/queryisavailable,MEMORY_SIZEallowsselectionofthememory
+lengthusedforacquisition.Refertotheproductdatasheetatteledynelecroy.comformaximummemory
+specifications.
+TheMEMORY_SIZE?queryreturnsthecurrentmaximummemorylengthusedtocapturewaveforms.
+CommandSyntax
+MEMORY_SIZE<size>
+<size>:=<500,1e+3,…,2.5e+6,5e+6,1e+7,etc.>
+Or,alternatively:
+<size>:= <500,1000,2500,5000,10K,25K,50K,100K,250K,500K,1MA,2.5MA,5MA,
+10MA,25MA,etc.>
+Valuesotherthanthoselistedherearerecognizedbytheoscilloscopeasnumericdata.Forexample,the
+oscilloscoperecognizes1.0Mas1millisample.However,itrecognizes1MAas1megasample.
+Note:Theoscilloscopeadaptstotheclosestvalidmemorysizeaccordingtoavailablechannel
+memory.Reducingthenumberofdatapointsresultsinfasterthroughput.
+QuerySyntax
+MSIZ?
+ResponseFormat
+MEMORY_SIZE<size>
+Example(GPIB)
+Thefollowinginstructionsetstheoscilloscopetoacquireatmost10,000datasamplespersingle-shotor
+RISacquisition:
+CMD$="MSIZ10K":CALLIBWRT(SCOPE%,CMD$)
+CMD$="MSIZ10e+3":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TDIV
+7-23
+
+----- 第 226 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+OFFSET,OFST
+Description
+TheOFFSETcommandallowsadjustmentoftheverticaloffsetofthespecifiedinputchannelattheprobe
+tip.
+Note:Theoffsettakesintotheaccounttheattenuationfactor(setbycommandATTN,default
+1.0)andthesensitivityoftheprobeattachedtothechannelinput,ifany.
+Themaximumrangesdependonthefixedsensitivitysetting.Refertotheproductdatasheetat
+teledynelecroy.comformaximumoffsetspecifications.
+Ifanout-of-rangevalueisentered,theoscilloscopeissettotheclosestpossiblevalueandtheVABbit(bit
+2)intheSTBregisterisset.
+TheOFFSET?queryreturnstheDCoffsetvalueofthespecifiedchannelattheprobetip.
+CommandSyntax
+<channel>:OFFSET<offset>[V]
+<channel>:=<C1toCn>
+<offset>:=<anyvalidvalue>
+TheunitVisoptional.
+QuerySyntax
+<channel>:OFFSET?
+ResponseFormat
+<channel>:OFFSET<offset>
+Example(GPIB)
+ThefollowinginstructionsetstheoffsetofC2to-3V:
+CMD$="C2:OFST-3V":CALLIBWRT(SCOPE%,CMD$)
+7-24
+
+----- 第 227 页 -----
+
+Part7:IEEE488.2CommandReference
+REFERENCE_CLOCK,RCLK
+Description
+TheREFERENCE_CLOCKcommandallowsforselectionofeitherinternalorexternalreferenceclock.
+CommandSyntax
+REFERENCE_CLOCK<state>
+<state>:={INTERNAL,EXTERNAL}
+QuerySyntax
+REFERENCE_CLOCK?
+ResponseFormat
+REFERENCE_CLOCK<state>
+Example(GPIB)
+Thefollowinginstructionsetstheinstrumenttouseanexternalreferenceclock:
+CMD$="RCLKEXTERNAL":CALLIBWRT(SCOPE%,CMD$)
+7-25
+
+----- 第 228 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+SAMPLE_CLOCK,SCLK
+Description
+TheSAMPLE_CLOCKcommandselectsforaninternalorexternalsampleclock.
+CommandSyntax
+SAMPLE_CLOCK<state>
+<state>:={INTERNAL,EXTERNAL}
+QuerySyntax
+SAMPLE_CLOCK?
+ResponseFormat
+SAMPLE_CLOCK<state>
+Example(GPIB)
+Thefollowinginstructionsetstheinstrumenttouseanexternalsampleclock:
+CMD$="SCLKEXTERNAL":CALLIBWRT(SCOPE%,CMD$)
+7-26
+
+----- 第 229 页 -----
+
+Part7:IEEE488.2CommandReference
+SEQUENCE,SEQ
+Description
+TheSEQUENCEcommandsetstheconditionsforthesequencemodeacquisition.Theresponsetothe
+SEQUENCE?querygivestheconditionsforthesequencemodeacquisition.
+WhenSequencemodeisturnedbyusingthiscommand,SMARTmemoryisautomaticallyenabledand
+thememorylengthissettotheuser-supplied<max_size>value.Theargument<max_size>canbe
+expressedeitherasnumericfixedpoint,exponential,orusingstandardsuffixes.
+Sequencemodecannotbeusedatthesametimeasrandominterleavedsampling(RIS).IfRISison,the
+commandSEQONturnsRISoff.
+Refertotheproductdatasheetatteledynelecroy.comforSequencemodespecifications.
+CommandSyntax
+SEQUENCE<mode>[,<numbersegments>[,<max_size>]]
+<mode>:={OFF,ON}
+<numbersegments>:=<anyvalidvalue>
+<max_size>:=<anyvalidvalue,e.g.,10e+3,5K,1M,etc.>
+Note:Theoscilloscopeadaptstherequested<max_size>totheclosestvalidvalue.
+QuerySyntax
+SEQUENCE?
+ResponseFormat
+SEQUENCE<mode>,<numbersegments>,<max_size>
+Example(GPIB)
+Thefollowinginstructionsetsthesegmentcountto43,themaximumsegmentsizeto250samples,and
+turnsthesequencemodeon:
+CMD$="SEQON,43,250":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TRIG_MODE
+7-27
+
+----- 第 230 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+STOP
+Description
+TheSTOPcommandimmediatelystopstheacquisitionofasignal.IfthetriggermodeisAUTOorNORM,
+STOPplacestheoscilloscopeinStoppedtriggermodetopreventfurtheracquisition.
+CommandSyntax
+STOP
+Example(GPIB)
+Thefollowinginstructionstopstheacquisitionprocess:
+CMD$ ="STOP":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+ARM_ACQUISITION,TRIG_MODE,WAIT,FORCE_TRIGGER
+7-28
+
+----- 第 231 页 -----
+
+Part7:IEEE488.2CommandReference
+TIME_DIV,TDIV
+Description
+TheTIME_DIVcommandmodifiesthetimebasesetting.Thetimebasesettingcanbespecifiedwithunits:
+NSfornanoseconds,USformicroseconds,MSformilliseconds,Sforseconds,orKSforkiloseconds.
+Alternatively,youcanuseexponentialnotation:10E-6,forexample.Anout-of-rangevaluecausestheVAB
+bit(bit2)intheSTBregistertobeset.RefertotheSTBtableinthe*STB?-*STB?topicformore
+information.
+TheTIME_DIV?queryreturnsthecurrenttimebasesetting.
+Refertotheproductdatasheetatteledynelecroy.comfortimebasespecifications.
+CommandSyntax
+TIME_DIV<value>[KS,S,MS,US,NS]
+<value>:=<anyvalidvalue>
+Theunitisoptional.
+QuerySyntax
+TIME_DIV?
+ResponseFormat
+TIME_DIV<value>
+Example(GPIB)
+Thefollowinginstructionsetsthetimebaseto500µs/div:
+CMD$="TDIV500US":CALLIBWRT(SCOPE%,CMD$)
+Thefollowinginstructionsetsthetimebaseto2msec/div:
+CMD$="TDIV0.002":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TRIG_DELAY,TRIG_MODE
+7-29
+
+----- 第 232 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+TRIG_COUPLING,TRCP
+Description
+TheTRIG_COUPLINGcommandsetsthecouplingmodeofthespecifiedtriggersource.
+TheTRIG_COUPLING?queryreturnsthetriggercouplingoftheselectedsource.
+Note:TheTRCPcommandaffectsonlythecouplingofthesignalpathtothetriggercircuit,
+regardlessofinputimpedanceorcouplingsettings.Tosetthecouplingontheinput,usethe
+COUPLINGcommand.
+CommandSyntax
+<trig_source>:TRIG_COUPLING<trig_coupling>
+<trig_source>:=<C1toCn, EX,EX10,ETM10>
+<trig_coupling>:={AC,DC,HFREJ,LFREJ}
+QuerySyntax
+<trig_source>:TRIG_COUPLING?
+ResponseFormat
+<trig_source>:TRIG_COUPLING<trig_coupling>
+Example(GPIB)
+ThefollowinginstructionsetsthetriggercouplingofthetriggersourceC2toAC:
+CMD$="C2:TRCPAC":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+COUPLING,TRIG_DELAY,TRIG_LEVEL,TRIG_MODE,TRIG_SELECT,TRIG_SLOPE
+7-30
+
+----- 第 233 页 -----
+
+Part7:IEEE488.2CommandReference
+TRIG_DELAY,TRDL
+Description
+TheTRIG_DELAYcommandsetsthetimeatwhichthetriggeristooccurwithrespecttothenominalzero
+delayposition,whichdefaultstothecenterofthegrid.ThisisalsoreferredtoasHorizontalDelay.
+TheresponsetotheTRIG_DELAY?queryindicatesthetriggertimewithrespecttothefirstacquireddata
+point.Settingatriggerdelayvalueofzeroplacesthetriggerindicatoratthecenterofthegrid.
+Note:MAUIoscilloscopessupportprogrammingthetriggerdelayinunitsoftime;thelegacy
+argumentPCT(ofgrid)isnolongersupported.Positivevaluesmovethetriggerpositiontothe
+rightofthenominalzerodelayposition,andincreasetheportionofthewaveformbeforethe
+triggerpoint.Negativevaluesmovethetriggerpointintheoppositedirection.
+CommandSyntax
+TRIG_DELAY<value>
+The<value>isgivenintimeandmaybeanywhereintheranges:
+Negativedelay:( 0to-10,000)xTime/div
+Postivedelay:(0to+10)xTime/div
+Ifavalueoutsidetheserangesisspecified,thetriggertimeissettothenearestlimitandtheVABbit(bit2)
+issetintheSTBregister.
+QuerySyntax
+TRIG_DELAY?
+ResponseFormat
+TRIG_DELAY<value>
+Example(GPIB)
+Thefollowinginstructionsetsapost-triggerdelayof-20S:
+CMD$="TRDL-20S":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TIME_DIV,TRIG_COUPLING,TRIG_LEVEL,TRIG_MODE,TRIG_SELECT,TRIG_SLOPE
+7-31
+
+----- 第 234 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*TRG
+Description
+The*TRGcommandexecutesanARMcommand.*TRGistheequivalentofthe488.1GET(Group
+ExecuteTrigger)message.
+CommandSyntax
+*TRG
+Example(GPIB)
+Thefollowinginstructionenablessignalacquisition:
+CMD$="*TRG":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+ARM_ACQUISITION,STOP,WAIT,FORCE_TRIGGER
+7-32
+
+----- 第 235 页 -----
+
+Part7:IEEE488.2CommandReference
+TRIG_LEVEL,TRLV
+Description
+TheTRIG_LEVELcommandadjuststhetriggerlevelofthespecifiedtriggersource.Anout-of-rangevalue
+willbeadjustedtotheclosestlegalvalueandwillcausetheVABbit(bit2)intheSTBregistertobeset.
+TheTRIG_LEVEL?queryreturnsthecurrenttriggerlevel.
+CommandSyntax
+<trig_source>:TRIG_LEVEL<trig_level>V
+<trig_source>:=<C1toCn, EX,EX10,ETM10>
+The<trig_source>valueisoptional.
+QuerySyntax
+<trig_source>:TRIG_LEVEL?
+ResponseFormat
+<trig_source>:TRIG_LEVEL<trig_level>
+Example(GPIB)
+ThefollowinginstructionadjuststhetriggerlevelofC2to-3.4V:
+CMD$="C2:TRLV-3.4V":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TRIG_COUPLING,TRIG_DELAY,TRIG_MODE,TRIG_SELECT,TRIG_SLOPE
+7-33
+
+----- 第 236 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+TRIG_MODE,TRMD
+Description
+TheTRIG_MODEcommandspecifiesthetriggermode.
+TheTRIG_MODE?queryreturnsthecurrenttriggermode.
+CommandSyntax
+TRIG_MODE<mode>
+<mode>:={AUTO,NORM,SINGLE,STOP}
+Note:SomeoldermodeloscilloscopesforceanacquisitionbysendingthecommandTRMD
+SINGLEwiththeoscilloscopearmed.Youcanachievethesameeffectoncurrentoscilloscope
+modelsbysendingtheFORCE_TRIGGERcommand.
+QuerySyntax
+TRIG_MODE?
+ResponseFormat
+TRIG_MODE<mode>
+Example(GPIB)
+Thefollowinginstructionselectsthenormalmode:
+CMD$="TRMDNORM":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+ARM_ACQUISITION,FORCE_TRIGGER,STOP,TRIG_SELECT,SEQUENCE,TRIG_COUPLING,TRIG_LEVEL,
+TRIG_SLOPE
+7-34
+
+----- 第 237 页 -----
+
+Part7:IEEE488.2CommandReference
+TRIG_PATTERN,TRPA
+Description
+TheTRIG_PATTERNcommanddefinesatriggerpattern.Thecommandspecifiesthelogiclevelofthe
+sourcesC1toC4andExternal,andthestatesunderwhichlogicpatternatriggercanoccur.This
+commandcanbeusedevenifthePatterntriggerisnotactivated.
+TheTRIG_PATTERN?queryreturnsthecurrenttriggerpattern.
+CommandSyntax
+TRIG_PATTERN[<source>,<state>,...<source>,<state>],STATE,<condition>
+<source>:=<C1toCn, EX>
+<state>:={L,H}
+<condition>:={AND,OR,NAND,NOR}
+Whileoptional,atleastonesourcestateparametershouldbeset,otherwisetherewillbenomeaningful
+pattern.Ifasourcestateisnotspecifiedinthecommand,thesourceissettothe"X"(Don'tCare)state.
+QuerySyntax
+TRIG_PATTERN?[<source>,<state>,...<source>,<state>],STATE,<condition>
+ResponseFormat
+TRIG_PATTERN[<source>,<state>,...<source>,<state>],STATE,<condition>
+TheresponsesendsbackonlyL(Low)orH(High)sourcestatesandignorestheXstates.
+Example(GPIB)
+ThefollowinginstructionconfiguresthetriggeringlogicpatternasCH1=H,CH2=L,CH3=X,CH4=H
+anddefinestheconditionbindingthemasNOR.
+CMD$=“TRPAC1,H,C2,L,C4,H,STATE,NOR”:CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TRIG_COUPLING,TRIG_DELAY,TRIG_LEVEL,TRIG_MODE,TRIG_SELECT,TRIG_SLOPE
+7-35
+
+----- 第 238 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+TRIG_SELECT,TRSE
+Description
+TheTRIG_SELECTcommandselectstheconditionsthattriggertheacquisitionofwaveforms.Depending
+onthetriggertype,additionalparametersmayneedtobespecified.Theseadditionalparametersare
+groupedinpairs.Thefirstinthepairnamesthevariableformodification,whilethesecondgivesthenew
+valueforassignment.Pairsmaybegiveninanyorderandrestrictedonlytothevariablestobechanged.
+Theoscilloscopeinterpretsthe"HoldType"(HT)parameterasinstructiontoholdthetriggerforagiven
+amountoftimeornumberofevents,oruntilacertaintriggersourceorqualifiersourceconditionis
+achieved(e.g.,apulseofagivenwidth).The"HoldValue"(HV)parameterprovidesthevaluethatsatisfies
+theHTcondition;theyarealwaysusedtogether.
+StateQualifiedandEdgeQualifiedtriggersshouldusetheQualifierSource(QL)parameterandincludeany
+HTconditionstobeobservedonthequalifyingsignal.
+ThelevelusedfortheEdgeandEdgeQualifiedtriggertypesissuppliedwiththeTRIG_LEVELcommand,
+andtheslopewiththeTRIG_SLOPEcommand.ThesearenotsetusingtheHTparameter.
+Tosetlogicpatterntriggers,usetheAutomationcommandsortheGPIBcommandTRIG_PATTERN.The
+receiptoftheTRIG_PATTERNcommandoverridestheTRIG_SELECTsettingsuntilanotherTRIG_SELECT
+issent.
+UsetheAutomationcommandstosetanytriggernotshownhere.Seetheproductdatasheetforthe
+triggerssupportedbyyourmodel.
+CommandSyntax
+ForallbuttheTVtrigger,thecommandsyntaxforstandardtriggersis:
+TRIG_SELECT<trig_type>,SR,<source>[,QL,<source>,HT,<hold_type>,HV,<hold_
+value>,HV2,<holdvalue>]
+Seetablebelowforvalidparametervalues.
+Thetriggersourcesavailabledependonyouroscilloscopemodel.Seetheproductdatasheetfor
+specifications.
+Whenspecifying<hold_value>,theunitS(seconds)isoptional;otherunitsshouldbespecifiedusingthe
+notationshowninUnitsandMultipliers.
+7-36
+
+----- 第 239 页 -----
+
+Part7:IEEE488.2CommandReference
+Thefollowingtableshowsthecommandnotationusedtocreatetheparameter-valuepairs.
+Parameters Mnemonic Values Mnemonic Notes
+TriggerType Dropout DROP
+Edge EDGE
+Glitch GLIT
+Interval INTV
+Pattern PA
+Runt RUNT
+SlewRate SLEW
+StateQualified SQ AddQualifierSourceparameter
+EdgeQualified TEQ
+QualifiedFirst TEQ1
+TV TV Uniquesyntax,seebelow
+Single-source SNG Forbackwardcompatibilitywithleg-
+acyoscilloscopesStandard STD
+TriggerSource SR C1throughCn C1...Cn Forbestresults,useC1throughC4
+only.UseC2andC3forDBIacquis-
+itions.
+AuxilliaryLineIn LINE
+ExternalTrigger EX,EX5,EX10,
+ETM10
+Seeproductdatasheetforavailable
+externaltriggerinputs.
+QualifierSource QL SeeTriggerSource
+HoldType HT Timegreaterthan TI HoldoffisnotavailableforSNGand
+STDtriggers.
+Timelessthan TL
+Events EV
+Pulselargerthan PL
+Pulsesmallerthan PS
+Pulsewidth P2 AddHVandHV2
+Intervallargerthan IL
+Intervalsmallerthan IS
+Intervalwidth I2 AddHVandHV2
+Nohold-offonwait OFF
+FirstHoldValue HV <value><unit> HoldoffisnotavailableforSNGand
+STDtriggers.SecondHoldValue HV2 <value><unit>
+7-37
+
+----- 第 240 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+TVTriggerSyntax
+TVtriggersyntaxis:
+TRIG_SELECTTV,SR,<source>,FLDC,<field_count>,FLD,<trigger_field>,
+CHAR,<characteristics>,LPIC,<lpic>,ILAC,<ilace>,LINE,<trigger_line>
+<source>:=<C1toCn, LINE,EX,EX5,EX10,ETM10>
+<field_count>:={1,2,4,8}
+<trigger_field>:=1 tofield_count
+<characteristics>:={NTSC,PALSEC,CUST50,CUST60}
+<lpic>:=1 to1500
+<ilace>:={1,2,4,8}
+<trigger_line>:=1 to1500,or0 foranyline
+DDATriggerSyntax
+DDAmodelsandoscilloscopeswiththeDDAsoftwareoptioninstalledincludethefollowingdiskdrive
+analysistriggertypes:
+ReadGateTrigger
+TRIG_SELECTREAD,SR,<readgatesource>,WIDTH,<min.readgatepulsewidth>
+SectorPulseTrigger
+TRIG_SELECTSECTOR,SR,<sectorsource>,QL,<indexsource>NUM,<sectornumber>
+ServoGateTrigger
+TRIG_SELECTSERVO,SR,<servogatesource>,QL,<indexsource>,FIRST,<servoburstafter
+indexforfirsttrigger>,SKIP,<skipnumberof burstsbeforenexttrigger>
+PESWindowTrigger
+TRIG_SELECTPESWIN,SR,<PESsource>,QL,<servogatesource>,WINDOW,<windowsize>
+SeetheDDAReferenceManualformoreinformationabouttheoperationofthesetriggers.
+7-38
+
+----- 第 241 页 -----
+
+Part7:IEEE488.2CommandReference
+QuerySyntax
+TRIG_SELECT?
+ResponseFormat
+TRIG_SELECT<trig_type>,SR,<source>,HT,<hold_type>,HV,<hold_value>
+TheHV2valueisreturnedonlyif<hold_type>isP2orI2.
+Example(GPIB)
+ThefollowinginstructionselectstheSingle-SourcetriggerwithC1astriggersource.Holdtypecondition
+istheoccurrenceofa"pulsesmallerthan"theholdvalueof20ns:
+CMD$="TRSESNG,SR,C1,HT,PS,HV,20NS":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TRIG_LEVEL,TRIG_SLOPE,TRIG_PATTERN
+7-39
+
+----- 第 242 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+TRIG_SLOPE,TRSL
+Description
+TheTRIG_SLOPEcommandsetstheslope/polarityoftheselectedtriggersource.
+TheTRIG_SLOPE?queryreturnsthetriggerslope/polarityoftheselectedsource.
+CommandSyntax
+<trig_source>:TRIG_SLOPE<trig_slope>
+<trig_source>:={C1,C2,C3,C4,LINE,EX,EX10,ETM10}
+<trig_slope>:={NEG,POS}
+QuerySyntax
+<trig_source>:TRIG_SLOPE?
+ResponseFormat
+<trig_source>:TRIG_SLOPE<trig_slope>
+Example(GPIB)
+ThefollowinginstructionsetsthetriggertothenegativeslopeofC2:
+CMD$="C2:TRSLNEG":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+TRIG_COUPLING,TRIG_DELAY,TRIG_LEVEL,TRIG_MODE,TRIG_SELECT,TRIG_SLOPE
+7-40
+
+----- 第 243 页 -----
+
+Part7:IEEE488.2CommandReference
+VOLT_DIV,VDIV
+Description
+TheVOLT_DIVcommandsetstheverticalsensitivityinVolts/div.Refertotheproductdatasheetat
+teledynelecroy.comforalistofvalidranges.
+Theverticalsensitivityincludestheattenuationfactor(setbythecommandATTN,default1.0)andthe
+sensitivityoftheprobeattachedtothechannelinput,ifany.
+Ifanout-of-rangevalueisentered,theVABbit(bit2)intheSTBregisterisset.RefertotheSTBtablein
+the*STB?topicformoreinformation.
+TheVOLT_DIV?queryreturnstheverticalsensitivityofthespecifiedchannelattheprobetip.
+CommandSyntax
+<channel>:VOLT_DIV<v_gain>
+<channel>:=<C1toCn>
+<v_gain>:=<anyvalidvalue><unit>
+Whenspecifying<v_gain>,theunitVisoptional.OtherunitsshouldbespecifiedusingthenotationinUnits
+andMultipliers.
+QuerySyntax
+<channel>:VOLT_DIV?
+ResponseFormat
+<channel>:VOLT_DIV<v_gain>
+Example(GPIB)
+Thefollowinginstructionsetstheverticalsensitivityofchannel1to50mV/div:
+CMD$="C1:VDIV50MV":CALLIBWRT(SCOPE%,CMD$)
+7-41
+
+----- 第 244 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WAIT
+Description
+TheWAITcommandpreventsyourinstrumentfromanalyzingnewcommandsuntilthecurrent
+acquisitionhasbeencompleted.Theoptionalargumentspecifiesthetimeout(inseconds)afterwhichthe
+scopestopswaitingfornewacquisitions.Ifatimeoutvalue(<t>)isnotgiven,orif<t>=0.0,thescope
+waitsindefinitely.
+CommandSyntax
+WAIT[<t>]
+<t>:=timeinseconds
+Example(GPIB)
+send:"TRMDSINGLE"
+loop{send:"ARM;WAIT;*OPC?;C1:PAVA?MAX"
+readresponse
+processresponse
+}
+Thisexamplefindsthemaximumamplitudesofseveralsignalsacquiredoneafteranother.ARMstartsa
+newdataacquisition.TheWAITcommandensuresthatthemaximumisevaluatedforthenewlyacquired
+waveform.
+Thequery"C1:PAVA?MAX"instructstheoscilloscopetoevaluatethemaximumdatavalueinthe
+Channel1waveform.
+RelatedCommands
+*TRG,TRIG_MODE,ARM
+7-42
+
+----- 第 245 页 -----
+
+Part7:IEEE488.2CommandReference
+AUTOMATIONCommandsandQueries
+VBS,VBS
+Description
+TheVBScommandallowsAutomationcommandstobesentinthecontextofanexistingprogram.
+TheAutomationcommandmustbeplacedwithinsinglequotationmarks.
+Theequalsign(=)withintheautomationcommandmaybeflankedbyoptionalspacesforclarity.
+Tip:SeeMAUIStudioBrowserforinstructionsonaccessingtheAutomationhierarchy.
+CommandSyntax
+VBS'<automationcommand>'
+QuerySyntax
+VBS?'Return=<automationcommand>'
+Examples
+ThefollowingexamplesshowtheuseoftheVBScommandtosendanautomationcommand.The
+secondcolumnshowstheequivalentGPIB-onlycommand.
+Command VBSwithEmbeddedAutomation EquivalentGPIB-onlyCommand
+SetC1verticalscaleto50mV/div VBS'app.Acquisition.C1.VerScale=0.05'C1:VDIV50MV
+Sethorizontalscaleto500ns/div VBS'app.Acquisition.Horizontal.HorScale=500e-
+9'
+TDIV0.5e-6
+ChangegridmodetoDual VBS'app.Display.GridMode=Dual' GRIDDUAL
+QuerytheverticalscaleofC1 VBS?'Return=app.Acquisition.C1.VerScale'C1:VDIV?
+7-43
+
+----- 第 246 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+COMMUNICATIONCommandsandQueries
+COMM_FORMAT,CFMT
+Description
+TheCOMM_FORMATcommandselectstheformattheoscilloscopeusestosendwaveformdata.The
+availableoptionsallowtheblockformat,thedatatypeandtheencodingmodetobemodifiedfromthe
+defaultsettings.
+Initialsettings(afterpower-on)are:blockformatDEF9;datatypeWORD;encodingBIN.
+TheCOMM_FORMAT?queryreturnsthecurrentlyselectedwaveformdataformat.
+CommandSyntax
+COMM_FORMAT<block_format>,<data_type>,<encoding>
+<block_format>:={DEF9}
+<data_type>:={BYTE,WORD}
+<encoding>:={BIN}
+BlockFormat
+TheIEEE488.2definitelengtharbitraryblockresponsedataformatisspecifiedusingDEF.Thedigit9
+indicatesthatthebytecountconsistsof9digits.Thedatablockdirectlyfollowsthebytecountfield.
+Forexample,adatablockconsistingofthreedatabyteswouldbesentas:
+WFDAT1,#9000000003<DAB><DAB><DAB><NL^END>
+<DAB>representsaneight-bitbinarydatabyte.
+<NL^END>(newlinewithEOI)signifiestheblocktransmissionhasended.
+Note:TheblockformatsOFFandIND0arenotsupported.
+DataType
+BYTEtransmitsthewaveformdataas8-bitsignedintegers(onebyte).
+WORDtransmitsthewaveformdataas16-bitsignedintegers(twobytes).
+Note:ThedatatypeBYTEtransmitsonlythehigh-orderbitsoftheinternal16-bitrepresentation.
+Theprecisioncontainedinthelow-orderbitsislost.
+Encoding
+BINspecifiesBinaryencoding.ThisistheonlytypeofwaveformdataencodingsupportedbyTeledyne
+LeCroyoscilloscopes.
+7-44
+
+----- 第 247 页 -----
+
+Part7:IEEE488.2CommandReference
+QuerySyntax
+COMM_FORMAT?
+ResponseFormat
+COMM_FORMAT<block_format>,<data_type>,<encoding>
+Example(GPIB)
+Thefollowinginstructionredefinesthetransmissionformatofwaveformdataasablockofdefinite
+length,9-digitdatacountfield,dataencodedinbinaryandrepresentedas8-bitsignedintegers.
+CMD$="CFMTDEF9,BYTE,BIN":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+WAVEFORM
+7-45
+
+----- 第 248 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+COMM_HEADER,CHDR
+Description
+TheCOMM_HEADERcommandcontrolsthewaytheoscilloscopeformatsresponsestoqueries.There
+arethreeresponseformats;unlessyourequestotherwise,theshortresponseformatisused.
+Thiscommanddoesnotaffecttheinterpretationofmessagessenttotheoscilloscope,onlyresponsesto
+queries.HeaderscanbesentinlongorshortformregardlessoftheCOMM_HEADERsetting.
+CommandSyntax
+COMM_HEADER<mode>
+<mode>:={SHORT,LONG,OFF}
+Format ExampleResponse
+LONG Responsesstartwiththelongformoftheheaderword C1:VOLT_DIV200E-3 V
+SHORT Responsesstartwiththeshortformoftheheaderword C1:VDIV200E-3 V
+OFF Headersareomittedfromtheresponseandunitsaresuppressed 200E-3
+QuerySyntax
+COMM_HEADER?
+ResponseFormat
+COMM_HEADER<mode>
+Example(GPIB)
+ThefollowingcodesetstheresponseheaderformattoLONG:
+CMD$="CHDRLONG":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+COMM_HELP_LOG
+7-46
+
+----- 第 249 页 -----
+
+Part7:IEEE488.2CommandReference
+COMM_HELP_LOG?,CHL?
+Description
+TheCOMM_HELP_LOGqueryreturnsthecurrentcontentsoftheloggeneratedbytheRemoteControl
+Assistant.IftheoptionalparameterCLRisspecified,thelogisclearedafterthetransmission;otherwise,
+itskept.
+QuerySyntax
+COMM_HELP_LOG?[CLR]
+ResponseFormat
+COMM_HELP_LOG<stringcontainingtheloggedtext>
+Example(GPIB)
+Thefollowinginstructionreadsandprintstheremotecontrollog:
+CMD$="CHL?":CALLIBWRT(SCOPE%,CMD$)PRINT
+RelatedCommands
+COMM_HELP
+7-47
+
+----- 第 250 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+COMM_HELP,CHLP
+Description
+TheCOMM_HELPcommandcontrolsthelevelofoperationoftheRemoteControlAssistant,which
+assistsindebuggingremotecontrolprograms.Thisdiagnosticsutilityisselectedontheinstrument's
+Utilitiesdialog.RemoteControlAssistantcanlogallmessagetransactionsoccurringbetweenthe
+externalcontrollerandtheoscilloscope(fulldialog),orerrorsonly.Youcanviewthelogatanytimeon-
+screen.
+CommandSyntax
+COMM_HELP<level>,<resetatpoweron>
+<level>:={OFF,EO,FD}
+<resetatpoweron>:={NO,YES}
+LEVELS OPERATION
+OFF Don'tassistatall
+EO LogdetectedErrorsOnly
+FD LogtheFullDialogbetweenthecontrollerandtheoscilloscope
+If<resetatpoweron>issettoYES,atpower-onthelogginglevelissettoEOandthelogiscleared.Ifset
+toNO,theuser-setlogginglevelispreservedandthelogisnotcleared.
+Setting<resetatpoweron>toNOisusefulwhenloggingcommandsequencestoincluderebootingthe
+oscilloscope.
+ThedefaultlevelisEO,andresetatpoweronisYES.
+QuerySyntax
+COMM_HELP?
+ResponseFormat
+COMM_HELP<level>,<resetatpoweron>
+Example(GPIB)
+Aftersendingthiscommand,allthefollowingcommandsandresponsesarelogged,thenthelogis
+clearedwhentheoscilloscopeisrebooted:
+CMD$="CHLPFD,YES":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+COMM_HELP_LOG
+7-48
+
+----- 第 251 页 -----
+
+Part7:IEEE488.2CommandReference
+COMM_ORDER,CORD
+Description
+TheCOMM_ORDERcommandcontrolsthebyteorderofwaveformdatatransfers.Waveformdatacanbe
+sentwiththemostsignificantbyte(MSB)ortheleastsignificantbyte(LSB)inthefirstposition.The
+defaultmodeistosendtheMSBfirst.COMM_ORDERappliesequallytothewaveform'sdescriptorand
+timeblocks.Inthedescriptorsomevaluesare16bitslong(word),32bitslong(longorfloat),or64bits
+long(double).Inthetimeblockallvaluesarefloatingvalues,meaning,32bitslong.WhenCOMM_ORDER
+HIisspecified,theMSBissentfirst;whenCOMM_ORDERLOisspecified,theLSBissentfirst.
+TheCOMM_ORDER?queryreturnsthebytetransmissionorderincurrentuse.
+CommandSyntax
+COMM_ORDER<mode>
+<mode>:={HI,LO}
+QuerySyntax
+COMM_ORDER?
+ResponseFormat
+COMM_ORDER<mode>
+Example(GPIB)
+Theorderoftransmissionofwaveformdatadependsonthedatatype.Thefollowingtableillustratesthe
+differentpossibilities:
+DataType COMM ORDERHI COMM ORDER LO
+Word <MSB><LSB> <LSB><MSB>
+LongorFloat <MSB><byte2><byte3><LSB> <LSB><byte3><byte2><MSB>
+Double <MSB><byte2>...<byte7><LSB> <LSB><byte7>...<byte2><MSB>
+RelatedCommands
+WAVEFORM
+7-49
+
+----- 第 252 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CURSORCommandsandQueries
+CURSOR_MEASURE,CRMS
+Description
+TheCURSOR_MEASUREcommandspecifiesthetypeofcursororparametermeasurementstobe
+displayedandisthemaincommandfordisplayingparametersandPass/Failtestresults.
+TheCURSOR_MEASURE?queryindicateswhichcursorsorparametermeasurementsarecurrently
+displayed.
+CommandSyntax
+CURSOR_MEASURE<mode>[,<submode>]
+<mode>:={CUST,FAIL,HABS,HPAR,HREL,OFF,PASS,VABS,VPAR,VREL}
+<submode>:={STAT,ABS,DELTA,SLOPE}
+Where:
+l CUST[,STAT]showsuser-defined(MyMeasure)parameters.
+l FAILshowsmeasurementsfailingPass/Failtest.
+l HABSshowsHorizontalAbsolutecursors.
+l HPAR[,STAT]showsStandardHorizontalparameters.
+l HREL[,ABS,DELTA,SLOPE]showsHorizontalRelativecursors.
+l OFFturnsoffcursorandparameterdisplay.
+l PASSshowsmeasurementspassingPass/Failtest.
+l VABSshowsVerticalAbsolutecursors.
+l VPAR[,STAT]showsStandardVerticalparameters.
+l VREL[,ABS,DELTA]showsVerticalRelativecursors.
+ThesubmodeSTATisoptionalwithmodesCUST,HPAR,andVPAR.Ifpresent,STATturnsonparameter
+statisticsdisplay.AbsenceofSTATturnsoffparameterstatistics.
+ThesubmodesABSandDELTAareoptionalwithmodesHRELorVREL.Ifpresent,ABSreadsabsolute
+positionofrelativecursors,whereasDELTAreadsthedeltaofthetwocursors.Absenceofkeyword
+selectstheDELTA.
+ThemodesPARAM,SHOWDASH,andLISTusedwithsomelegacyLeCroyinstrumentsarenotavailable
+onMAUIinstruments.
+7-50
+
+----- 第 253 页 -----
+
+Part7:IEEE488.2CommandReference
+QuerySyntax
+CURSOR_MEASURE?
+ResponseFormat
+CURSOR_MEASURE<mode>
+Example(GPIB)
+ThefollowinginstructionswitchesontheVerticalrelativecursors:
+CMD$="CRMSVREL":CALLIBWRT(SCOPE%,CMD$)
+Thefollowinginstructiondetermineswhichcursoriscurrentlyturnedon:
+CMDS$=“CRMS?”:CALLIBWRT(SCOPE%,CMD$):CALLIBRD(SCOPE%,RD$):PRINTRD$
+Exampleresponsemessage:
+CRMSOFF
+RelatedCommands
+CURSOR_SET,PARAMETER_STATISTICS,PARAMETER_VALUE,CURSORS,PARAMETER,PASS_FAIL
+7-51
+
+----- 第 254 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CURSORS,CRS
+Description
+Setsthetypeofcursortobeusedandthereadout.UnlikeCRMS,thiscommanddoesnotchangethe
+stateofparametersorpass/fail.
+CommandSyntax
+CURSORS<type>[,<readout>]
+<type>:={OFF,HREL,HABS,VREL,VABS}
+<readout>:={ABS,SLOPE,DELTA}
+TheSLOPEargumentisusedwiththeHorizontalRelative(HREL)cursoronly.
+QuerySyntax
+CURSORS?orCRS?
+Example(GPIB)
+Thefollowinginstructionsetsthecursorstohorizontalrelative,andreadouttothedifferencebetween
+them.
+CMD$="CRSHREL,DELTA":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+CURSOR_MEASURE
+7-52
+
+----- 第 255 页 -----
+
+Part7:IEEE488.2CommandReference
+CURSOR_SET,CRST
+Description
+TheCURSOR_SETcommandallowsyoutopositionanyoneoftheindependentcursorsatagivengrid
+location.
+Whensettingacursorposition,youmustspecifythetraceonwhichthecursorispositioned.Thismeans
+thetracemustbeturnedon,arequirementnotapplicabletoalllegacyLeCroyinstruments.
+ThelegacycommandsPREFandPDIFarenotsupportedonMAUIinstruments.
+TheCURSOR_SET?queryindicatesthecurrentpositionofthecursor(s).Thevaluesreturneddependon
+thetypeselected.
+CommandSyntax
+<trace>:CURSOR_SET<cursor>,<position>[.. .,<cursor>,<position>]
+<trace>:=C1toCn, F1toFn, M1toMn, TA,TB,TC,TD
+<cursor>:={HABS,HREF,HDIF,VABS,VREF,VDIF}
+<position>:=0 to10DIVhorizontalor-3.99to3.99DIVvertical
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+Parametersaregroupedinpairs.Thefirstparameterspecifiesthecursortobemodifiedandthesecond
+oneindicatesitsnewvalue.Parameterpairingscanbelistedinanyorderandrestrictedtothoseitemsto
+bechanged.
+Cursortypesare:
+l HABS-HorizontalAbsolutecursor
+l HREF-ReferencecursorofHorizontalRelativecursorpair
+l HDIF-DifferencecursorofHorizontalRelativecursorpair
+l VABS-VerticalAbsolutecursor
+l VREF-ReferencecursorofVerticalRelativecursorpair
+l VDIF-DifferencecursorofVerticalRelativecursorpair
+TheunitDIVisoptionalwhenspecifyingtheposition.
+Tip:Youcanchangethetraceonwhichcursorsareplacedwithoutrepositioningthecursorsby
+usingtheCURSOR_SETcommandwithnoarguments(forexample,F2:CRST).
+7-53
+
+----- 第 256 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+QuerySyntax
+CURSOR_SET?[<cursor>]
+<cursor>:={HABS,HREF,HDIF,VABS,VREF,VDIF,ALL}
+ResponseFormat
+<trace>:CURSOR_SET<cursor>,<position>[...,<cursor>,<position>]
+If<cursor>isnotspecified,ALLwillbeassumed.Ifthepositionofacursorcannotbedeterminedina
+particularsituation,itspositionwillbeindicatedasUNDEF.
+Example(GPIB)
+ThefollowinginstructionpositionstheVREFandVDIFcursorsat+3DIVand-2DIVrespectivelyontrace
+F1:
+CMD$="F1:CRSTVREF,3DIV,VDIF,-2DIV":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+CURSOR_MEASURE,CURSORVALUE,PARAMETER_VALUE
+7-54
+
+----- 第 257 页 -----
+
+Part7:IEEE488.2CommandReference
+CURSOR_VALUE?,CRVA?
+Description
+TheCURSOR_VALUE?queryreturnsthevaluesmeasuredbythespecifiedcursorsforagiventrace.
+ThereareimportantdifferencesinthefunctionofthisquerybetweenMAUIinstrumentsandlegacy
+LeCroyinstruments:
+l ThekeywordALLshouldnotbeused;neithershouldmultiplekeywords.Iftheyareused,theword
+UNDEFisreturned.
+l Thespecifiedtracemustbevisible(turnedon),andthecursormodecurrentlysetonthattrace
+mustbethesameasinthequery.Ifitisnotthesame,UNDEFisreturned.
+Tip:UsethePARAMETER_VALUE?querytoobtainmeasurementparametervalues.
+QuerySyntax
+<trace>:CURSOR_VALUE?[<mode>]
+<trace>:=C1toCn, F1toFn, M1toMn, TAtoTD
+<mode>:={HABS,HREL,VABS,VREL}
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+Cursormodesare:
+l HABS-HorizontalAbsolutecursor
+l HREL-HorizontalRelativecursors
+l VABS-VerticalAbsolutecursor
+l VREL-VerticalRelativecursors
+ResponseFormat
+<trace>:CURSOR_VALUEHABS,<abs_hor>
+<trace>:CURSOR_VALUEHREL,<delta_hor>,<abshor_ref>,<abshor_dif>,<slope>
+<trace>:CURSOR_VALUEVABS,<abs_vert>
+<trace>:CURSOR_VALUEVREL,<delta_vert>,<absvert_ref>,<absvert_dif>
+Note:ThedV/dtvalue<slope>isdisplayedintheappropriatetracedescriptorbox.
+7-55
+
+----- 第 258 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Forhorizontalcursors,bothhorizontalandverticalvaluesaregiven.Forverticalcursorsonlyvertical
+valuesaregiven.
+Example(GPIB)
+ThefollowingqueryreadsthemeasuredvalueoftheHorizontalAbsolutecursor(HABS)onChannel2:
+CMD$=“C2:CRVA?HABS”:CALLIBWRT(SCOPE%,CMD$)
+Responsemessage:
+C2:CRVAHABS,34.2E-6 S,244E-3 V
+7-56
+
+----- 第 259 页 -----
+
+Part7:IEEE488.2CommandReference
+OFFSET_CONSTANT,OFCT
+Description
+Asyouchangethegain,thiscommandallowsforkeepingtheverticaloffsetlevelindicatorstationary
+(whenDIVisselected)ortohaveitmovewiththeactualvoltagelevel(whenVOLTSisselected).The
+advantageofselectingDIVisthatthewaveformremainsonthegridasthegainisincreased;whereas,
+withVOLTSselected,thewaveformcouldmoveoffthegrid.
+Regardlessofwhichisselected,theOffsetvalueshownontheoscilloscopeChannelsetupdialogis
+alwaysgiveninvolts.However,DIVisselectedfortheOffsetControl,theoffsetinvoltsisscaled
+proportionaltothechangeingain,therebykeepingthegridplacementconstant.
+CommandSyntax
+OFFSET_CONSTANT<constant>
+<constant>:={VOLTS,DIV}
+QuerySyntax
+OFCT?
+ResponseFormat
+OFCTVOLTS
+Example(GPIB)
+CMD$ = "OFCTVOLTS":CALLIBWRT(SCOPE%,CMD$)
+7-57
+
+----- 第 260 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PARAMETER_CLR,PACL
+Description
+ThePARAMETER_CLRcommandclearsallthecurrentparametersintheuser-defined(MyMeasure)and
+Pass/Failsets.
+CommandSyntax
+PARAMETER_CLEAR
+RelatedCommands
+PARAMETER_DELETE,PARAMETER_VALUE
+7-58
+
+----- 第 261 页 -----
+
+Part7:IEEE488.2CommandReference
+PARAMETER_CUSTOM,PACU
+Description
+ThePARAMETER_CUSTOMcommandconfiguresuser-definedparameters(MyMeasure)inlocationsP1
+throughPn.
+Tip:UsePAVA?toreadthemeasuredvalueofaparameterthatwassetupwithPACU.Thebest
+waytolearntherequiredcommandsyntaxistosetupthemeasurementasdesiredonthe
+oscilloscopeandrunthePn:PACU?query.Theresponsewillbeformattedexactlyasrequired,
+especiallyifyouhavesettheoscilloscopetosuppresscommandheadersusingCOMM_HEADER.
+CommandSyntax
+PARAMETER_CUSTOM<parameter>,<measurement>,<qualifier>[,<qualifier>,...]
+<parameter>:=1 to n, CUST1toCUST8
+<measurement>:=mnemonicfromtablebeloworlistedbythePAVA?query
+<qualifier>:=qualifier(s)foreachparametershowninthetablesbelow
+Note:nrepresentsthehighestnumberparameterslotonyourinstrument.CUST1throughCUST8
+areincludedforbackwardcompatibility;theyareacceptedbutnotreturnedbyqueries.
+QuerySyntax
+PACU?<parameter>
+ResponseFormat
+PACU<parameter>,<measurement>,<qualifier>[,<qualifier>,...]
+RelatedCommands
+PARAMETER_DELETE,PARAMETER_VALUE
+7-59
+
+----- 第 262 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Measurements
+Note:Measurementslistedheremaynotbeavailableonallinstruments.Ifyoudonotalready
+haveaccesstothemeasurementontheoscilloscope(MeasureSetupselector),youwillnothave
+itviaremotecontrol.Seetheproductdatasheetatteledynelecroy.comforalistofavailable
+measurements.
+Qualifiersshowninthetablesbelowmaytakethefollowingvaluesandunits.Notatetheunitsasshown
+(V,PCT,DIV,HZ,etc.).
+<source>:=HeaderPathsandSources.Forhistogrammeasurements,usehistogramfunctionFn.
+<level>:=valuePCTorV
+<slope>:={POS,NEG}
+<hysteresis>:=0.01to8DIV
+<frequency>:=10to1e9HZ(NarrowBandcenterfrequency)
+<signaltype>:={CLOCK,DATA}
+<outputin>:={TIME,UI}
+<referencetype>:={STANDARD,CUSTOM}
+AllMAUIOscilloscopes
+ThesemeasurementsarestandardonallMAUIoscilloscopesrunningXStreamDSOv.8.0.0orhigher.
+Measurement Mnemonic Qualifiers
+Amplitude AMPL <source>
+Area AREA <source>
+Base BASE <source>
+Delay DLY <source>
+Dutycycle DUTY <source>
+Falltime90%to10% FALL <source>
+Falltime80%to20% FALL82 <source>
+Frequency FREQ <source>
+Maximumvalue MAX <source>
+Meanvalue MEAN <source>
+Minimumvalue MIN <source>
+None/cleared NULL <source>
+Overshootnegative OVSN <source>
+Overshootpositive OVSP <source>
+7-60
+
+----- 第 263 页 -----
+
+Part7:IEEE488.2CommandReference
+Measurement Mnemonic Qualifiers
+Peaktopeak PKPK <source>
+Period PER <source>
+Phasedifference PHASE <source>
+Risetime10%to90% RISE <source>
+Risetime20%to80% RISE28 <source>
+Rootmeansquare RMS <source>
+Timeclocktoclockedge SKEW <clocksource1>,<clockslope1>,<clocklevel1PCT|V>,
+<clocksource2>,<clockslope2>,<clocklevel2PCT|V>,
+<clockhysteresis1>,<clockhysteresis2>
+Standarddeviation SDEV <source>
+Top TOP <source>
+Width50%positiveslope WID <source>
+Width50%negativeslope WIDN <source>
+HDO4000andHigherBandwidthOscilloscopes
+ThesemeasurementsarestandardonallHDO,MDA,WaveRunner,WavePro,WaveMasterandLabMaster
+oscilloscopesrunningXStreamDSOv.8.0.0orhigher.
+Measurement Mnemonic Qualifiers
+Deltaperiod@level DPLEV <signaltype>,<slope>,<levelPCT|V>,<hysteresisDIV>,
+<referencetype>,<-3dBfrequencyHZ>,<frequencyHZ>
+Deltatime@level DTLEV <source1>,<slope1>,<level1PCT|V>,<hysteresis1DIV>,
+<source2>,<slope2>,<level2PCT|V>,<hysteresis2DIV>
+Dutycycle@level DULEV <source>,<slope>,<levelPCT|levelV>,<hysteresisDIV>
+Edge@level EDLEV <source>,<slope>,<levelPCT|levelV>,<hysteresisDIV>
+Frequency@level FREQLEV <signaltype>,<slope>,<levelPCT|V>,<hysteresisDIV>,
+<referencetype>,<-3dBfrequencyHZ>,<frequencyHZ>
+Period@level PLEV <signaltype>,<slope>,<levelPCT|V>,<hysteresisDIV>,<refer-
+encetype>,<-3dBfrequencyHZ>,<frequencyHZ>
+Time@level TLEV <source>,<slope>,<levelPCT|V>,<hysteresisDIV>
+7-61
+
+----- 第 264 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+HDO6000andHigherBandwidthOscilloscopes
+ThesemeasurementsarestandardonHDO6000andhigher,MDA,WaveRunner,WavePro,WaveMaster
+andLabMasterseriesoscilloscopesrunningXStreamDSOv.8.0.0orhigher.
+Measurement Mnemonic Qualifiers
+HistogramMean AVG <source>
+MathonParameters CALCx <measure1>,<source1>,<operator>,<measure2>,<source2>
+<operator>:={ADD,SUB,MUL,DIV}
+Cyclesonscreen CYCL <source>
+Deltadelay DDLY <source>
+Deltatriggertime DTRIG <source>
+Deltawidth@level DWIDLEV <source>,<slope>,<levelPCT|levelV>,<hysteresisDIV>
+Durationofacquisition DUR <source>
+Excelparameter EXCELPARAM <source1var>,<source2var>,<outputvar>,<source1headervar>,
+<source2headervar>,<outputheadervar>,<withheader>,
+<outputenable>,<source1enable>,<source2enable>,
+<newsheet>,<advanced>,'<worksheetfilename>'
+Fall@level FLEV <source>,<highlevelPCT|V>,<lowlevelPCT|V>
+First(left-most)samplein
+measuregate
+FRST <source>
+HistogramFWHM FWHM <source>
+HistogrampeakFW@level FWxx <source>,<%maxpopulationPCT>
+<%maxpopulation>:=valuePCTofmaxpopulationatwhichto
+measureFull-Width
+HalfPeriod HPER <source>,<slope>,<levelPCT|V>,<hysteresisDIV>
+Histogramamplitude HAMPL <source>
+Histogrambaselevel HBASE <source>
+Histogramrightbin;same
+asHistogrammaximum
+HIGH <source>
+Histogrammean HMEAN <source>
+Histogrammedian HMEDI <source>
+Timeclockedgetodata
+edge@level
+HOLDLEV/
+HOLDTIME
+<clocksource>,<clockslope>,<clocklevelPCT|V>,
+<datasource>,<dataslope>datalevelPCT|V>,
+<clockhysteresisDIV>,<datahysteresisDIV>
+Histogramrms HRMS <source>
+Histogramtoplevel HTOP <source>
+Last(right-most)samplein
+measuregate
+LAST <source>
+Histogramleftbin;sameas
+Histogramminimum.
+LOW <source>
+7-62
+
+----- 第 265 页 -----
+
+Part7:IEEE488.2CommandReference
+Measurement Mnemonic Qualifiers
+Mathcadparameter MATHCADPARAMARITH<source>,'<function>'
+MATLABparameter MATLABPARAM <source>,'<function>'
+Histogrammaximum
+population
+MAXP <source>
+Median MEDI <source>
+Histogrammode MODE <source>
+NarrowBandphase NBPH <source><frequencyHZ>
+NarrowBandpower NBPW <source><frequencyHZ>
+Ncyclejitter NCYCLE <source>
+VBSscriptparameter PARAMSCRIPT <source>,'<code>'
+Histogrampercentile PCTL <source>
+Numberofpeaks PKS <source>
+Numberofpoints PNTS <source>
+Populationofhistogrambin
+atx POPATX <source>,<cursorpositionV>
+<cursorposition>:=valueVrepresentinghistogrambinatwhichto
+measurepopulation
+Histogramrange RANGE <source>
+Risetime@level RLEV <source>,<lowlevelPCT|V>,<highlevelPCT|V>
+Dataedgetoclockedge SETUP <clocksource>,<clockslope>,<clocklevelPCT|V>,
+<datasource>,<dataslope>datalevelPCT|V>,
+<clockhysteresisDIV>,<datahysteresisDIV>
+Histogramstandard
+deviation
+SIGMA <source>
+TimeIntervalError@level TIELEV <signaltype>,<slope>,<levelPCT|V>,<outputin>,<hysteresis
+DIV>,<referencetype>,<-3db@frequencyHZ>,<frequencyHZ>
+HistogramtotalpopulationTOTP <source>
+Width@level WIDLV <source>,<slope>,<levelPCT|V>,<hysteresisDIV>
+Posofmax.datavalue XMAX <source>
+Posofmin.datavalue XMIN <source>
+HistogramNthhighest
+peak
+XAPK <source>
+7-63
+
+----- 第 266 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+XMath/SDAOptionMeasurements
+ThesemeasurementsareincludedonSDA7ZiandSDA8ZiseriesoscilloscopesrunningXStreamDSO
+v.8.0.0orhigher,orbecomeavailablewiththeinstallationofanXMathorSDAoption.
+Note:Inthesecases,youwillonlybeabletosetthemeasurementandsourceusingthePACU
+command.OtherqualifiersmustbesetmanuallyorusingAutomation.SelectanEyeDiagramas
+thesourceforeyemeasurements.
+Measurement Mnemonic Qualifiers
+Edgedisplacement EDGEDA <source>
+Patterntime PATTERNTIME <source>
+Ringbackhigh/low RING <source>
+Lane-to-laneskew SD2SKEW <source>
+StripDDjfromsource STRIPDDJ <source>
+Eyediagramzerolevel ZEROLVL <source>
+SDAOptionMeasurements
+ThesemeasurementsareincludedonSDA7ZiandSDA8ZiseriesoscilloscopesrunningXStreamDSO
+v.8.0.0orhigher,orbecomeavailablewiththeinstallationofanSDAoption.Aswiththemeasurementsin
+thetableabove,youmaynotbeabletosetallnecessaryqualifiersusingthePACUcommand.
+Measurement Mnemonic Qualifiers
+EyeACrms EYEACRMS <source>
+Eyepowerlevelratio EXTRATIO <source>
+Eyeamplitude EYEAMPL <source>
+Eyebiterrorrateestimate EYEBER <source>
+Eyebitrate EYEBITRATE <source>
+Eyebittime EYEBITTIME <source>
+Eyecrossing EYECROSSING <source>
+Eyenegativecrossing EYECROSSN <source>
+Eyepositivecrossing EYECROSSP <source>
+Eyecycarea EYECYCAREA <source>
+Eyedelay EYEDELAY <source>
+Eyedeltadelay EYEDELTDLY <source>
+Eyefalltime EYEFALLTIME <source>
+Eyeheight EYEHEIGHT <source>
+Eyemean EYEMEAN <source>
+Eyeonelevel EYEONE <source>
+7-64
+
+----- 第 267 页 -----
+
+Part7:IEEE488.2CommandReference
+Measurement Mnemonic Qualifiers
+Eyeopeningfactor EYEOPENFAC <source>
+Eyenegativeovershoot EYEOVERN <source>
+Eyepositiveovershoot EYEOVERP <source>
+Eyepeaknoise EYEPKNOISE <source>
+Eyepeak-to-peakjitter EYEPKPKJIT <source>
+Eyepulsewidth EYEPULSEWID <source>
+EyeQfactor EYEQ <source>
+Eyerisetime EYERISETIME <source>
+EyeRMSjitter EYERMSJIT <source>
+Eyestd.deviationnoise EYESDNOISE <source>
+Eyesignaltonoise EYESGTONOISE <source>
+Eyesuppressionratio EYESUPRATIO <source>
+Eyewidth EYEWIDTH <source>
+Jitterperduty-cycle
+distortion
+PERDCD <source>
+Persistenceduty-cycle PERDUTYCYC <source>
+Perpulsesymmetry PERPULSESYM <source>
+PCIemisc.measurementsPCIEMISC <source>
+Note:Thismeasurementwillneedadditionalsetuptoreturnany-
+thingbutthedefaultmin.pulsetimemeasurement.
+PCIemin.pulsewidth TMNPLS <source>
+PCIeuncorrelatedpulse
+widthDJ
+UPWJDD <source>
+PCIeuncorrelatedpulse
+widthTJ
+UPWTJ <source>
+Note:Foradescriptionofothermeasurementsinstalledbyoptionkey,downloadthesoftware
+optionmanualfromourwebsite(seeResources).Thebesttestofcompatibilityistosetupthe
+measurementasdesiredontheoscilloscope,thenrunthePACU?queryonthatparameter.
+WhateverqualifiersarereturnedbythePACU?queryarewhatcanbesetusingthePACU
+command.Thesemaynotbesufficienttofullyconfigurethemeasurement.UseAutomationwith
+theVBScommandtosetmissingqualifiers.
+7-65
+
+----- 第 268 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PARAMETER_DELETE,PADL
+Description
+ThePARAMETER_DELETEcommanddeletesaparameter/qualifierfromthetableofresultsshownfor
+custommeasurementsorPass/Failtesting.
+CommandSyntax
+PARAMETER_DELETE<column>
+<column>:=1 throughx
+xrepresentsthehighestnumberparameterslotonyourinstrument.
+Example(GPIB)
+Thefollowinginstructiondeletesthethirdparameterintheset:
+CMD$="PADL3":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PARAMETER_CLR,PARAMETER_VALUE
+7-66
+
+----- 第 269 页 -----
+
+Part7:IEEE488.2CommandReference
+PARAMETER,PARM
+Description
+Thiscommandturnsstatisticsandhisticonsonoroff.
+UnlikeCRMS,thePARMcommanddoesnotchangethestateofcursorsorpass/fail.
+CommandSyntax
+PARM<type>,[readout]
+Type:={CUST,HPAR,VPAR,OFF}
+Readout:={STAT,HISTICON,BOTH,OFF}
+Withoutargument,thestateofhistogramsandstatisticsisunchanged.
+QuerySyntax
+PARAMETER?orPARM?
+ResponseFormat
+PARM<type>,<readout>
+Example(GPIB)
+Thefollowinginstructionturnsonhisticons:
+CMD$="PARMCUST,HISTICON";CALLIBWRT(SCOPE%,CMD$)
+7-67
+
+----- 第 270 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PARAMETER_STATISTICS?,PAST?
+Description
+ThePARAMETER_STATISTICS?queryreturnsallcurrentmeasurementstatisticsforthespecified
+parameterset.Byusingtheoptional<statistic>and<param>arguments,thequeryreturnseitherthe
+singlespecifiedstatisticforallmeasurementsintheparameterset,orallstatisticsforthesinglespecified
+parameter.
+QuerySyntax
+PARAMETER_STATISTICS?<mode>[,<statistic>][,<param>]
+<mode>:={CUST,HPAR,VPAR}
+<statistic>:={AVG,LOW,HIGH,SIGMA,SWEEPS,LAST,PARAM}
+<param>:=P1toPx
+The<mode>mustcorrespondtothecurrentlyconfiguredmodeontheoscilloscope.Use:
+l CUSTwhenthemeasuremodeissettoMyMeasure
+l VPARwhensettoStdVertical
+l HPARwhensettoStdHorizontal
+Ifthe<mode>doesnotmatchtheonesetontheoscilloscope,thequeryreturnsUNDEF.
+Ifthe<statistics>keywordPARAMisspecifiedwheninCUSTmode,thequeryreturnsthelistofthe
+<parameter_name>,<source>pairsconfiguredinthecustomset,alongwiththestatisticalvalues.
+Note:The<statistics>and<param>argumentsshouldnotbeusedtogether.
+Mnemonics
+CUST Customparameters.UsewhenmeasuremodeisMyMeasure.
+HPAR Horizontalstandardparameters.UsewhenmeasuremodeisStdHorizontal.
+VPAR Verticalstandardparameters.UsewhenmeasuremodeisStdVertical.
+AVG Averagevalue(meanrowinstatisticstable)
+HIGH highestvalue(maxrowinstatisticstable)
+LOW lowestvalue(minrowinstatisticstable)
+PARAM parameterdefinitionforeachline
+SIGMA sigma(standarddeviation)
+SWEEPS numberofmeasurementsaccumulatedforeachline
+7-68
+
+----- 第 271 页 -----
+
+Part7:IEEE488.2CommandReference
+ExampleA(GPIB)
+Thefollowinginstructionreadstheaveragevaluesforallcustomparameters:
+CMD$ = "PAST?CUST,AVG"CALLIBWRT(SCOPE%,CMD$)CALLIBRD(SCOPE%,RD$)
+Theoscilloscoperespondswith:
+PASTCUST,AVG,290.718E-3 V,389.25E-12V.S,-144.589E-3 V,93.76604E-9 S,
+290.725E-3 V,389.25E-12V.S,-144.589E-3 V,229E-9 V
+ExampleB(GPIB)
+ThefollowinginstructionreadsallstatisticalvaluesforparameterP2:
+CMD$ = "PAST?CUST,P2"CALLIBWRT(SCOPE%,CMD$)CALLIBRD(SCOPE%,RD$)
+Theoscilloscoperespondswith:
+PASTCUST,P1,AMPL,C1,AVG,290.718E-3 V,HIGH,297.5E-3 V,LAST,294.2E-3 V,
+LOW,278.2E-3 V,SIGMA,3.047E-3 V,SWEEPS,182
+7-69
+
+----- 第 272 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PARAMETER_VALUE?,PAVA?
+Description
+ThePARAMETER_VALUEqueryreturnsthecurrentvaluesofthewaveformparametersforthespecified
+trace.TracesdonotneedtobedisplayedtoobtainthevaluesreportedbyPAVA?.
+QuerySyntax
+Toquerymeasurementparameters:
+<trace>:PAVA?[<parameter>...,<parameter>]
+<parameter>:=anystandardoruser-definedparametersetwithPACU
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+ResponseFormat
+<trace>:PAVA?<parameter>,<value>,<state>
+Note:If<parameter>isnotspecified,orisequaltoALL,allstandardvoltageandtimeparameters
+arereturnedfollowedbytheirvaluesandstates.
+7-70
+
+----- 第 273 页 -----
+
+Part7:IEEE488.2CommandReference
+Inadditiontothestandardanduser-definedparametervalues,thefollowingstatesmaybereturned:
+State Description
+AV Averagedoverseveralperiods
+GT Greaterthangivenvalue
+IV Invalidvalue(insufficientdataprovided)
+LT lessthangivenvalue
+NP Nopulsewaveform
+OF Signalpartiallyinoverflow
+OK Deemedtobedeterminedwithoutproblem
+OU Signalpartiallyinoverflowandunderflow
+PT Windowhasbeenperiodtruncated
+UF Signalpartiallyinunderflow
+Example(GPIB)
+ThefollowinginstructionreadstherisetimeoftraceC1:
+CMD$="C1:PAVA?RISE":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RD$):PRINTRD$
+Responsemessage:
+RISE,3.6E-9S,OK
+RelatedCommands
+CURSOR_MEASURE,CURSOR_SET,PARAMETER_CUSTOM,PARAMETER_STATISTICS
+7-71
+
+----- 第 274 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PER_CURSOR_SET,PECS
+Description
+ThePER_CURSOR_SETcommandallowsyoutopositiononeormoreofthesixindependentcursorsata
+givengridlocation.CursorsmustbeturnedonforthePECScommandorquerytowork.
+CommandSyntax
+<trace>:PER_CURSOR_SET<cursor>,<position>[…,<cursor>,<position>]
+<trace>:=C1toCn, F1toFn, M1toMn, TAtoTD
+<cursor>:={HABS,HDIF,HREF,VABS,VDIF,VREF}
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+xREFandxDIFaretheleftandrightcursorsinarelativecursorpair(HRELorVREL).Thereadoutwillshow
+theabsolutepositionofeachandthedeltabetweenthem.
+QuerySyntaxj
+<trace>:PER_CURSOR_SET?
+Example(GPIB)
+ThefollowinginstructionpositionstheHREFandHDIFcursorsat+2.6DIVand+7.4DIVrespectivelyon
+theC2trace:
+CMD$="C2:PECSHREF,2.6DIV,HDIF,7.4DIV"CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+CURSOR_MEASURE,CURSOR_SET,PER_CURSOR_VALUE
+7-72
+
+----- 第 275 页 -----
+
+Part7:IEEE488.2CommandReference
+PASS_FAIL,PF
+Description
+ThePASS_FAILcommandsetsupthePass/Failtestsystem.
+ThePASS_FAIL?queryreturnsthePass/Failsetup.
+CommandSyntax
+PASS_FAIL<state>,<logic>[,<stopafter>]
+<state>:={ON,OFF}
+<logic>:={AllTrue,AllFalse,AnyTrue,AnyFalse,AllQ1ToQ4,AllQ5ToQ8,AllQ9ToQ12,
+AnyQ1ToQ4,AnyQ5ToQ8,AnyQ9TOQ12}
+<stopafter>:=1 to1,000,000,000sweeps
+The<logic>argumentspecifieswhichsetofconditionsmustbesatisfiedtoconstitutea"pass."
+Note:ThelogicacceptedbythiscommanddependsonthePass/Failfunctionalityavailableon
+yourinstrument.WaveSurferandHDO4000oscilloscopesthatdonotallowyoutodefine
+individualPFqualifierconditionsdonotsupporttheargumentsAllQxToQyandAnyQxToQy. These
+instrumentsonlysupportthelogicAllTrue.
+QuerySyntax
+PASS_FAIL?
+Example(GPIB)
+Thefollowinginstructionsetsthetesttopassonlyifallqualifierconditionsarefalse,andtostopafter20
+acquisitions:
+CMD$="PFON,ALLFALSE,20":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+CRMS
+7-73
+
+----- 第 276 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PASS_FAIL_DO,PFDO
+Description
+ThePASS_FAIL_DOcommanddefinestheactionstobeperformedintheeventofthespecifiedoutcome
+ofaPass/Failtest.
+ThePASS_FAIL_DO?queryindicateswhichactionsarecurrentlyselected.Ifnone,noparametersare
+returned.
+CommandSyntax
+Pass_Fail_DO<outcome>,<act>[,<act>…]
+<outcome>:={PASS,FAIL}
+<act>:={ALARM,BEEP,PRINT,SCDP,PULSE,PULS,SAVE,STO,STOP}
+Where:
+ALARMorBEEP=soundabeep.
+PRINTorSCDP=sendtoprinter.
+PULSEorPULS=emitapulsefromtheAuxOutconnector.
+SAVEorSTO=storeincurrentlyselectedmassstorage.
+STOP=stopacquisition.
+Note:BEEP,SCDP,PULSandSTOareprovidedforbackwardcompatibility.Onlythenewformats
+arereturnedinqueries.
+QuerySyntax
+Pass_Fail_DO?
+ResponseFormat
+Pass_Fail_DO[<pass_fail>,<act>[,<act>…]]
+Example(GPIB)
+Thefollowinginstructionforcestheinstrumenttostopacquiringwhenthetestpasses:
+CMD$="PFDOPASS,STOP"CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+BUZZER,CURSOR_MEASURE,CURSOR_SET,INR,PARAMETER_VALUE,PASS_FAIL_MASK
+7-74
+
+----- 第 277 页 -----
+
+Part7:IEEE488.2CommandReference
+DISPLAYCommandsandQueries
+DISPLAY,DISP
+Description
+TheDISPLAYcommandcontrolsthedisplayscreenoftheoscilloscope.Whenremotelycontrollingthe
+oscilloscope,andifyoudonotneedtousethedisplay,itcanbeusefultoswitchoffthedisplayviathe
+DISPLAYOFFcommand.Thisimprovesoscilloscoperesponsetime,sincethewaveformgraphic
+generationprocedureissuppressed.
+Inaddition,whentheoscilloscopeisintheDISPLAYOFFmode,certainLEDsandtheperiodicbackupof
+theoscilloscopesettingsaredisabledtoavoidunnecessaryinterruptions.
+TheresponsetotheDISPLAY?queryindicatesthedisplaystateoftheoscilloscope.
+Note:WhenyousetthedisplaytoOFF,thescreendoesnotactuallygoblank.Instead,thereal-
+timeclockandthemessagefieldarecontinuouslyupdated.butwaveformsandassociatedtext
+arefrozen.
+CommandSyntax
+DISPLAY<state>
+<state>:=ONorOFF
+QuerySyntax
+DISPLAY?
+ResponseFormat
+DISPLAY<state>
+Example(GPIB)
+Thefollowinginstructionturnsoffthedisplay:
+CMD$="DISPOFF":CALLIBWRT(SCOPE%,CMD$)
+7-75
+
+----- 第 278 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DOT_JOIN,DTJN
+Description
+TheDOT_JOINcommandcontrolstheinterpolationlinesbetweendatapoints.SettingDOT_JOINON
+selectsacontinuousLine;DOT_JOINOFFselectsaseriesofPoints.
+CommandSyntax
+DOT_JOIN<state>
+<state>:={ON,OFF}
+QuerySyntax
+DOT_JOIN?
+ResponseFormat
+DOT_JOIN<state>
+Example(GPIB)
+Thefollowinginstructionturnsofftheinterpolationlines:
+CMD$="DTJNOFF":CALLIBWRT(SCOPE%,CMD$)
+7-76
+
+----- 第 279 页 -----
+
+Part7:IEEE488.2CommandReference
+EMAIL,MAIL
+Description
+TheEMAILcommandconfigurestheoscilloscopeEmailpreferences.
+CommandSyntax
+EMAILMODE,<mode>,TO,'<to.address>',FROM,'<from.address>',SERVER,'<SMTPServer>'
+<mode>:={SMTP,MAPI}
+<toaddress>:=recipientaddressinformat'<name@domain.com>'
+<fromaddress>:=originatoraddressinformat'<myXStreamDSO@domain.com>'
+<SMTPServer>:=SMTPserveraddressinformat'<server.domain.com>'
+Note:CEoscilloscopesdonotsupportMAPImode.
+QuerySyntax
+MAIL?
+ResponseFormat
+MAILMODE,SMTP,TO,'NAME@DOMAIN.COM',FROM,'MYXSTREAMDSO@DOMAIN.COM',
+SERVER,'SERVER.DOMAIN.COM'
+Example(GPIB)
+CMD$="MAILMODE,SMTP,TO,'USER@LECROY.COM',FROM,'MYXSTREAMDSO@LECROY.COM',
+SERVER,'DOMINO.LECROY.COM'":CALLIBWRT(SCOPE%,CMD$)
+7-77
+
+----- 第 280 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+GRID
+Description
+TheGRIDcommanddefinesthestyleofthegridusedinthedisplay.
+TheGRID?queryreturnsthegridstylecurrentlyinuse.
+Thegridvaluemustcorrespondtoagridstyleavailableonyouroscilloscope.Seeyourproductdatasheet,
+MAUIStudioBrowser,ortheoscilloscopeDisplaySetupdialogforoptions.
+CommandSyntax
+GRID<grid>
+<grid>:={AUTO,SINGLE,DUAL,QUAD,OCTAL,XY,XYSINGLE,XYDUAL,TANDEM,QUATTRO,
+TWELVE,SIXTEEN,TRIPLE,HEX}
+QuerySyntax
+GRID?
+ResponseFormat
+GRID<grid>
+Example(GPIB)
+Thefollowinginstructionsetsthescreendisplaytodualgridmode:
+CMD$="GRIDDUAL":CALLIBWRT(SCOPE%,CMD$)
+7-78
+
+----- 第 281 页 -----
+
+Part7:IEEE488.2CommandReference
+HOR_MAGNIFY,HMAG
+Description
+TheHOR_MAGNIFYcommandhorizontallyexpandsazoommathfunctiontrace(a.k.a.,expansiontrace)
+bythespecifiedfactor.Magnificationfactorsnotwithintherangeofpermissiblevalueswillberounded
+offtothenearestlegalvalue.
+TheVABbit(bit2)intheSTBregistertableissetwhenafactoroutsidethelegalrangeisspecified.
+TheHOR_MAGNIFY?queryreturnsthecurrentmagnificationfactorforthespecifiedexpansionfunction.
+CommandSyntax
+<trace>:HOR_MAGNIFY<factor>
+<trace>:=F1toFn, TAtoTD
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+QuerySyntax
+<exp_source>:HOR_MAGNIFY?
+ResponseFormat
+<exp_source>:HOR_MAGNIFY<factor>
+Example(GPIB)
+ThefollowinginstructionhorizontallymagnifiestraceF1byafactorof5:
+CMD$="F1:HMAG5":CALLIBWRT(SCOPE%,CMD$)
+7-79
+
+----- 第 282 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+HOR_POSITION,HPOS
+Description
+TheHOR_POSITIONcommandhorizontallypositionsthegeometriccenteroftheintensified(zoomed)
+zonerepresentedbyazoommathfunctiontrace.Allowedpositionsrangefromdivision0through10.If
+thesourcetracewasacquiredinsequencemode,horizontalshiftingwillbeappliedtoeverysegment.
+Ifmulti-zoomisenabled,thedifferenceinhorizontalpositionisappliedtoallzoomtraces.TheVABbit(bit
+2)intheSTBregistertableissetifavalueoutsidethelegalrangeisspecified.
+TheHOR_POSITION?queryreturnsthepositionofthegeometriccenteroftheintensifiedzone.
+CommandSyntax
+<trace>:HOR_POSITION<hor_position>,<segment>
+<trace>:=F1toFn, M1toMn, TAtoTD
+<hor_position>:=0 to10[DIV]
+<segment>:=0 tomaxsegments
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.Thesegmentnumberargumentisonlyrelevanttolegacyoscilloscopes.MAUI
+oscilloscopesignoreit.
+QuerySyntax
+<trace>:HOR_POSITION?
+ResponseFormat
+<trace>:HOR_POSITION<hor_position| segment>
+Note:Thesegmentnumberisonlyreturnedforsequencewaveforms.
+Example(GPIB)
+ThefollowinginstructionpositionsthecenteroftheintensifiedzoneontraceF1atdivision3:
+CMD$="F1:HPOS3":CALLIBWRT(SCOPE%,CMD$)
+7-80
+
+----- 第 283 页 -----
+
+Part7:IEEE488.2CommandReference
+INTENSITY,INTS
+Description
+TheINTENSITYcommandsetstheintensitylevelofthegrid.Theargument"TRACE,<value>"isaccepted
+forbackwardcompatibility,buttheactualtraceintensityisalways100%.
+CommandSyntax
+INTENSITYGRID,<value>,TRACE,<value>
+QuerySyntax
+INTENSITY?
+ResponseFormat
+INTENSITYTRACE,<value>,GRID,<value>
+Example(GPIB)
+Thefollowingexamplesetsthegridintensityto70%.
+CMD$="INTSGRID,70": CALLIBWRT(SCOPE%,CMD$)
+7-81
+
+----- 第 284 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+MESSAGE,MSG
+Description
+TheMESSAGEcommanddisplaysastringofcharactersinthemessagefieldatthebottomofthe
+instrumentscreen.
+CommandSyntax
+MESSAGE"<string>"
+<string>:=upto49characters
+Longerstringsaretruncatedto49characters,buttheoriginalstringisretainedandreturnedbytheMSG?
+Query.Thequotationmarkdelimitersarerequired.
+QuerySyntax
+MESSAGE?
+ResponseFormat
+MESSAGE"<string>"
+Example(GPIB)
+Thefollowingcommandcausesthemessage'TouchProbe2toTestPoint7'toappearinthe
+oscilloscopemessagebar.
+CMD$=MSG"'TouchProbe2 toTestPoint7'":CALLIBWRT(SCOPE%,CMD$)
+7-82
+
+----- 第 285 页 -----
+
+Part7:IEEE488.2CommandReference
+PERSIST_COLOR,PECL
+Description
+ThePERSIST_COLORcommandcontrolsthecolorrenderingmethodofpersistencetraces:ANALOG,
+COLOR_GRADED,or3D.Refertothedatasheetspecificationforyourinstrumentforavailability.
+TheresponsetothePERSIST_COLOR?queryindicatesthecolorrenderingmethodinuse.
+CommandSyntax
+PERSIST_COLOR<state>
+<state>: = {ANALOG,COLOR_GRADED,3D}
+QuerySyntax
+PERSIST_COLOR?
+ResponseFormat
+PERSIST_COLOR<state>
+Example(GPIB)
+Thefollowinginstructionsetsthepersistencetracecolortoanintensity-gradedrangeoftheselected
+tracecolor:
+CMD$="PECLANALOG":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PERSIST,PERSIST_LAST,PERSIST_SAT,PERSIST_SETUP
+7-83
+
+----- 第 286 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PERSIST_LAST,PELT
+Description
+ThePERSIST_LASTcommandcontrolswhetherornotthelasttracedrawninapersistencedatamapis
+shown.Thiscommandmarksorun-marksthe"ShowLastTrace"checkboxonthePersistencedialog.
+CommandSyntax
+PERSIST_LAST<state>
+<state>:={ON,OFF}
+QuerySyntax
+PERSIST_LAST?
+ResponseFormat
+PERSIST_LAST<state>
+Example(GPIB)
+Thefollowinginstructionensuresthelasttraceisvisiblewithinitspersistencedatamap:
+CMD$="PELTON":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PERSIST,PERSIST_COLOR,PERSIST_SAT,PERSIST_SETUP
+7-84
+
+----- 第 287 页 -----
+
+Part7:IEEE488.2CommandReference
+PERSIST,PERS
+Description
+ThePERSISTcommandenablesordisablesthepersistencedisplaymode.
+CommandSyntax
+PERSIST<mode>
+<mode>:={ON,OFF}
+QuerySyntax
+PERSIST?
+ResponseFormat
+PERSIST<mode>
+Example(GPIB)
+ThefollowinginstructionturnsthepersistencedisplayON:
+CMD$="PERSON":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PERSIST_COLOR,PERSIST_LAST,PERSIST_SAT,PERSIST_SETUP
+7-85
+
+----- 第 288 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PERSIST_SAT,PESA
+Description
+ThePERSIST_SATcommandsetsthesaturationlevelofthepersistencecolorspectrum.Thelevelis
+specifiedintermsofpercentage(PCT)ofthetotalpersistencedatamappopulation.Alevelof100PCT
+correspondstothecolorspectrumbeingspreadacrosstheentiredepthofthepersistencedatamap.At
+lowervalues,thespectrumsaturates(brightestvalue)atthespecifiedpercentagevalue.TheunitPCTis
+optional.
+TheresponsetothePERSIST_SAT?queryindicatesthesaturationlevelofthepersistencemaps.
+CommandSyntax
+PERSIST_SAT<trace>,<value>[...,<trace>,<value>]
+<trace>:=C1toCn, F1toFn, TAtoTD
+<value>:=0 to100
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+QuerySyntax
+PERSIST_SAT?
+ResponseFormat
+PERSIST_SAT<trace>,<value>
+Example(GPIB)
+Thefollowinginstructionsetsthesaturationlevelofthepersistencedatamapforchannel3to60%.This
+means60%ofthedatapointsaredisplayedwiththecolorspectrum,andtheremaining40%saturatedin
+thebrightestcolor:
+CMD$="PESAC3,60":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PERSIST,PERSIST_COLOR,PERSIST_PERS,PERSIST_SETUP
+7-86
+
+----- 第 289 页 -----
+
+Part7:IEEE488.2CommandReference
+PERSIST_SETUP,PESU
+Description
+ThePERSIST_SETUPcommandselectsthepersistencedurationofthedisplay,inseconds,inpersistence
+mode.Thepersistencecanalsobesetoneitheralltracesoronlythetoptwoshownonthescreen.
+ThePERSIST_SETUP?queryindicatesthecurrentstatusofthepersistence.
+CommandSyntax
+PERSIST_SETUP<time>,<mode>
+<time>:={0.5,1,2,5,10,20,infinite}
+<mode>:={PERTRACE,ALL}
+Note:ThiscommanddoesnotsupporttheargumentTop2oflegacyinstruments.
+QuerySyntax
+PERSIST_SETUP?
+ResponseFormat
+PERSIST_SETUP<time>,<mode>
+Example(GPIB)
+Thefollowinginstructionsetsthevariablepersistenceto10secondsonalltraces:
+CMD$="PESU20,ALL":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PERSIST,PERSIST_COLOR,PERSIST_PERS,PERSIST_SAT
+7-87
+
+----- 第 290 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+TRACE,TRA
+Description
+TheTRACEcommandenablesordisablesthedisplayofatrace.Anenvironmenterrorissetifanattempt
+ismadetodisplaymorethanfourwaveforms.RefertotheEXRtableinthe EXR?topicformore
+information.
+TheTRACE?queryindicateswhetherornotthespecifiedtraceisdisplayed.
+CommandSyntax
+<trace>:TRACE<mode>
+<trace>:=C1toCn, F1toFn, TAtoTD
+<mode>:={ON,OFF}
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+QuerySyntax
+<trace>:TRACE?
+ResponseFormat
+<trace>:TRACE<mode>
+Example(GPIB)
+ThefollowinginstructiondisplaysTraceF1:
+CMD$="F1:TRAON":CALLIBWRT(SCOPE%,CMD$)
+7-88
+
+----- 第 291 页 -----
+
+Part7:IEEE488.2CommandReference
+VERT_MAGNIFY,VMAG
+Description
+TheVERT_MAGNIFYcommandverticallyexpandsthespecifiedtrace.Thecommandisexecutedevenif
+thetraceisnotdisplayed.Themaximummagnificationalloweddependsonthenumberofsignificantbits
+associatedwiththedataofthetrace.
+TheVERT_MAGNIFY?queryreturnsthemagnificationfactorofthespecifiedtrace.
+CommandSyntax
+<trace>:VERT_MAGNIFY<factor>
+<trace>:=F1toFn, TAtoTD
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+QuerySyntax
+<trace>:VERT_MAGNIFY?
+ResponseFormat
+<trace>:VERT_MAGNIFY<factor>
+Example(GPIB)
+ThefollowinginstructionenlargestheverticalamplitudeofTraceAbyafactorof3.45withrespecttoits
+originalamplitude:
+CMD$="TA:VMAG3.45":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+VERT_POSITION
+7-89
+
+----- 第 292 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+VERT_POSITION,VPOS
+Description
+TheVERT_POSITIONcommandadjuststheverticalpositionofthespecifiedtraceonthescreen.Itdoes
+notaffecttheoriginaloffsetvalueobtainedatacquisitiontime.
+TheVERT_POSITION?queryreturnsthecurrentverticalpositionofthespecifiedtrace.
+Note:TheVPOScommandandquerycanonlybeappliedtomathfunctionandmemorytraces.It
+doesnotapplytochannelinputs.
+CommandSyntax
+<trace>:VERT_POSITION<display_offset>
+<trace>:=F1toFn, M1toMn, TAtoTD
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+TheunitDIVisoptionalwhenspecifyingoffset.Thelimitsdependonthecurrentmagnificationfactor,the
+numberofgridsonthedisplay,andtheinitialpositionofthetrace.
+QuerySyntax
+<trace>:VERT_POSITION?
+ResponseFormat
+<trace>:VERT_POSITION<display_offset>
+Example(GPIB)
+ThefollowinginstructionshiftstraceF1upwardsby+3divisionsrelativetothepositionatthetimeof
+acquisition:
+CMD$="F1:VPOS3DIV":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+VERT_MAGNIFY
+7-90
+
+----- 第 293 页 -----
+
+Part7:IEEE488.2CommandReference
+FUNCTIONCommandsandQueries
+CLEAR_MEMORY,CLM
+Description
+TheCLEAR_MEMORYcommandclearsthespecifiedmemory.Datapreviouslystoredinthismemoryare
+erasedandmemoryspaceisreturnedtothefreememorypool.
+CommandSyntax
+CLEAR_MEMORY<memory>
+<memory>:=M1toMn
+Example(GPIB)
+ThefollowinginstructionclearsthememoryM2.
+CMD$="CLMM2":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+STORE
+7-91
+
+----- 第 294 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CLEAR_SWEEPS,CLSW
+Description
+TheCLEAR_SWEEPScommandrestartsthecumulativeprocessingfunctions:summedorcontinuous
+average,extrema,FFTpoweraverage,histogram,pulseparameterstatistics,Pass/Failcounters,and
+persistence.
+CommandSyntax
+CLEAR_SWEEPS
+Example(GPIB)
+Thefollowingexamplerestartsthecumulativeprocessing:
+CMD$="CLSW":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+INR
+7-92
+
+----- 第 295 页 -----
+
+Part7:IEEE488.2CommandReference
+FUNCTION-DEFINE,DEF
+Description
+TheDEFINEcommandspecifiesthemathematicalexpression(EQN)tobeevaluatedbyafunction.This
+commandisusedtocontrolallmathtoolsinthestandardoscilloscopealongwiththoseintheoptional
+mathsoftwarepackages.
+OnlymathoperationsavailableonyourinstrumentmaybespecifiedintheEQNparameter.
+RefertoyouroscilloscopeOperator'sManualfordetailsregardingthestandardoperators.Seesoftware
+optionmanualsforothermathoperators.
+CommandSyntax
+<function>:DEFINEEQN,<value>[,<parameter>,<value>,...]
+<function>:=F1toFn
+Parametersarespecifiedinpairs,firsttheparametertobemodified,followedbythevaluetobeassigned.
+ThefirstpairisusuallytheEQNparameter,followedbytheequationtoapplytothesourcewaveform.As
+manypairsmaybeaddedasareneeded.Pairscanbegiveninanyorderandrestrictedtothevariablesto
+bechanged.
+SeetheEquationNotationandfollowingtablesforformattingoftheEQNvalueandadditionalparameters
+relatedtoeachoperation.Spacecharactersinsideequationsareoptional.
+Tip:Thebestwaytolearntherequiredsyntaxistosetupthefunctionasdesiredonthe
+oscilloscopeandruntheFn:DEF?query.Theresponsewillbeformattedexactlyasrequired,
+especiallyifyouhavesettheoscilloscopetosuppresscommandheadersusingCOMM_HEADER.
+QuerySyntax
+<function>:DEFINE?
+ResponseFormat
+<function>:DEFINEEQN,'<equation>'[,<parameter>,<value>,...]
+FunctionParameters
+Atleastoneofthefollowingparameterpairsisrequiredforthecommand.Generally,thisistheEQN
+parameter,butotherparametersshowncanbesentasincrementalchangestocurrentEQN.
+Parameters Values Description
+EQN '<equation>' Mathematicaloperationtoperform.Enclosetheequationinsinglequotes.Follow
+withadditionalparameterpairsasneeded.SeeEQNtablebelow.
+BITS <numbits> NumberofbitstointerpolateinERESequation.
+CENTER <timeordiv> HorizontalcenterpositionforHistogramfunction.
+7-93
+
+----- 第 296 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Parameters Values Description
+LENGTH <length> NumberofpointstousefromfirstwaveforminCorrelatefunction.
+MAXEVENTS <#events> NumberofeventscomputedinHistogramfunction.Seeproductdatasheetfor
+maximumvalue.
+MAXBINS <#bins> NumberofbinsusedtocomputeHistogram.
+START <start> StartingpointinsecondwaveformforCorrelatefunction.
+SWEEPS <#sweeps> Numberofsweepsusedtocomputefunction.Seetheproductdatasheetformax-
+imumvalue.
+UNITS <unit> Physicalunitinwhichtoexpressfunctionresult.Seetableofunitmnemonics.
+VERT <vert_scale> Verticalscalingtype.
+WEIGHT <weight> ContinuousAveragefunctionweightingfactor.
+WIDTH <width> Widthofhistogramdisplay.
+WINDOW <window_type> FFTwindowfunction.SeeFFToperatorforlistofwindowtypes.
+EquationNotation
+Theequationvalueisastringcomprisedofthemathoperatorfollowedimmediatelybythesource(s)in
+parentheses.Enclosetheentireequationstringinquotes.FollowtheEQNpairwithanyadditional
+parameterpairsrelevanttothemathfunction.Forexample:
+F1:DEFINEEQN,'AVG(C1)',AVERAGETYPE,SUMMED
+Includetextincapsandspecialcharacters(e.g.,parentheses)asshowninthetablesbelow.Substitute
+variabletextshownhereinanglebracketswithacceptablevalues.Useoneofthevalueslistedincurly
+brackets.
+AllMAUIOscilloscopes
+TheseoperatorsarestandardonallMAUIoscilloscopesrunningXStreamDSOv.8.0.0orhigher.
+Operators AdditionalParameters Description
+ABS( <source>) AbsoluteValue
+AVG(<source>) AVERAGETYPE,{SUMMED,CONTINUOUS}
+WEIGHT,<value>
+Averageofsinglewaveform.SpecifyWEIGHTforContinuousAveraging.
+DERI(<source>) VERSCALE,<verscale>
+VEROFFSET,<veroffset>
+ENABLEAUTOSCALE,{ON,OFF}
+Derivativeofwaveformusingsubtraction
+ofadjacentsamples.
+<source1>–<source2> Differencebetweentwowaveforms.
+FFT(<source>) TYPE,{REAL,IMAGINARY,MAGNITUDE,
+PHASE,POWERSPECTRUM,
+POWERDENSITY}
+WINDOW,{BLACKMANHARRIS,FLATTOP,
+HAMMING,RECTANGULAR,VONHANN}
+ALGORITHM,{LEASTPRIME,POWER2}
+FILLTYPE,{TRUNCATE,ZEROFILL}
+SUPPRESSDC,{ON,OFF}
+FastFourierTransformofwaveform.
+ForFFTaverageofpowerspectrumand
+FFTpoweraverageofpowerdensity,use
+thesummedaverageofthecorresponding
+FFTtype,e.g.:
+EQN,"AVG(FFT(C1))",
+TYPE,POWERSPECTRUM,
+AVERAGETYPE,SUMMED
+7-94
+
+----- 第 297 页 -----
+
+Part7:IEEE488.2CommandReference
+Operators AdditionalParameters Description
+ERES(<source>) BITS,{0.5,1.0,1.5,2.0,2.5,3.0} Smoothingfunctiondefinedbyextrabits
+ofresolution.
+FLOOR(<source>) SWEEPS,<value> LowestverticalvalueateachXvalueinN
+sweeps.
+INTG(<source>) MULTIPLIER,<0.0to1e15>
+ADDER,<0.0to1e15>
+VERSCALE,<value>
+VEROFFSET,<value>
+Integral
+INVERT(-<source>) Inversion(negation)ofwaveform.
+PRODUCT<source1>*<source2> Productoftwowaveforms.
+RATIO<source1>/<source2> Ratiooftwowaveforms.
+RECIPROCAL1/<source> Reciprocalofawaveform.
+RESC(<source>) MULTIPLIER,<0.0to1e15>
+ADDER,<0.0to1e15>
+UNIT,{value}
+CUSTOMUNIT,{ON|OFF}
+Rescale(Wave)Out=A*Wave(In)+B
+where:
+Wave(In)=sourcewaveform
+A=MULTIPLIERvalue
+B=ADDERvalue
+CUSTOMUNIT,ONenablesUNITtobe
+changedtoavalueotherthanVorA.
+CUSTOMUNIT,OFFreturnsresultto
+defaultVorAunits.
+Seetableofunitmnemonicsforaccepted
+UNITvalues.
+ROOF(<source>) SWEEPS,<value> HighestYvalueateachXinasetofwave-
+forms.
+SQR(<source>) Squareofwaveformvalues.
+SQRT(<source>) Squarerootofwaveformvalues.
+SUM<source1>+<source2> Sumoftwowaveforms.
+TREND(<source>) AUTOFINDSCALE,{ON,OFF}
+VERSCALE,<value>
+CENTER,<timeordiv>
+Trendofthevaluesofaparameter.
+ZOOMONLY(<source>) VERSCALE,<value>
+HORSCALE,<value>
+Zoomofwaveform
+HDO6000andHigherBandwidthOscilloscopes
+TheseoperatorsarestandardonHDO6000andhigher,MDA,WaveRunner,WavePro,WaveMaster,and
+LabMasterseriesoscilloscopesrunningMAUI(XStreamDSO)v.8.0.0orhigher.
+Operators AdditionalParameters Description
+CORR(<source1>,<source2>) LENGTH,<length>
+START,<startpoint>
+Correlationoftwowaveformswithspe-
+cifiedcorrelationlengthandstartpointin
+secondwaveform.
+DESKEW(<source>) WAVEDESKEW,<value> Shiftwaveformintimebyaspecified
+amount.
+7-95
+
+----- 第 298 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Operators AdditionalParameters Description
+EXP(<source>) Exponential(powerofe).
+EXP10(<source>) Exponential(powerof10).
+EXTR(<source>) SWEEPS,<value> Extrema(RoofandFloor)ofwaveform.
+SameasEnvelope.
+HIST(<source>) BINS,<value>
+MAXEVENTS,<value>
+HORSCALE,<value>
+CENTER,<value>
+VERSCALETYPE,{LINEAR,LINCONSTMAX}
+AUTOFINDSCALE,{ON,OFF}
+Histogramofparametervalueswheusing
+Pnsource;Histogramofwaveformdata
+whenusingCnsource.
+INTRP(<source>) INTERPOLATETYPE,{LINEAR,QUADRATIC,
+SINXX}
+EXPAND,{ON,OFF}
+Interpolateextrapointsinwaveform.
+LN(<source>) Naturallogarithmofwaveform.
+LOG10(<source>) Base10logarithmofwaveform.
+PERHIST(<source>) VERCUTCENTER,<value>
+VERCUTWIDTH,<value>
+HORCUTCENTER,<value>
+HORCUTWIDTH,<value>
+CUTDIRECTION,<value>
+CUTTYPE,<value>
+CUTWIDTH,<value>
+Phistogram:histogramofaslicethrougha
+persistencemap.
+PMEAN(<source>) Waveformderivedfromthemeanofaper-
+sistencemap.
+PRANGE(<source>) PCTPOPULATION,<value> Waveformderivedfromtherangeofaper-
+sistencemap.
+PSIGMA(<source>) SIGMA,<value> Waveformderivedfromthestdevofaper-
+sistencemap.
+PHSHIFT(<source>) PHASE,<value> Changethephaseofasetofcomplex
+data.
+SEG(<source>) SELECTEDSEGMENT,<value> Selectonesegmentfromasequence
+acquisition.
+SINX(<source>) Tentimesinterpolationusingsin(x)/x.
+SLICE(<source1>,<source2>) FREQUENCY,<value>
+PRIORPERIODS,<value>
+POSTPERIODS,<value>
+Slicessource2waveformtomakemany
+waveforms,usingwf1.
+SPACK(<source>) Magnitudeofcomplexresult.
+SPARSE(<source>) SPARSINGFACTOR,<value>
+SPARSINGPHASE,<value>
+Producesaswaveformwithfewerpoints
+thantheinput.
+TRACK(<source>) AUTOFINDSCALE,{ON,OFF}
+VERSCALE,<value>
+CENTER,<timeordiv>
+Trackofthevaluesofaparameter.
+7-96
+
+----- 第 299 页 -----
+
+Part7:IEEE488.2CommandReference
+OperatorsAvailablewithXDEVOption
+TheseoperatorsarestandardonDDA/SDA/WavePro7Zi,andDDA/SDA/WaveMaster8Zi,and
+LabMasterseriesoscilloscopesrunningXStreamDSOv.8.0.0orhigher.Theyareavailableelsewherewith
+theinstallationoftheXDEVoption.
+Operator AdditionalParameters Description
+EXCELMATH(<source1>,<-
+source2>)
+SOURCE1CELL,<cell>
+SOURCE2CELL,<cell>
+OUTPUTCELL,<cell>
+SOURCE1HEADERCELL,<cell>
+SOURCE2HEADERCELL,<cell>
+OUTPUTHEADERCELL,<cell>
+WITHHEADER,{ON,OFF}
+OUTPUTENABLE,{ON,OFF}
+SOURCE1ENABLE,{ON,OFF}
+SOURCE2ENABLE,{ON,OFF}
+NEWSHEET,{ON,OFF}
+ADVANCED,{ON,OFF}
+SCALING,{AUTOMATIC,MANUAL,
+FROMSHEET}
+{AUTOMATIC,MANUAL,FROMSHEET}
+SPREADSHEETFILENAME,<file.xls>
+Producesawaveformusingacustom
+Excelfunction,andoutputsresultstoExcel
+spreadsheet.
+Usefullpathtospreadsheetfilename.
+FASTWAVEPORT(<source>) MAXSIZE,<valueSAMPLE>,
+TIMEOUT,<valueS>,
+PORTNAME,FASTWAVEPORT1
+Producesawaveformusinganexternal,
+user-definedfunction.
+MATLAB(<source1>,<source2>)MATLABCODE,<formula>
+MATLABPLOT,{ON,OFF}
+MATLABZEROOFFSET,<value>
+MATLABSCALEPERDIV,<value>
+Producesawaveformusingcustom
+MATLABfunction.
+MCAD(<source1>,<source2>) SOURCE1VAR,<value>
+SOURCE2VAR,<value>
+OUTPUTVAR,<value>
+SOURCE1HEADERVAR,<value>
+SOURCE2HEADERVAR,<value>
+OUTPUTHEADERVAR,<value>
+WITHHEADER,{ON,OFF}
+Producesawaveformusingcustom
+MathCadfunction.
+SCRIPT(<source1>,<source2) LANGUAGE,VBSCRIPT.
+CODE,<VBScriptcode>,
+TIMEOUT,<value>
+ProduceswaveformfromappliedVBS
+function.
+7-97
+
+----- 第 300 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+OperatorsAvailablewithDFPOption
+TheseoperatorsareavailablewiththeinstallationoftheDigitalFilterPackageoption.
+Operators AdditionalParameters Description
+FILTER(<source>) FIRORIIR,{FIR,IIR}
+FILTERKIND,{LOWPASS,HIPASS,
+PASSBAND}
+FILTERTYPE,{BESSEL,BUTTERWORTH,
+CHEBYSHEV,INVCHEBYSHEV}
+KAISERBETA,<value>PCT
+GAUSSIANBT,<value>PCT
+COSINEBETA,<value>PCT
+TRANSITIONWIDTH,<value>HZ
+F3DBWIDTH,<value>HZ
+STOPBANDATTENUATION,<value>DB
+PASSBANDRIPPLE,<value>DB,
+PASSBANDATTENUATION,<value>DB
+LOWFREQSTOP,<value>HZ
+LOWFREQPASS,<value>HZ
+HIGHFREQSTOP,<value>HZ
+HIGHFREQPASS,<value>HZ
+F3DBFREQ,<value>HZ
+CORNERFREQ,<value>HZ
+CENTERFREQ,<value>HZ
+ROLLOFF,<value>
+NUMBEROFTAPS,<value>
+NUMBEROFSTAGES,<value>
+ADVANCED,{ON,OFF}
+AUTOLENGTH,{ON,OFF}
+Digitalfilter,availablewithDFPoption.
+FIR(<source>) FTYPE,{LOWPASS,HIPASS,BANDPASS,
+BANDSTOP,RAISEDCOS,RSDROOTCOS,
+GAUSSIAN,CUSTOM}
+FREQ,<loweroronlycornerfreq.inHZ>
+UFREQ,<uppercornerfreq.≥lfreqinHZ>
+FWIDTH,<transitionregioninHZ>
+FBETA,<0to100%>
+MCOEFF,<M1toMn>
+FiniteImpulseResponsefilter,available
+withDFPoption.
+FWIDTHmustbe>0.3%ofsamplerate.
+<lfreq>-<fwidth>mustbe0.1%ofsample
+rate.
+Forraisedcosandraisedrootcos,FBETA
+is%of<lfreq>+and-overwhichtransition
+regionextends.ForGuassian,%of<lfreq>
+atwhichresponseis3dBdownfromDC.
+Examples
+ThefollowinginstructiondefinesF1tocomputethesummedaverageofC1over200sweeps:
+F1:DEFEQN,'AVG(C1)',AVRAGETYPE,SUMMED,SWEEPS,200
+ThefollowinginstructiondefinesF1tocomputetheproductofC1andC2:
+F1:DEFEQN,'C1*C2'
+ThefollowinginstructiondefinesF1tocomputethePowerSpectrumoftheFFTofC1.Thewindow
+functionisRectangular.
+F1:DEFEQN,'PS(FFT(C1))',WINDOW,RECT
+7-98
+
+----- 第 301 页 -----
+
+Part7:IEEE488.2CommandReference
+ThefollowinginstructiondefinesF2tocomputethePowerAverageofthePowerSpectrumofC1over
+244sweeps.
+F2:DEFEQN,'AVG(FFT(C1)'
+TYPE,POWERSPECTRUM,WINDOW,RECT,ALGORITHM,POWER2,FILLTYPE,TRUNCATE,
+SUPPRESSDC,ON,AVERAGETYPE,SUMMED,SWEEPS,244
+ThefollowinginstructionsdefineF3toconstructthehistogramoftheP2risetimemeasurements.The
+histogramhasalinearverticalscaling,accumulatesupto1000parametervalues,andrescales
+automatically.Therisetimeparametervaluesarebinnedinto100bins.
+F3:DEFEQN,'HIST(P2)',VALUES,1000,BINS,100,HORSCALE,1S,
+CENTER,0E-12S,VERSCALETYPE,LINEAR,AUTOFINDSCALE,ON
+ThefollowinginstructiondefinesF1tocorrelateC1andC2for5divisionsstartingatdivision
+F1:DEFEQN,"CORR(C1,C2)",CORRLENGTH,5DIV,CORRSTART,0E-3 DIV
+ThefollowinginstructiondefinesF1totakethederivativeofC1:
+F1:DEFEQN,"DERI(C1)",VERSCALE,1E+6V/S,VEROFFSET,48E+3V/S,ENABLEAUTOSCALE,ON
+ThefollowinginstructiondefinesF1toEnhanceResolutionoftheC1tracebyinterpolating.5bitsbetween
+eachsamplepoint:
+F1:DEFEQN,"ERES(C1)",BITS,0.5
+RelatedCommands
+FIND_CTR_RANGE,FUNCTION_RESET,INR?,PARAMETER_CUSTOM,PARAMETER_VALUE?,PASS_FAIL_
+CONDITION
+7-99
+
+----- 第 302 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+FIND_CTR_RANGE,FCR
+Description
+TheFIND_CTR_RANGEcommandautomaticallysetsthecenterandwidthofahistogramtobestdisplay
+theaccumulatedevents.
+FIND_CTR_RANGEisonlyavailablewithanoptioninstalledthatincludesHistograms.
+CommandSyntax
+<function>:FIND_CTR_RANGE
+<function>:=TAtoTD,F1toFn
+Example(GPIB)
+AssumingthatTraceA(TA)hasbeendefinedasahistogramofoneofthecustomparameters,the
+followingexampledeterminesthebestcenterandwidth,andthenrescalesthehistogram:
+CMD$="TA:FCR":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+DEFINE,PARAMETER_CUSTOM
+7-100
+
+----- 第 303 页 -----
+
+Part7:IEEE488.2CommandReference
+FUNCTION_RESET,FRST
+Description
+TheFUNCTION_RESETcommandresetsawaveformprocessingfunction.Thenumberofsweepsisreset
+tozeroandtheprocessrestarted.
+CommandSyntax
+<function>:FUNCTION_RESET
+<function>:=F1toFn,TAtoTD
+Example(GPIB)
+AssumingthatTraceF1hasbeendefinedasthesummedaverageofChannel1,thefollowingwillrestart
+theaveragingprocess:
+CMD$="F1:FRST":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+INR
+7-101
+
+----- 第 304 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+HARDCOPYCommandsandQueries
+HARDCOPY_SETUP,HCSU
+Description
+TheHARDCOPY_SETUPcommandspecifiesthedevicetypeandtransmissionmodeoftheinstrument's
+printdriver.Thiscanbetheinstrumentclipboard,harddriveoremail,aswellasaprinter.
+Oneormoreindividualsettingscanbechangedbyspecifyingtheappropriatekeywords,togetherwiththe
+newvalues.Ifyousendcontradictoryvalueswithinacommand,theresultisgovernedbythelastone
+sent.
+TheHARDCOPY_SETUPqueryreturnstheoscilloscope'scurrentprintsettings.
+CommandSyntax
+HARDCOPY_SETUPDEV,<device>,FORMAT,<format>,BCKG,<bckg>,
+DEST,<destination>,DIR,"<directory>",AREA,<hardcopyarea>
+[,FILE,"<filename>",PRINTER,"<printername>",PORT,<portname>]
+<device>:={BMP,JPEG,PNG,TIFF}
+<format>:={PORTRAIT,LANDSCAPE}
+<bckg>:={BLACK,WHITE}
+<destination>:={PRINTER,CLIPBOARD,EMAIL,FILE,REMOTE}
+<area>:={GRIDAREAONLY,DSOWINDOW,FULLSCREEN}
+<directory>:=legalDOSpath,forFILEmodeonly
+<filename>:=filenamestring,noextension,forFILEmodeonly
+<printername>:=validprintername,forPRINTERmodeonly
+<portname>:={GPIB,NET}
+Hardcopycommandparametersaregroupedinpairs.Thefirstinthepairnamesthevariabletobe
+modified,whilethesecondgivesthenewvaluetobeassigned.Pairscanbegiveninanyorderandcanbe
+restrictedtothosevariablestobechanged.Omittedvariablesremainunaffected.
+The<device>typesPSDandBMPCOMParenotsupportedonMAUIoscilloscopes.
+Stringsrepresentingthenamesofdirectories,files,orprintersthatmaycontainspacesandothernon-
+alphanumericcharactersmustbeenclosedinquotes.
+Anautoincrementednumberisappendedtothe<filename>stringwitheachsuccessivecapture.
+The<portname>isincludedforbackwardcompatibilityandsetsDEST,REMOTEregardlessofwhatelse
+isspecifiedintheHCSUcommand.
+7-102
+
+----- 第 305 页 -----
+
+Part7:IEEE488.2CommandReference
+QuerySyntax
+HCSU?
+ResponseFormat
+Ifpreceded,forexample,byHCSUDEST,FILEwithCHDROFF:
+DEV,PNG,FORMAT,PORTRAIT,BCKG,BLACK,DEST,REMOTE,
+DIR,"C:\LECROY\XSTREAM\HARDCOPY",
+FILE,"IRHCP1.PNG",AREA,GRIDAREAONLY,PRINTER,"GENEVSVRHP4050RD"
+Example(GPIB)
+Thefollowingexampleselectsoutputtotheprinternamed"LocalPrinter":
+CMD$="HCSUDEST,PRINTER,PRINTER,"LocalPrinter"":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+SCREEN_DUMP
+7-103
+
+----- 第 306 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+SCREEN_DUMP,SCDP
+Description
+TheSCREEN_DUMPcommandcausestheinstrumenttosendthescreencontentstothecurrent
+hardcopydevice.Thetime-and-datestampcorrespondstothetimeofthecommand.
+CommandSyntax
+SCREEN_DUMP
+QuerySyntax
+SCREEN_DUMP?
+ResponseFormat
+SCREEN_DUMP<status>
+Example(GPIB)
+Thefollowinginstructioninitiatesascreendump:
+CMD$="SCDP":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+INR,HARDCOPY_SETUP
+7-104
+
+----- 第 307 页 -----
+
+Part7:IEEE488.2CommandReference
+MISCELLANEOUSCommandsandQueries
+AUTO_CALIBRATE,ACAL
+Description
+TheAUTO_CALIBRATEcommandisusedtoenableordisabletheautomaticcalibrationofyour
+XStreamDSOoscilloscope.Atpower-up,auto-calibrationisturnedON,i.e.allinputchannelsare
+periodicallycalibratedforthecurrentinputamplifierandtimebasesettings,whethertheinstrumenthas
+beenadjustedornot.
+Wheneveryouadjustagainoroffset,however,theinstrumentperformsacalibration.Thisactionoccurs
+whateverthecurrentstateofACAL,anditdoesnotchangethestateofACAL.
+AutomaticcalibrationcanbedisabledbymeansofthecommandACALOFF.Butwheneverconvenient,
+youcanissuea*CAL?querytofullycalibratetheoscilloscope.Whentheoscilloscopeisreturnedtolocal
+control,periodiccalibrationsareresumedifthelastACALvaluewasON.Thatis,thecommand*CAL?has
+noeffectontheACALstatus.
+TheresponsetotheAUTO_CALIBRATE?queryindicateswhetherauto-calibrationisenabledordisabled.
+CommandSyntax
+AUTO_CALIBRATE<state>
+<state>: = {ON,OFF}
+QuerySyntax
+AUTO_CALIBRATE?
+ResponseFormat
+AUTO_CALIBRATE<state>
+Example(GPIB)
+Thefollowinginstructiondisablesauto-calibration:
+CMD$="ACALOFF":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+*CAL?
+7-105
+
+----- 第 308 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+BUZZER,BUZZ
+Description
+Thebuzzercommandcontrolsthebuilt-inbuzzer.BymeansoftheBEEPargument,thebuzzercanbe
+activatedforshortbeeps.ThevalueONhasthesameeffectasBEEP,unlikethebehaviorwithearlier
+instruments.ONandOFFareacceptedonlyforcompatibility.OFFhasnoeffect.
+CommandSyntax
+BUZZer<state>
+<state>:={BEEP,ON,OFF}
+Example(GPIB)
+Sendingthefollowingwillcausetheinstrumenttosoundtwoshorttones:
+CMD$="BUZZBEEP;BUZZBEEP":
+CALLIBWRT(SCOPE%<CMD$)
+7-106
+
+----- 第 309 页 -----
+
+Part7:IEEE488.2CommandReference
+*CAL?
+Description
+The*CAL?querycausestheoscilloscopetoperformaninternalself-calibrationandgeneratesaresponse
+thatindicateswhetherornotthecalibrationcompletedwithouterror.Thisinternalcalibrationsequenceis
+thesameasthatwhichoccursatpower-up.Attheendofthecalibration,aftertheresponse,the
+oscilloscopereturnstothestateitwasinjustpriortothecalibrationcycle.ThisincludestheAUTO_
+CALIBRATEstatus,whichisnotaffectedbytheuseof*CAL?;the*CAL?querymaybeusedwhether
+AUTO_CALIBRATEhasbeensetonoroff.
+QuerySyntax
+*CAL?
+ResponseFormat
+*CAL?<diagnostics>
+<diagnostics>:=diagnosticcode0 through512
+Code 4-CHOscilloscope 8-CHOscilloscope
+0 Calibrationsuccessful Calibrationsuccessful
+1 C1calibrationerror C1calibrationerror
+2 C2calibrationerror C2calibrationerror
+4 C3calibrationerror C3calibrationerror
+8 C4calibrationerror C4calibrationerror
+16 TDCfailure C5calibrationerror
+32 Triggerfailure C6calibrationerror
+64 Other C7calibrationerror
+128 N/A C8calibrationerror
+256 N/A TDCfailure
+512 Triggerfailure
+Example(GPIB)
+Thefollowinginstructionforcesaself-calibration:
+CMD$="*CAL?":CALLIBWRT(SCOPE%,CMD$):CALLIBRD(SCOPE%,RD$):PRINTRD$
+Responsemessageifnofailure:
+*CAL0
+RelatedCommands
+AUTO_CALIBRATE
+7-107
+
+----- 第 310 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CAL_OUTPUT,COUT
+Description
+TheCAL_OUTPUTcommandisusedtosetthetypeofsignalputoutthroughtheinstrumentfrontpanel's
+CALBNCconnector.
+CommandSyntax
+CAL_OUTPUT<mode>[,<level>[,<rate>]]
+CAL_OUTPUTPULSE[,<width>]
+<mode>:={OFF,CALSQ,PF,TRIG,LEVEL,ENABLED}
+<level>:=50mVto1Vinto1MΩ
+<rate>:=500Hzto1MHz.
+CALSQprovidesasquaresignal;PFsetsthepulseforPass/Failmode;TRIGsetsthepulsefortrigger
+output;LEVELprovidesaDCsignalattherequestedlevel;PULSEprovidesasinglepulse
+QuerySyntax
+CAL_OUTPUT?
+ResponseFormat
+CAL_OUTPUT<mode>,<level>[,<rate>]
+Example(GPIB)
+Thefollowinginstructionsetsthecalibrationsignaltogivea0to0.2volt10kHzsquarewave:
+CMD$="COUTCALSQ,0.2V,10kHz":
+CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PASS_FAIL_DO
+7-108
+
+----- 第 311 页 -----
+
+Part7:IEEE488.2CommandReference
+DATE
+Description
+Thecommandsetsthedateandtimeofthereal-timeclockintheinstrument.Thequeryreadsbackthe
+instrumenttimestamp.
+CommandSyntax
+UsingthiscommandtosettheclockfromtheInternetwillworkonMAUIoscilloscopesthathavean
+internetconnection,butyoumustValidateChangesontheoscilloscopeitselfforthemtotakeeffect.To
+setthedateandthetimefromtheinternet:
+DATESNTP
+QuerySyntax
+DATE?
+7-109
+
+----- 第 312 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*IDN?
+Description
+The*IDN?querycausestheinstrumenttoidentifyitself.Theresponsecomprisesmanufacturer,
+oscilloscopemodel,serialnumber,andfirmwarerevisionlevel.
+QuerySyntax
+*IDN?
+ResponseFormat
+*IDNLECROY,<model>,<serial_number>,<firmware_level>
+<model>:=A six-orseven-charactermodelidentifier
+<serial_number>:=A nine-or10-digitdecimalcode
+<firmware_level>:=versionnumber
+Theversionnumberisindotteddecimalformat:twodigitmajorreleasenumber,onedigitminorrelease
+number,onedigitupdatenumber(xx.y.z).
+Example(GPIB)
+Thisissuesanidentificationrequesttotheoscilloscope:
+CMD$="*IDN?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+Responsemessage:
+*IDNLECROY,WAVEMASTER,WM01000,3.3.0
+7-110
+
+----- 第 313 页 -----
+
+Part7:IEEE488.2CommandReference
+*OPT?
+Description
+The*OPT?queryidentifiesoscilloscopeoptions:installedsoftwareorhardwarethatisadditionaltothe
+standardinstrumentconfiguration.Theresponseconsistsofaseriesofresponsefieldslistingallthe
+installedoptions.
+QuerySyntax
+*OPT?
+ResponseFormat
+*OPT<option_1>,<option_2>,..,<option_N>
+<option_n>:=A three-orfour-characterASCIIstring
+Note:Ifnooptionispresent,thecharacter0isreturned.
+Example(GPIB)
+Thefollowinginstructionqueriestheinstalledoptions:
+CMD$="*OPT?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+If,forexample,thewaveformprocessingoptionsDFP2,SDM,JTA2,andGPIBareinstalled,theresponse
+isreturnedas:
+* DFP2,SDM,JTA2,GPIB
+Responsemessageifnooptionsareinstalled:
+*OPT0
+7-111
+
+----- 第 314 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*TST?
+Description
+The*TST?queryperformsaninternalself-test,theresponseindicatingwhethertheself-testhasdetected
+anyerrors.Theself-testincludestestingthehardwareofallchannels,thetimebaseandthetrigger
+circuits.
+Hardwarefailuresareidentifiedbyauniquebinarycodeinthereturned<status>number.Astatusof0
+indicatesthatnofailuresoccurred.
+QuerySyntax
+*TST?
+ResponseFormat
+*TST<status>
+Example(GPIB)
+Thefollowingcausesaself-testtobeperformed:
+CMD$="*TST?":CALLIBWRT(DDA%,CMD$):
+CALLIBRD(DDA%,RD$):PRINTRD$
+Responsemessage(ifnofailure):
+*TST0
+RelatedCommands
+*CAL
+PROBECommands
+PROBE_CAL?,PRCA?
+Description
+ThePROBE_CALqueryperformsacompleteauto-calibrationofacurrentprobeconnectedtothe
+instrument.Attheendofthecalibration,theresponseindicateshowthecalibrationhasterminated,and
+theinstrumentthenreturnstothestateitwasinpriortothequery.
+QuerySyntax
+<channel>:PROBE_CAL?
+<channel>:=C1toCn,EX,EX5
+ResponseFormat
+<channel>:PROBE_CAL<diagnosticcode>
+7-112
+
+----- 第 315 页 -----
+
+Part7:IEEE488.2CommandReference
+<diagnosticcode>:=0calibrationsuccessful;1calibrationunsuccessful
+RelatedCommands
+AUTO_CALIBRATE,*CAL?,PROBE_DEGAUSS
+7-113
+
+----- 第 316 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+PROBE_DEGAUSS?,PRDG?
+Description
+ThePROBE_DEGAUSS?queryperformstheautomaticdegaussingofacurrentprobeconnectedtothe
+instrument,thenreturnsthediagnosticcode.Thiseliminatescoresaturationbyuseofabackingcurrent
+andapplicationofanalternatingfield,reducedinamplitudeovertimefromaninitialhighvalue.Afterthe
+degaussing,aprobecalibrationisperformed.
+QuerySyntax
+<channel>:PROBE_DEGAUSS?
+<channel>:=C1toCn,EX,EX5
+ResponseFormat
+<channel>:PROBE_DEGAUSS<diagnosticcode>
+<diagnosticcode>:=0degaussandcalibrationsuccessful;1degaussandcalibrationunsuccessful
+RelatedCommands
+PROBE_CAL?,PROBE_NAME?
+7-114
+
+----- 第 317 页 -----
+
+Part7:IEEE488.2CommandReference
+PROBE_NAME?,PRNA?
+Description
+ThePROBE_NAME?queryreturnsthenameofaprobeconnectedtotheinstrument.Passiveprobesare
+identifiedbytheirattenuationfactor.
+QuerySyntax
+<channel>:PROBE_NAME?
+<channel>:=C1toCn,EX,EX5
+ResponseFormat
+<channel>:PROBE_NAME<name>
+RelatedCommands
+PROBE_CAL?,PROBE_DEGAUSS?
+SAVE/RECALLSETUPCommandsandQueries
+PANEL_SETUP,PNSU
+Description
+ThePANEL_SETUPcommandsendsadatabuffertothescopethatisapanelsetupfile.Theoscilloscope
+loadsthe<data>(seebelow)asitwouldwhenrecallingapanelsetupfilelocallyonthescope.
+ThePANEL_SETUPqueryreturnsalloscilloscopesetupsinASCIIformat,whichcanbesavedtoan.LSS
+filetoberecalledtotheoscilloscopeusingRECALL_SETUP.
+OnlysetupdatapreviouslyreadbythePNSU?queryorsavedusingtheSTORE_PANELcommandcanbe
+recalledintotheoscilloscope.Apanelsetuperrorisgeneratedifthesetupdatablockcontainsinvalid
+data.SeetheExecutionErrorStatusRegister(EXR)tableinEXR?formoreinformation.
+Note:Thecommunicationparameters(modifiedbycommandsCFMT,CHDR,CHLP,CORDand
+WFSU)andtheenableregistersassociatedwiththestatusreportingsystem(SRE,PRE,ESE,INE)
+arenotsavedbythiscommand.
+CommandSyntax
+PANEL_SETUP#9<nnnnnnnn><data><crc>
+<nnnnnnnnn>:=sizeinbytes(<data>size+ <crc>size)
+<data>:=panelsetupfilecontents(arbitrarydatablock)
+<crc>:=reservedfor32-bitCRCplus8-byteCRCtrailer
+7-115
+
+----- 第 318 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+Note:Commandsyntaxisnotcheckedbytheoscilloscope,however,the8-byteCRCtrailerstring
+isrequiredwhensendingafiletotheoscilloscope,andsuppliedwhenreceivingafilefromthe
+oscilloscope.TheASCIIstring'ffffffff'isnormallyusedasthetrailerstring.
+QuerySyntax
+PANEL_SETUP?
+ResponseFormat
+PANEL_SETUP<setup>
+ThePNSU?queryreturnsdatathatincludesbothaprefixandsuffixthatarerequiredwhenseekingto
+transmitthepanelsetupwhenusingthePNSUcommand.
+TheprefixisthecommunicationsheaderandtheDEF9string,whicharethecharacters#9followedbythe
+numberofbytescontainedinthepanelsetupfile.ThisbytecountincludestheCRCtrailer,whichisthe
+eight'ffffffff'characters.
+IfyouwishtosavethedatareceivedbythePNSU?querytodiskasasetupfilethatcanbeusedwiththe
+oscilloscope's“RecallSetup”feature,besuretostriptheDEF9headerandCRCtrailer.
+PNSU?QueryExample
+The<setup>contentsshownbelowareshortenedforbrevity,andreplacedby“…contentsomitted…”
+Thedatauses‘\codes’forthewhitespacecharacters:\sisaspacecharacter,\n=newline,\r=return
+COMM_HEADERprogrammedtoOFF:
+<setup>:#9001243634'\sXStreamDSO\sConfigurationVBScript\s...\r\n'\sLECROY,MCM-Zi-A,
+…contentsomitted…ffffffff
+COMM_HEADERprogrammedtoSHORT:
+<setup>:
+PNSU\s#9001243634'\sXStreamDSO\sConfigurationVBScript\s...\r\n'\sLECROY,MCM-Zi-A,
+…contentsomitted…ffffffff
+Note:YoucaninterpretfromtheDEF9headerthatthepanelsetupfilesizeis1243634bytes,
+includingtheffffffffCRCtrailer.
+RelatedCommands
+*RCL,*SAV
+7-116
+
+----- 第 319 页 -----
+
+Part7:IEEE488.2CommandReference
+*RCL(RecallSetup)
+Description
+The*RCLcommandsetstheinstrumentstatebyrecallingoneofthenon-volatilesetuppanels(Setup0to
+Setupx).
+The*RCLcommandproducesaneffecttheoppositeofthe*SAVcommand.
+Ifthespecifiedsetupisnotacceptable,theExecutionErrorStatusRegister(EXR)issetandtheEXEbitof
+thestandardEventStatusRegister(ESR)isset.
+CommandSyntax
+*RCL<panel_setup>
+<panel_setup>:=0 to x
+0isthefactorydefaultpanelsetup.
+1toxarethecorrespondingsetuppanelsavailableonyouroscilloscope.Themaximumvalueofxwillbe
+thehighestnumbersetup(e.g.,6indicatingSetup6).
+Example(GPIB)
+ThefollowinginstructionrecallstheinstrumentsetuppreviouslystoredinSetup3:
+CMD$="*RCL3":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+RECALL_PANEL,PANEL_SETUP,*SAV,ESR,EXR
+7-117
+
+----- 第 320 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+RECALL_PANEL,RCPN
+Description
+TheRECALL_PANELcommandrecallspanelsetupsfromafilesaved(usingPNSU?or
+STORE_PANEL)ontheinstrumentdatadrive(D:)oraconnectedmassstoragedevice.Thedeviceandthe
+filenamearegivenastwo-valueparameterpairs.
+Note:RECALL_PANEL(andsimilarpanelcommands)blocksallincomingcommandsuntil
+finishedrecallingthepanel,includingsynchronizationcommandssuchas*OPC?and
+WaitUntilIdle.Using*OPC?,oranyquery,followedbyareadwithasufficientlylongtimeoutto
+allowthepaneltoloadfullyisthebestwaytokeeptheclientprogramsynchronizedwiththe
+oscilloscope.
+CommandSyntax
+RECALL_PANELDISK,<device>,FILE,'<filename>'
+<device>:={HDD,USB,MICRO}
+<filename>:=fullpathtofilewiththeextension.LSS
+Thefilenamestringmaybeuptoeightcharacters.Usethefullpathtothedirectory,includingthedrive
+letter,enclosedinsinglequotes.Besuretherearenospacesbeforethedirectorystring.
+Note:Theharddriveselection(HDD)alwayspointstodriveD,whichisthedatadriveonMAUI
+oscilloscopes.AnexternalUSBdriveisusuallynameddriveE;checkyouroscilloscopefilesystem.
+ThedevicetypeMICROappliesonlytoinstrumentsthatutilizeMicro-SDcarddatastorage,such
+asWaveSurfer3000.
+Example(GPIB)
+ThefollowinginstructionrecallsthepanelsetupfromfileCHIRP_MEAS.LSSontheinstrumentD:drive:
+CMD$="RCPNDISK,HDD,FILE,'D:\Applications\USB2\Setups\CHIRP_MEAS.LSS'":CALLIBWRT
+(SCOPE%,CMD$)
+ThefollowinginstructionrecallsthepanelsetupfromfileCHIRP_MEAS.LSSonaUSBdriveconnectedto
+theinstrument,wherethefileisstoredinthe\USB2\Setupssubfolders:
+CMD$="RCPNDISK,USB,FILE,'E:\USB2\Setups\CHIRP_MEAS.LSS'":CALLIBWRT(SCOPE%,CMD$)
+ThefollowinginstructionrecallsthepanelsetupfromfileP012.LSSonaUSBdrive:
+CMD$="RCPNDISK,USB,FILE,'P012.LSS'":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PANEL_SETUP,*SAV,STORE_PANEL,*RCL
+7-118
+
+----- 第 321 页 -----
+
+Part7:IEEE488.2CommandReference
+*RST(Reset)
+Description
+The*RSTcommandinitiatesadevicereset.*RSTsetsalltracestotheGNDlineandrecallsthefactory
+defaultpanelsetup(0),withthetriggerinSTOPmode(0).
+Note:TheRecallDefaultbuttonontheoscilloscopeGUIwillrecallthefactorydefaultpanelin
+AUTOtriggermode.Toreplicatethisfunctionalityviaremotecontrol,usetheAutomation
+command:app.SaveRecall.Setup.DoRecallDefaultPanelWithTriggerModeAuto.Youmaysendthis
+commandnestedwithintheVBScommandwhenusingalegacy488.2script.
+CommandSyntax
+*RST
+Example(GPIB)
+Thefollowinginstructionresetstheoscilloscope:
+CMD$="*RST":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+*CAL,*RCL
+7-119
+
+----- 第 322 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*SAV(SaveSetup)
+Description
+The*SAVcommandstoresthecurrentstateofyourinstrumentoneofthenon-volatilesetuppanels
+(Setup0toSetupx).The*SAVcommandstoresthecompletesetupoftheoscilloscopeatthetimethe
+commandisissued.
+Note:Thecommunicationparameters(modifiedbycommandsCFMT,CHDR,CHLP,CORDand
+WFSU)andtheenableregistersassociatedwiththestatusreportingsystem(SRE,PRE,ESE,INE)
+arenotsavedbythiscommand.
+CommandSyntax
+*SAV<panel_setup>
+<panel_setup>:=1 tox
+1toxarethecorrespondingsetuppanelsavailableonyouroscilloscope.Themaximumvalueofxwillbe
+thehighestnumbersetup(e.g.,6indicatingSetup6).
+Example(GPIB)
+ThefollowinginstructionsavesthecurrentinstrumentsetupinSetup3:
+CMD$="*SAV3":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PANEL_SETUP,*RCL
+7-120
+
+----- 第 323 页 -----
+
+Part7:IEEE488.2CommandReference
+STORE_PANEL,STPN
+Description
+TheSTORE_PANELcommandstoresthecompletepanelsetupoftheoscilloscopeinafileonthe
+instrumentdatadrive(D:)oraconnectedmassstoragedevice.Thedeviceandthefilenamearegivenas
+two-valueparameterpairs.
+Note:Thecommunicationparameters(modifiedbycommandsCFMT,CHDR,CHLP,CORDand
+WFSU)andtheenableregistersassociatedwiththestatusreportingsystem(SRE,PRE,ESE,INE)
+arenotsavedbythiscommand.
+Ifnofilename(oranemptystring)issupplied,theoscilloscopegeneratesafilenameaccordingtoits
+internalrules.Autogeneratedfilenamesarenumberedsequentially.
+ThiscommandisthecomplementofRECALL_PANEL.
+CommandSyntax
+STORE_PANELDISK,<drive>,FILE,'<filename>'
+<drive>:={FLPY,HDD}
+<filename>:=filename/path
+TheDISK,<drive>argumentisoptionalandisincludedforbackwardcompatibility.Youmayusethefull
+pathtothedirectory,includingthedriveletter,orjustthefilename,enclosedinsingleordoublequotes.
+Thefileextension.LSSwillbeappendedautomatically.Besuretherearenospacesbeforethedirectory
+string.
+Note:Ifyoudonotspecifythefullpath,theharddriveargument(HDD)alwayspointstodatadrive
+D:onTeledyneLeCroyoscilloscopes,orelsetoharddriveC:whenrunningMAUIStudioor
+WavePulsersoftware.
+Example(GPIB)
+ThefollowinginstructionsavesthecurrentoscilloscopesetuptoafileonoscilloscopeD:called
+DIODE.LSS:
+CMD$="STPNFILE,'DIODE'":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+PNSU,*SAV,RECALL_PANEL,*RCL
+7-121
+
+----- 第 324 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+STATUSCommandsandQueries
+ALL_STATUS?,ALST?
+Description
+TheALL_STATUS?queryreadsandclearsthecontentsofallstatusregisters:STB,ESR,INR,DDR,CMR,
+EXRandURRexceptfortheMAVbit(bit6)oftheSTBregister.Foraninterpretationofthecontentsof
+eachregister,refertotheappropriatestatusregister.
+Thequeryisusefultoobtainacompleteoverviewofthestateofyouroscilloscope.
+QuerySyntax
+ALL_STATUS?
+ResponseFormat
+ALL_STATUSSTB,<n>,ESR,<n>,INR,<n>,DDR,<n>,CMR,<n>,EXR,<n>,URR,<n>
+<n>: = 0 to65535
+Example
+Thefollowinginstructionreadsthecontentsofallthestatusregisters:
+CMD$="ALST?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+Responsemessage:
+ALSTF2,000000,ESR,000052,INR,000005,DDR,000000,CMR,000004,EXR,000024,URR,000000
+RelatedCommands
+*CLS,CMR?,DDR?,*ESR?,EXR?,*STB?,URR?
+7-122
+
+----- 第 325 页 -----
+
+Part7:IEEE488.2CommandReference
+*CLS
+Description
+The*CLScommandclearsallstatusdataregisters.
+CommandSyntax
+*CLS
+Example(GPIB)
+Thefollowinginstructioncausesallthestatusdataregisterstobecleared:
+CMD$="*CLS":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+ALL_STATUS,CMR,DDR,*ESR,EXR,*STB,URR
+7-123
+
+----- 第 326 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CMR?
+Description
+TheCMR?queryreadsandclearsthecontentsoftheCommandErrorRegister(refertothefollowing
+tablefordetails),whichspecifiesthelastsyntaxerrortypedetectedbyyouroscilloscope.
+QuerySyntax
+CMR?
+ResponseFormat
+CMR<code>
+<code>:=0 to13
+Example(GPIB)
+ThefollowinginstructionreadsthecontentsoftheCMRregister:
+CMD$="CMR?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+RelatedCommands
+ALL_STATUS?,*CLS
+CMR(CommandError)StatusRegisterStructure
+Code Message
+1 Unrecognizedcommand/queryheader.
+2 Illegalheaderpath.
+3 Illegalnumber.
+4 Illegalnumbersuffix.
+5 Unrecognizedkeyword.
+6 Stringerror.
+7 GETembeddedinanothermessage.
+10 Arbitrarydatablockexpected.
+11 Non-digitcharacterinbytecountfieldofarbitrarydatablock.
+12 EOIdetectedduringdefinitelengthdatablocktransfer.
+13 Extrabytesdetectedduringdefinitelengthdatablocktransfer.
+7-124
+
+----- 第 327 页 -----
+
+Part7:IEEE488.2CommandReference
+DDR?
+Description
+TheDDR?queryreadsandclearsthecontentsoftheDeviceDependentorDeviceSpecificErrorRegister
+(DDR).Inthecaseofahardwarefailure,theDDRregisterspecifiestheoriginofthefailure.
+QuerySyntax
+DDR?
+ResponseFormat
+DDR<value>
+<value>:=0 to65535
+DDR(DeviceDependent)StatusRegisterStructure
+Bit Value Meaning
+15...14 Reserved.
+13 8192 Timebasehardwarefailuredetected.
+12 4096 Triggerhardwarefailuredetected.
+11 2048 Channel4hardwarefailuredetected.
+10 1024 Channel3hardwarefailuredetected.
+9 512 Channel2hardwarefailuredetected.
+8 256 Channel1hardwarefailuredetected.
+7 128 Externalinputoverloadconditiondetected.
+6...4 Reserved.
+3 8 Channel4overloadconditiondetected.
+2 4 Channel3overloadconditiondetected.
+1 2 Channel2overloadconditiondetected.
+0 1 Channel1overloadconditiondetected.
+7-125
+
+----- 第 328 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*ESE
+Description
+The*ESEcommandsetsthestandardEventStatusEnableRegister(ESE).Thiscommandallowsoneor
+moreeventsintheESRregistertobereflectedintheESBsummarymessagebit(bit5)oftheSTB
+register.ForanoverviewoftheESBdefinedevents,refertotheESRtable.
+The*ESE?queryreadsthecontentsoftheESEregister.
+CommandSyntax
+*ESE<value>
+<value>:=0 to255
+QuerySyntax
+*ESE?
+ResponseFormat
+*ESE<value>
+Example(GPIB)
+ThefollowinginstructionallowstheESBbittobesetifauserrequest(URQbit6,decimal64)and/ora
+devicedependenterror(DDEbit3,decimal8)occurs.SummingthesevaluesyieldstheESEregistermask
+64+8=72.
+CMD$="*ESE72":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+*ESR
+7-126
+
+----- 第 329 页 -----
+
+Part7:IEEE488.2CommandReference
+*ESR?
+Description
+The*ESR?queryreadsandclearsthecontentsoftheEventStatusRegister(ESR).Theresponse
+representsthesumofthebinaryvaluesoftheregisterbits0to7.Thefollowingtableprovidesan
+overviewoftheESRregisterstructure.
+QuerySyntax
+*ESR?
+ResponseFormat
+*ESR<value>
+<value>: = 0 to255
+Example(GPIB)
+ThefollowinginstructionreadsandclearsthecontentsoftheESRregister:
+CMD$="*ESR?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+Responsemessage:
+*ESR0
+RelatedCommands
+ALL_STATUS,*CLS,*ESE
+7-127
+
+----- 第 330 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+ESR(StandardEvents)StatusRegisterStructure
+Bit Value Name Meaning Notes
+15...8 ReservedbyIEEE488.2.
+7 128 PON PowerOff-to-Onoccurred. ThePONbitisalwaysturnedon(1)whentheunitis
+poweredup.
+6 64 URQ Userrequest. OnlegacyLeCroyoscilloscopes,thisbitreportssoftkey
+inputs.ItdoesnotapplytoMAUIoscilloscopes.
+5 32 CME Commandparsererrordetected. TheCMEbitissettrue(1)wheneveracommandsyntax
+errorisdetected.TheCMEbithasanassociatedCom-
+mandParserRegister(CMR)whichspecifiestheerror
+code.RefertoCMR?
+4 16 EXE Executionerrordetected. TheEXEbitissettrue(1)whenacommandcannotbe
+executedduetosomedevicecondition(forexample,the
+oscilloscopeinlocalstate)orasemanticerror.TheEXE
+bithasanassociatedExecutionErrorRegister(EXR)that
+specifiestheerrorcode.RefertoEXR?
+3 8 DDE Devicedependenterroroccurred. TheDDEbitissettrue(1)wheneverahardwarefailure
+hasoccurredatpower-uporatexecutiontime,suchasa
+channeloverloadcondition,oratriggerortimebasecir-
+cuitdefect.Theoriginofthefailurecanbelocalizedwith
+theDDR?query.
+2 4 QYE Queryerroroccurred. TheQYEbitissettrue(1)whenever(a)anattemptis
+madetoreaddatafromtheOutputQueuewhennoout-
+putiseitherpresentorpending,(b)dataintheOutput
+Queuehasbeenlost,(c)bothoutputandinputbuffers
+arefull(deadlockstate),(d)anattemptismadebythe
+controllertoreadbeforehavingsentan<END>,(e)a
+commandisreceivedbeforetheresponsetothepre-
+viousquerywasread(outputbufferflushed).
+1 2 RQC Requestsbuscontrol. TheRQCbitisalwaysfalse(0),astheoscilloscopehas
+noGPIBcontrollingcapabilityandneverrequestscon-
+trol.
+0 1 OPC Operationcomplete. TheOPCbitissettrue(1)whenever*OPChasbeen
+received,sincecommandsandqueriesarestrictly
+executedinsequentialorder.Theoscilloscopestartspro-
+cessingacommandonlywhenthepreviouscommand
+hasbeenentirelyexecuted.
+7-128
+
+----- 第 331 页 -----
+
+Part7:IEEE488.2CommandReference
+EXR?
+Description
+TheEXR?queryreadsandclearsthecontentsoftheExecutionErrorRegister(EXR).TheEXRregister
+specifiesthetypeofthelasterrordetectedduringexecution.Refertothefollowingtableformore
+information.
+QuerySyntax
+EXR?
+ResponseFormat
+EXR?<code>
+<code>:=21to64
+Example(GPIB)
+ThefollowinginstructionreadsthecontentsoftheEXRregister:
+CMD$="EXR?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+Responsemessage(ifnofault):
+EXR0
+RelatedCommands
+ALL_STATUS,*CLS
+7-129
+
+----- 第 332 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+EXR(ExecutionError)StatusRegisterStructure
+ThefollowingtableliststheerrorcodesthatmaybereturnedwiththeEXRquery.Codesmarkedwithan
+asterisk(*)arevalidonlyoninstrumentswitharemovableharddriveormemorycard.
+Code Description
+21 Permissionerror.Thecommandcannotbeexecutedinlocalmode.
+22 Environmenterror.Theoscilloscopeisnotconfiguredtocorrectlyprocessacommand.Forinstance,theoscil-
+loscopecannotbesettoRISataslowtimebase.
+23 Optionerror.Thecommandappliestoanoptionwhichhasnotbeeninstalled.
+24 Unresolvedparsingerror.
+25 Parametererror.Toomanyparametersspecified.
+26 Non-implementedcommand.
+27 Parametermissing.Aparameterwasexpectedbythecommand.
+30 Hexdataerror.Anon-hexadecimalcharacterhasbeendetectedinahexdatablock.
+31 Waveformerror.Theamountofdatareceiveddoesnotcorrespondtodescriptorindicators.
+32 Waveformdescriptorerror.Aninvalidwaveformdescriptorhasbeendetected.
+33 Waveformtexterror.Acorruptedwaveformusertexthasbeendetected.
+34 Waveformtimeerror.InvalidRISorTRIGtimedatahasbeendetected.
+35 Waveformdataerror.Invalidwaveformdatahavebeendetected.
+36 Panelsetuperror.Aninvalidpanelsetupdatablockhasbeendetected.
+50* Nomassstoragepresentwhenuserattemptedtoaccessit.
+51* Massstoragenotformattedwhenuserattemptedtoaccessit.
+53* Massstoragewaswriteprotectedwhenuserattemptedtocreateafile,todeleteafile,ortoformatthedevice.
+54* Badmassstoragedetectedduringformatting.
+55* Massstoragerootdirectoryfull.Cannotadddirectory.
+56* Massstoragefullwhenuserattemptedtowritetoit.
+57* Massstoragefilesequencenumbersexhausted(999reached).
+58* Massstoragefilenotfound.
+59* Requesteddirectorynotfound.
+61* MassstoragefilenamenotDOScompatible,orillegalfilename.
+62* Cannotwriteonmassstoragebecausefilenamealreadyexists.
+7-130
+
+----- 第 333 页 -----
+
+Part7:IEEE488.2CommandReference
+INE
+Description
+TheINEcommandsetstheInternalStateChangeEnableregister(INE).Thiscommandallowsoneor
+moreeventsintheINRregistertobereflectedintheINBsummarymessagebit(bit0)oftheSTBregister.
+ForanoverviewoftheINRdefinedevents,refertotheInternalStateRegisterStructure(INR)tableinthe
+INR?topicformoreinformation.
+TheINE?queryreadsthecontentsoftheINEregister.
+CommandSyntax
+INE<value>
+<value>:=0 to65535
+QuerySyntax
+INE?
+ResponseFormat
+INE<value>
+Example(GPIB)
+ThefollowinginstructionallowstheINBbittobesetwheneverascreendumphasfinished(bit1,for
+exampledecimal2),orawaveformisacquired(bit0,forexampledecimal1),orbothofthese.Summing
+thesetwovaluesyieldstheINEmask2+1=3.
+CMD$="INE3":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+INR?
+7-131
+
+----- 第 334 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+INR?
+Description
+TheINR?queryreadsandclearsthecontentsoftheInternalStateChangeRegister(INR).TheINRregister
+(tablebelow)recordsthecompletionofvariousinternaloperationsandstatetransitions.
+QuerySyntax
+INR?
+ResponseFormat
+INR<state>
+<state>:=0 to65535
+Example(GPIB)
+ThefollowinginstructionreadsthecontentsoftheINRregister:
+CMD$="INR?":CALLIBWRT(SCOPE%,CMD$)
+Theresponsemessagerepresentsthesummedbitvalueoftheinternalstatechanges:
+INR1026
+Meaning,waveformprocessinginmathfunctionF3(1024)andascreendump(2)havebothterminated.
+RelatedCommands
+ALL_STATUS,*CLS,INE
+7-132
+
+----- 第 335 页 -----
+
+Part7:IEEE488.2CommandReference
+INR?(InternalStateChange)StatusRegisterStructure
+Thefollowingtabledescribesthestatescorrespondingtothereturnedbitvalues:
+Bit Value State
+15 0-Reservedforfutureuse.
+14 16384 1-Probewaschanged.
+13 8192 1-Triggercommandreceived;triggerarmed*.
+12 4096 1-Pass/Failtestdetecteddesiredoutcome.
+11 2048 1-WaveformprocessinghasterminatedintraceF4.
+10 1024 1-WaveformprocessinghasterminatedintraceF3.
+9 512 1-WaveformprocessinghasterminatedintraceF2.
+8 256 1-WaveformprocessinghasterminatedintraceF1.
+7 128 1-Afloppyorharddiskexchangehasbeendetected.
+6 64 1-FloppyorharddiskhasbecomefullinAutoStoreFillmode.
+5 32 0-ReservedforLeCroyuse.
+4 16 1-Asegmentofasequencewaveformhasbeenacquiredinacquisitionmemorybutnotyetread
+outintothemainmemory.
+3 8 1-Atime-outhasoccurredinadatablocktransfer.
+2 4 1-Areturntothelocalstateisdetected.
+1 2 1-Ascreendumphasterminated.
+0 1 1-Anewsignalhasbeenacquiredinacquisitionmemoryandreadoutintothemainmemory.
+Note:OnMAUIoscilloscopes,INRstatusbit13issethighwhenatriggerisarmed,eventhough
+theoscilloscopemaynotyetbereadytoacquireduetotechnicallimitations.Ifyouareconcerned
+withtimingasecondactionontheTriggerReadystate,eitherusetheresultofthecommand
+TRMDSINGLE;WAIT;*OPC?,whichwillbe1whenthepreviousacquisitionisfullycomplete,or
+sendtheCVARapp.Acquisition.IsTriggerReadywithinaVBS?query.
+7-133
+
+----- 第 336 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*IST?
+Description
+The*IST?(IndividualSTatus)queryreadsthecurrentstateoftheIEEE488.1-definedISTlocalmessage.
+TheISTindividualstatusmessageisthestatusbitsentduringaparallelpolloperation.
+QuerySyntax
+*IST?
+ResponseFormat
+*IST<value>
+<value>:=0 or1
+Example(GPIB)
+ThefollowinginstructioncausesthecontentsoftheISTbittoberead:
+CMD$="*IST?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+Responsemessage:
+*IST0
+RelatedCommands
+*PRE
+7-134
+
+----- 第 337 页 -----
+
+Part7:IEEE488.2CommandReference
+*OPC
+Description
+The*OPC(OperationComplete)commandsetstheOPCbit(bit0)to"true"inthestandardEventStatus
+Register(ESR).
+The*OPC?queryalwaysrespondswiththeASCIIcharacter1becausetheoscilloscopeonlyrespondsto
+thequerywhenthepreviouscommandsareentirelyexecuted.Since*OPC?executesonlywhen
+processingiscomplete,itisrecommendedforsynchronizationpurposes.SeeTimingand
+Synchronization.
+Note:SettoDefaultSetup(andsimilarGPIBcommands,suchasRECALL_PANELandRECALL_
+DEFAULT)blocksallincomingcommandsuntilfinishedrecallingthepanel,including
+synchronizationqueriessuchas*OPC?andWaitUntilIdle.Usinganyqueryfollowedbyareadwith
+asufficientlylongtimeouttoallowthepaneltoloadfullyisthebestwaytokeeptheclient
+programsynchronizedwiththeoscilloscope.
+CommandSyntax
+*OPC
+QuerySyntax
+*OPC?
+ResponseFormat
+1
+RelatedCommands
+*WAI
+7-135
+
+----- 第 338 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*PRE
+Description
+The*PREcommandsetsthePaRallelpollEnableregister(PRE).ThelowesteightbitsoftheParallelPoll
+Register(PPR)arecomposedoftheSTBbits.*PREallowsyoutospecifywhichbit(s)oftheparallelpoll
+registeraffecttheIST(IndividualStatusBit).
+The*PRE?queryreadsthecontentsofthePREregister.Theresponseisadecimalnumbercorresponding
+tothebinarysumoftheregisterbits.
+CommandSyntax
+PRE<value>
+<value>:=0 to65535
+QuerySyntax
+*PRE?
+ResponseFormat
+*PRE<value>
+Example(GPIB)
+ThefollowinginstructioncausestheISTstatusbittobecome1assoonastheMAVbit(bit4ofSTB,
+meaningdecimal16)isset,andyieldsthePREvalue16:
+CMD$="*PRE16":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+*IST
+7-136
+
+----- 第 339 页 -----
+
+Part7:IEEE488.2CommandReference
+*SRE
+Description
+The*SREcommandsetstheServiceRequestEnableregister(SRE).Thiscommandallowsyoutospecify
+whichsummarymessagebitorbitsintheSTBregistergenerateaservicerequest.Refertothetableon
+page225foranoverviewoftheavailablesummarymessages.
+Asummarymessagebitisenabledbywritinga1intothecorrespondingbitlocation.Conversely,writinga
+0intoagivenbitlocationpreventstheassociatedeventfromgeneratingaservicerequest(SRQ).Clearing
+theSREregisterdisablesSRQinterrupts.
+The*SRE?queryreturnsavaluethat,whenconvertedtoabinarynumber,representsthebitsettingsof
+theSREregister.Notethatbit6(MSS)cannotbesetanditsreturnedvalueisalwayszero.
+CommandSyntax
+*SRE<value>
+<value>:=0 to255
+QuerySyntax
+*SRE?
+ResponseFormat
+*SRE<value>
+Example(GPIB)
+ThefollowinginstructionallowsanSRQtobegeneratedassoonastheMAVsummarybit(bit4,for
+exampledecimal16)ortheINBsummarybit(bit0,forexampledecimal1)intheSTBregister,orboth,are
+set.SummingthesetwovaluesyieldstheSREmask16+1=17.
+CMD$="*SRE17":CALLIBWRT(SCOPE%,CMD$)
+7-137
+
+----- 第 340 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*STB?
+Description
+The*STB?queryreadsthecontentsofthe488.1definedStatusByteRegister(STB)andMasterSummary
+Status(MSS).Theresponserepresentsthevaluesofbits0to5and7oftheSTBregisterandtheMSS
+summarymessage.
+Theresponsetoa*STB?queryisidenticaltotheresponseofaserialpollexceptthattheMSSsummary
+messageappearsinbit6inplaceoftheRQSmessage.
+QuerySyntax
+*STB?
+ResponseFormat
+*STB?<value>
+<value>:=0 to255
+Example(GPIB)
+ThefollowinginstructionreadstheStatusByteRegister:
+CMD$="*STB?":CALLIBWRT(SCOPE%,CMD$):
+CALLIBRD(SCOPE%,RSP$):PRINTRSP$
+Responsemessage:
+*STB0
+RelatedCommands
+ALL_STATUS,*CLS,*PRE,*SRE
+7-138
+
+----- 第 341 页 -----
+
+Part7:IEEE488.2CommandReference
+STB(StatusByte)StatusRegisterStructure
+Bit Value Name Description Notes
+7 128 DIO7 Reservedfor
+futureuse.
+6 64 MSS/RQS
+MSS=1
+RQS=1
+Atleast1bitin
+STBmaskedby
+SREis1,ser-
+viceisreques-
+ted.
+TheMasterSummaryStatus(MSS)indicatestheoscilloscope
+requestsservice,whiletheServiceRequeststatus(whenset)
+specifiestheoscilloscopeissuedaservicerequest.Bitposition6
+dependsonthepollingmethod:
+MSSifan*STB?queryisreceived
+RQSifserialpollingisconducted
+Example:
+IfSRE=10andSTB=10,thenMSS=1.
+IfSRE=010andSTB=100thenMSS=0.
+5 32 ESB AnESRenabled
+eventhas
+occurred.
+TheEventStatusBit(ESB)indicateswhetherornotoneormoreof
+theenabledIEEE488.2eventsoccurredsincethelastreadingor
+clearingoftheStandardEventStatusRegister(ESR).ESBissetif
+anenabledeventbecomestrue(1).
+4 16 MAV Outputqueueis
+notempty.
+TheMessageAVailablebit(MAV)indicateswhetherornotthe
+Outputqueueisempty.Ifsupported,theMAVsummarybitisset
+true(1)wheneveradatabyteresidesintheOutputqueue.
+Note:ManynewerVISAinterfaceshaveremovedtheMAV
+summary,includingNI-VISArecommendedbyTeledyneLeCroy.
+MAVwillalwaysreturn0whenusingVISAserialpollingon
+oscilloscopesrunningMAUI.Certainprotocolsmayormaynot
+supportreadingtheMAVbitwithoutclearingit.
+3 8 DIO3 Reserved.
+2 4 VAB Acommand
+datavaluehas
+beenadapted.
+TheValueAdaptedBit(VAB)issettrue(1)wheneveradatavalue
+inacommandisadaptedtothenearestlegalvalue.Forinstance,
+theVABbitwouldbesetifthetimebaseisredefinedas2.5µs/div
+sincetheadaptedvalueis2µs/div.
+1 2 DIO1 Reserved.
+0 1 INB Anenabled
+internalstate
+change
+occurred.
+TheInternalStateBit(INB)issettrue(1)whenevercertainenabled
+internalstatesareentered.Forfurtherinformation,refertothe
+INR?query.
+7-139
+
+----- 第 342 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+*WAI
+Description
+The*WAI(Waittocontinue)command,requiredbytheIEEE488.2standard,hasnoeffectonthe
+oscilloscope,astheinstrumentonlystartsprocessingacommandwhenthepreviouscommandhas
+beenentirelyexecuted.
+CommandSyntax
+*WAI
+7-140
+
+----- 第 343 页 -----
+
+Part7:IEEE488.2CommandReference
+STORAGECommandsandQueries
+DELETE_FILE,DELF
+Description
+TheDELETE_FILEcommanddeletesafilefromthecurrentlyselecteddirectory.
+CommandSyntax
+DELETE_FILEDISK,<medium>,FILE,'<filename>'
+<medium>:= {HDD,USB,MICRO}
+Thefilenamemustbeenclosedinsinglequotes.Usethefullpathtothedirectory,includingthedrive
+letter.Besuretherearenospacesbeforethedirectorystring.
+Note:Theharddriveselection(HDD)alwayspointstodriveD,whichisthedatadriveonMAUI
+oscilloscopes.AnexternalUSBdriveisusuallynameddriveE;checkyouroscilloscopefilesystem.
+ThedevicetypeMICROappliesonlytoinstrumentsthatutilizeMicro-SDcarddatastorage,such
+asWaveSurfer3000.
+Example(GPIB)
+Thefollowinginstructiondeletesapanelsetupfilefromtheharddrive:
+CMD$="DELFDISK,HDD,FILE,'D:\SETUPS\TESTRUN.LSS'
+CALLIBWRT(SCOPE%,CMD$)
+7-141
+
+----- 第 344 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DIRECTORY,DIR
+Description
+TheDIRECTORYcommandisusedtocreateordeletefiledirectoriesontheinstrumentharddriveor
+massstoragedevices.Italsoallowsselectionofthecurrentworkingdirectory.
+Thequeryresponseconsistsofastringcontainingalistingofthedirectory.Ifnomassstoragedeviceis
+present,orifitisnotformatted,thereturnstringisleftempty.
+CommandSyntax
+DIRECTORYDISK,<device>,ACTION,<action>,'<directory>'
+<device>:={HDD,<Windowsdriveletter>,\}
+<action>:={CREATE,DELETE,SWITCH}
+<directory>:=legalDOSpath
+Thedirectorynamemustbeenclosedinsinglequotes.
+Example:
+DIRDISK,C,ACTION,CREATE,'Transfer'
+Note:Theharddriveselection(HDD)alwayspointstodriveD,whichisthedatadriveonmost
+TeledyneLeCroyoscilloscopes.CEoscilloscopesonlysupportdevicetype\.
+QuerySyntax
+DIRECTORY?DISK,<device>[,'<directory>']
+Examples:
+DIRECTORY?DISK,\
+DIR?DISK,HDD,'LabNotebook'
+Theoptional<directory>parameterreturnsastringdetailingthefilecontentsofthenameddirectory.
+ResponseFormat
+DIRECTORYof<directory>
+Iftheoscilloscopeissettousetheharddrive(D:)formassstorage,theDIR?queryreturnsthecontentsof
+thespecifiedD:drivefolder.Ifnodirectoryisspecified,itreturnsthecontentsoftherootdirectory.
+Subfoldersareindicatedby<DIR>nexttothename.Aqueryoftheharddriverootreturns:
+DirectoryofD:\
+18.04.201510:36 <DIR> applications
+16.02.201513:14 <DIR> calibration
+02.10.201516.40 testing.txt
+. . .
+7-142
+
+----- 第 345 页 -----
+
+Part7:IEEE488.2CommandReference
+TRANSFER_FILE,TRFL
+Description
+Thiscommandallowsyoutotransferfilestoandfromstoragemedia,orbetweenoscilloscopeand
+computer.Thecommandformatisusedtotransferfilesfromthecomputertostoragemedia.Thequery
+formatisusedtotransferfilesfromstoragemediatocomputer.
+CommandSyntax
+TRANSFER_FILEDISK,<device>,FILE,'<filepath>',#9<nnnnnnnnn><data><crc>
+<device>:={HDD}
+<filepath>:=legalDOSpathtofile
+<nnnnnnnnn>:=filesizeinbytes(<data>size+ <crc>size)
+<data>:=filedata(arbitrarydatablock)
+<crc>:=reservedfor32-bitCRCplus8-byteCRCtrailer
+Thepathnamemustbeenclosedinsinglequotes.Usethefullpathtothedirectory,includingthedrive
+letter.Besuretherearenospacesbeforethedirectorystring.
+Note:Theharddrivedeviceselection(HDD)alwayspointstodriveD:,whichisthedatadriveon
+MAUIoscilloscopes.OnWaveSurfer3000oscilloscopes,itreferstotheMicro-SDcarddata
+storage.
+Note:CRCcheckingisnotperformedbythescope,howeverthe8-byteCRCtrailerstringis
+requiredwhensendingafiletothescope,andsuppliedwhenreceivingafilefromthescope.The
+ASCIIstring'ffffffff'isnormallyusedastrailerstring.
+QuerySyntax
+TRFL?DISK,<device>,FILE,'<filepath>'
+ResponseFormat
+TRFL#9nnnnnnnnn<data><crc>
+Example(GPIB)
+ThefollowinginstructionreadsthefileFAVORITE.DSOfromtheharddrive:
+CMD$=TRFLDISK,HDD,FILE,'FAVORITE.DSO'CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+DIRECTORY
+7-143
+
+----- 第 346 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WAVEFORMTRANSFERCommandsandQueries
+INSPECT?,INSP?
+Description
+TheINSPECT?queryallowsyoutoreadpartsofanacquiredwaveforminintelligibleform.Thecommand
+isbasedontheexplanationoftheformatofawaveformgivenbytheWaveformTemplate(usethe
+TEMPLATE?querytoobtainanup-to-datecopyofthetemplate).
+Anylogicalblockofawaveformcanbeinspectedusingthisquerybygivingitsnameenclosedinquotes
+asthefirstparameter(refertothetemplateitselfformoredetails).
+ThespeciallogicalblocknamedWAVEDESCcanalsobeinspectedinmoredetail.Bygivingthenameofa
+variableintheWAVEDESCblockasthefirstparameter,itispossibletoinspectonlythevalueofthatone
+entity.
+QuerySyntax
+<trace>:INSPECT?'<WAVEDESCvariable|logicalblock>',[<data_type>]
+<trace>:=C1toCn, F1toFn, M1toMn, TAtoTD
+<WAVEDESC_variable>:=anyvariablelistedintheWAVEDESCblockofthe
+oscilloscope'sWaveformTemplate
+<logical_block>:={TRIGTIME,RISTIME,SIMPLE,DATA_ARRAY_1,DATA_ARRAY_2,
+<data_type>:={BYTE,WORD,FLOAT}
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+Youmayusesingleordoublequotationmarksinthequery,butthereplyalwaysusesdoublequotes.
+Theoptionalparameter<data_type>appliesonlytoinspectionofdataarrays.Itselectstherepresentation
+ofthedata.Thedefault<data_type>isFLOAT.
+DataTypeDescriptions
+BYTE Rawdataasintegers(truncatedto8mostsignificantbits).
+FLOAT Normalizeddata(gain,offsetapplied)asfloatingpointnumbers(givesmeasuredvaluesinvoltsorunits).
+WORD Rawdataasintegers(truncatedto16mostsignificantbits).
+7-144
+
+----- 第 347 页 -----
+
+Part7:IEEE488.2CommandReference
+BlockWAVEDESCcontainsseveralvariablesrelatedtoscalingofdatavalues.Valuesofthesevariables
+dependonthecurrentsettingofthecommandCOMM_FORMAT(CFMT).Thefollowingexampleshows
+howthevaluesreturnedbyINSP?changewhenyoumodifytheCFMTsettingfromBYTE(default)to
+WORD:
+CFMT SettoBYTE CFMTSettoWORD
+VERTICAL_GAIN : 3.1250e-003
+VERTICAL_OFFSET: -2.0600e-001
+MAX_VALUE : 1.2700e+002
+MIN_VALUE : -1.2800e+002
+VERTICAL_GAIN : 1.2207e-005
+VERTICAL_OFFSET: -2.0600e-001
+MAX_VALUE : 3.2512e+004
+MIN_VALUE : -3.2768e+004
+ResponseFormat
+<trace>:INSPECT"<WAVEDESC_variable|logical_block>:<value>"
+Examples(GPIB)
+ThefollowinginstructionreadsthevalueofthetimebaseatwhichthelastwaveforminChannel1was
+acquired:
+CMD$="C1:INSP?'TIMEBASE'"
+CALLIBWRT(SCOPE%,CMD$)
+CALLIBRD(SCOPE%,RSP$)
+PRINTRSP$
+Responsemessage:
+C1:INSP"TIMEBASE:500US/DIV"
+Thefollowinginstructionreadstheentirecontentsofthewaveformdescriptorblock:
+CMD$="C1:INSP?'WAVEDESC'"
+RelatedCommands
+COMM_FORMAT,TEMPLATE,WAVEFORM_SETUP
+7-145
+
+----- 第 348 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+RECALL,REC
+Description
+TheRECALLcommandrecallsawaveformfilefromthecurrentdirectoryonmassstorageintoanyofthe
+internalmemories(M1toMn).
+Onlywaveformsstoredinbinaryformat(.trc)canberecalled.
+CommandSyntax
+<memory>:RECALLDISK,<device>,FILE,'<filename>'
+<device>:={HDD,USB,MICRO}
+<memory>:=M1toMn
+<filename>:=fullpathto.trcfile
+Thefilepathmustbeenclosedinsinglequotes.Usethefullpathtothedirectory,includingthedriveletter.
+Besuretherearenospacesbeforethedirectorystring.
+Note:Theharddriveselection(HDD)alwayspointstodriveD,whichisthedatadriveonMAUI
+oscilloscopes.AnexternalUSBdriveisusuallynameddriveE;checkyouroscilloscopefilesystem.
+ThedevicetypeMICROappliesonlytoinstrumentsthatutilizeMicro-SDcarddatastorage,such
+asWaveSurfer3000.
+Example(GPIB)
+Thefollowinginstructionrecallsthewaveformfile'C2Trace00000.trc'intoMemory1:
+CMD$="<M1:RECDISK,HDD,FILE,'D:\Waveforms\C2Trace00000.trc'":CALLIBWRT
+(SCOPE%,CMD$)
+RelatedCommands
+STORE,INR?
+7-146
+
+----- 第 349 页 -----
+
+Part7:IEEE488.2CommandReference
+STORE,STO
+Description
+TheSTOREcommandstoresthespecifiedwaveformdatainoneoftheinternalmemories(M1toMn)or
+inthecurrentdirectoryinmassstorage.Thefilesaresavedinbinarywiththe.trcextension.
+ThecomplementtotheSTOREcommandistheRECALLcommand,whichrecallswaveformssavedto
+externalfilesintooneoftheoscilloscopeinternalmemories.
+Setthecurrentdirectory(wherefilesarestored)withtheDIRcommand.
+CommandSyntax
+STORE[<trace>,<dest>]
+<trace>:=C1toCn, F1toFn, TAtoTD,orALL_DISPLAYED
+<dest>:=M1toMn, orFILE
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+WhenstoringtracestoFILE,filesaresavedwiththe.trcextensioninthedirectorylastsetwiththeDIR
+command.Filenamesareautogenerated.
+IfyousendtheSTOREcommandwithoutanargument,thecurrentStorageSetupoperationwillbestored.
+ModifythissetupusingSTORE_SETUP.
+Example(GPIB)
+ThefollowinginstructionstorestheChannel4(C4)waveformintoMemory1(M1):
+CMD$="STOC4,M1":CALLIBWRT(SCOPE%,CMD$)
+Thefollowinginstructionstoresallcurrentlydisplayedwaveformsontotheharddrive:
+CMD$="STOALL_DISPLAYED,FILE":CALLIBWRT(SCOPE%,CMD$)
+ThefollowinginstructionexecutesthestorageoperationcurrentlydefinedintheStorageSetup:
+CMD$="STO":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+DIR,RECALL,STORE_SETUP
+7-147
+
+----- 第 350 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+STORE_SETUP,STST
+Description
+TheSTORE_SETUPcommandcontrolsthewayinwhichtracesarestored.Anyonetraceoralldisplayed
+tracescanbesetupforstorage,eitherbyturningonAUTOstoreorusingtheSTOREcommand.
+TwomodesareavailablewhenusingAUTOstore:FILL,whichstopswhenthestoragemediumisfull,and
+WRAP,whichreplacestheoldesttracebythelatestone.Wrapmodeoverwritesanytracefile,whetheror
+notitwasmadeduringthecurrentsessionorrecordsthesametrace.
+CommandSyntax
+STORE_SETUP[<trace>,<dest>][,AUTO,<mode>][,FORMAT,<type>]
+<trace>:=C1toCn, F1toFn, M1toMn, TAtoTD,ALL_DISPLAYED
+<dest>:=M1toMn, HDD
+<mode>:={OFF,FILL,WRAP}
+<type>:={ASCII,BINARY,EXCEL,MATHCAD,MATLAB}
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+QuerySyntax
+STORE_SETUP?
+ResponseFormat
+STORE_SETUP<trace>,<dest>,AUTO,<mode>
+Example(GPIB)
+ThefollowinginstructionenablesAUTOstoreforChannel1,tobeperformeduntilinsufficientspace
+remainsforanotherfile.
+CMD$="STSTC1,HDD,AUTO,FILL"CALLIBWRT("SCOPE%",CMD$)
+RelatedCommands
+STORE,INR
+7-148
+
+----- 第 351 页 -----
+
+Part7:IEEE488.2CommandReference
+TEMPLATE?,TMPL?
+Description
+TheTEMPLATE?queryproducesacopyofthetemplatethatdescribesthevariouslogicalentitiesmaking
+upacompletewaveform.Inparticular,thetemplatedescribesinfulldetailthevariablescontainedinthe
+descriptorpartofawaveform.
+Ifsentwithoutthe<version>argument,thequeryreturnsthelatestwaveformtemplate,currentlyversion
+2.4,whichwasimplementedwithMAUI(XStreamDSO)softwarev.8.6.1.2tosupportwaveformswith
+morethan
+2GSofdata.Sendingthequerywiththeversionargumentwillreturnthespecifiedversionofthetemplate
+file.
+QuerySyntax
+TEMPLATE?<version>
+<version>:=Desiredversionofwaveformtemplatefile(e.g.,2.3).
+ResponseFormat
+TEMPLATE?"<template>"
+<template>:=Variablelengthstringdetailingthestructureofa waveform.
+RelatedCommands
+INSPECT?
+7-149
+
+----- 第 352 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WAVEFORM,WF
+Description
+AWAVEFORMcommandtransfersawaveformfromthecontrollertoanoscilloscopeinternalmemoryfor
+futurerecallanddisplay,whereasaWAVEFORM?querytransfersawaveformfromtheoscilloscope
+displaytothecontrollerinfileformat.
+WAVEFORMstoresanexternalwaveformbackintotheoscilloscope'sinternalmemory.Awaveform
+consistsofseveraldistinctentities:
+l Thewaveformdescriptor(DESC)
+l Theusertext(TEXT)
+l Thetimedescriptor(TIME)
+l Thedatablock(DAT1)
+l Anoptionalseconddatablock(DAT2)
+TheWAVEFORM?queryinstructstheoscilloscopetotransmitawaveformtothecontroller.Theentities
+canbequeriedindependently.IftheALLparameterisspecified,allfourorfiveentitiesaretransmittedin
+oneblockintheordershownabove.
+Note:OnlycompletewaveformstransmittedwiththeWAVEFORM?ALLquerycanberestoredto
+theoscilloscope.
+TheformatofthewaveformdatadependsonthecurrentsettingsspecifiedbythelastWAVEFORM_
+SETUP,COMM_ORDERandCOMM_FORMATcommands.
+CommandSyntax
+<memory>:WAVEFORMALL<waveform_data_block>
+<memory>:=M1toMn
+<waveform_data_block>:=arbitrarydatablock
+QuerySyntax
+<trace>:WaveForm?<block>
+<trace>:=C1toCn, F1toFn, M1toMn, TAtoTD
+<block>:={DESC,TEXT,TIME,DAT1,DAT2,ALL}
+Note:TAthroughTDareforbackwardcompatibility.Althoughaccepted,theyarenotreturnedby
+queries.
+Ifyoudonotprovidea<block>parameter,ALLisassumed.
+7-150
+
+----- 第 353 页 -----
+
+Part7:IEEE488.2CommandReference
+ResponseFormat
+<trace>:WAVEFORM<block>,<waveform_data_block>
+Tip:Itmaybeconvenienttodisabletheresponseheaderifthewaveformistoberestoredtothe
+oscilloscope.SeetheCOMM_HEADERtopicformoreinformation.
+Examples(GPIB)
+ThefollowinginstructionreadstheblockDAT1fromMemory1andsavesitinthefile"MEM1.DAT".The
+pathheader"M1:"issavedtogetherwiththedata.
+FILE$ = "MEM1.DAT"
+CMD$ = "M1:WF?DAT1"
+CALLIBWRT(SCOPE%,CMD$)
+CALLIBRDF(SCOPE%,FILE$)
+Inthefollowingexample,theentirecontentsofChannel1aresavedinthefile"CHAN1.DAT".Thepath
+header"C1:"isskippedtoensurethatthedatacanlaterberecalledintotheoscilloscope.
+FILE$="CHAN1.DAT":RD$=SPACE$(3)
+CMD$="CHDRSHORT;C1:WF?"
+CALLIBWRT(SCOPE%,CMD$)
+CALLIBRD(SCOPE%,RD$)' Skipfirst3 characters"C1:"
+CALLIBRDF(SCOPE%,FILE$)' Savedatainfile"CHAN1.DAT"
+Thefollowinginstructionillustrateshowthewaveformdatasavedintheprecedingexamplecanbe
+recalledintoMemory1:
+FILE$ = "CHAN1.DAT"
+CMD$ ="M1:"
+CALLIBEOT(SCOPE%,0) ' disableEOI
+CALLIBWRT(SCOPE%,CMD$)
+CALLIBEOT(SCOPE%,1) ' re-enableEOI
+CALLIBWRTF(SCOPE%,FILE$)
+The"M1:"commandensurestheactivewaveformis"M1".Whenthedatafileissenttotheoscilloscope,it
+firstseestheheader"WF"(thecharacters"C1:"havingbeenskippedwhenreadingthefile)andassumes
+thedefaultdestination"M1".
+RelatedCommands
+INSPECT,COMM_FORMAT,COMM_ORDER,FUNCTION_STATE,TEMPLATE,WAVEFORM_SETUP,
+WAVEFORM_TEXT
+7-151
+
+----- 第 354 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+WAVEFORM_SETUP,WFSU
+Description
+TheWAVEFORM_SETUPcommandspecifiestheamountofdatainawaveformtobetransmittedtothe
+controller.
+TheWAVEFORM_SETUP?queryreturnsthetransferparameterscurrentlyinuse.
+CommandSyntax
+WAVEFORM_SETUPSP,<sparsing>,NP,<number>,FP,<firstpoint>,SN,<segment>
+Note:Afterpower-on,allvaluesaresetto0(meaning,entirewaveformsaretransmittedwithout
+sparsing).Parametersaregroupedinpairs.Thefirstofthepairnameswhichvariableismodified,
+whilethesecondprovidesthenewvalueforassignment.Pairscanbegiveninanyorderand
+restrictedtothevariablesforchange.
+Sparsing(SP)
+Thesparsingparameterdefinestheintervalbetweendatapoints.Forexample:
+SP=0sendsalldatapoints.
+SP=1sendsalldatapoints.
+SP=4sendsevery4thdatapoint.
+NumberofPoints(NP)
+Thenumberofpointsparameterindicateshowmanypointsshouldbetransmitted.Forexample:
+NP=0sendsalldatapoints.
+NP=1sends1datapoint.
+NP=50sendsamaximumof50datapoints.
+NP=1001sendsamaximumof1001datapoints.
+FirstPoint(FP)
+Thefirstpointparameterspecifiestheaddressofthefirstdatapointtobesent.Forwaveformsacquired
+insequencemode,thisreferstotherelativeaddressinthegivensegment.Forexample:
+FP=0correspondstothefirstdatapoint.
+FP=1correspondstotheseconddatapoint.
+FP=5000correspondstodatapoint5001.
+7-152
+
+----- 第 355 页 -----
+
+Part7:IEEE488.2CommandReference
+SegmentNumber(SN)
+Thesegmentnumberparameterindicateswhichsegmentshouldbesentifthewaveformwasacquiredin
+sequencemode.Thisparameterisignoredfornon-segmentedwaveforms.Forexample:
+SN=0allsegments.
+SN=1firstsegment.
+SN=23segment23.
+QuerySyntax
+WAVEFORM_SETUP?
+ResponseFormat
+WAVEFORM_SETUPSP,<sparsing>,NP,<number>,FP,<firstpoint>,SN,<segment>
+Example(GPIB)
+Thefollowinginstructsevery3rddatapoint(SP=3)startingataddress200fortransfer:
+CMD$="WFSUSP,3,FP,200":CALLIBWRT(SCOPE%,CMD$)
+RelatedCommands
+INSPECT,WAVEFORM,TEMPLATE
+7-153
+
+----- 第 356 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DISKDRIVEANALYSIS(Option)CommandsandQueries
+DD_ANALOG_COMP_THRESH,DACT
+Description
+SetstheanalogthresholdvalueforAnalogCompare.
+CommandSyntax
+DD_ANALOG_COMPARE_THRESHOLD<threshold>
+<threshold>:=floatinrange0.0to1.0.AnalogCompareerrorthresholdinunitsof
+full-scaleerror.
+QuerySyntax
+DD_ANALOG_COMPARE_THRESHOLD?
+ResponseFormat
+DD_ANALOG_COMPARE_THRESHOLD<threshold>
+RelatedCommands
+DD_FIND_ERROR,DD_FIND_METHOD
+7-154
+
+----- 第 357 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_ANALYZE_REGION_DISABLE,DARD
+Description
+Disablestheuseoftheanalyzeregionmarkers,whichmeanstheentirewaveformwillbeanalyzedin
+analogcompareandchannelemulation.
+CommandSyntax
+DD_ANALYZE_REGION_DISABLE
+TheanalyzeregionisenabledwheneverDD_ANALYZE_REGION_STARTorDD_ANALYZE_REGION_
+LENGTHareset.
+RelatedCommands
+DD_ANALYZE_REGION_START,DD_ANALYZE_REGION_LENGTH
+7-155
+
+----- 第 358 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_ANALYZE_REGION_LENGTH,DARL
+Description
+Selectsthelengthofaregiontobeanalyzed.
+CommandSyntax
+DD_ANALYZE_REGION_LENGTH<time>
+<time>:=timeinseconds
+QuerySyntax
+DD_ANALYZE_REGION_LENGTH?
+ResponseFormat
+DD_ANALYZE_REGION_LENGTH<time>
+RelatedCommands
+DD_ANALYZE_REGION_START,DD_ANALYZE_REGION_DISABLE
+7-156
+
+----- 第 359 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_ANALYZE_REGION_START,DARS
+Description
+Selectsthestartofaregiontobeanalyzed.
+CommandSyntax
+DD_ANALYZE_REGION_START<time>
+<time>:=timeinseconds
+QuerySyntax
+DD_ANALYZE_REGION_START?
+ResponseFormat
+DD_ANALYZE_REGION_START<time>
+RelatedCommands
+DD_ANALYZE_REGION_LENGTH,DD_ANALYZE_REGION_DISABLE
+7-157
+
+----- 第 360 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_BITCELL,DBIT
+Description
+Entersthebitcelltimeoftheheadsignal.
+CommandSyntax
+DD_BITCELL<bittime>
+<bittime>:=timeinrange0.10–99.99ns
+QuerySyntax
+DD_BITCELL?
+ResponseFormat
+DD_BITCELL<bittime>
+7-158
+
+----- 第 361 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_BYTE_OFFSET,DBYT
+Description
+Movestheheadtracetoshowthespecifiedbyte.Channelmustbeconfigured.
+CommandSyntax
+DD_BYTE_OFFSET<bytenum>
+<bytenum>:=integerinrange20to50,000
+QuerySyntax
+DD_BYTE_OFFSET?
+ResponseFormat
+DD_BYTE_OFFSET<bytenum>
+RelatedCommands
+DD_BYTE_OFFSET,DD_VCOSYNCH_TO_DATA,DD_BITCELL,DD_ENCODING,DD_SIGNAL_INPUT
+7-159
+
+----- 第 362 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_BYTE_OFFSET_SEGMENT,DSEG
+Description
+Movestheheadtracetoshowthespecifiedsegment.
+CommandSyntax
+DD_BYTE_OFFSET_SEGMENT<segnum>
+<segnum>:=integerinrange1 to999
+QuerySyntax
+DD_BYTE_OFFSET_SEGMENT?
+ResponseFormat
+DD_BYTE_OFFSET_SEGMENT<segnum>
+RelatedCommands
+DD_BYTE_OFFSET
+7-160
+
+----- 第 363 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_CTAF_3DB,D3D
+Description
+SetstheCTAF(ContinuousTimeAnalogFilter)parameter,3dB.
+CommandSyntax
+DD_CTAF_3DB<3dBpoint>
+<3dBpoint>:=frequencyinrange0.1to1.0* samplingfrequency
+QuerySyntax
+DD_CTAF_3DB?
+ResponseFormat
+DD_CTAF_3DB<3dBpoint>
+RelatedCommands
+DD_CTAF_FC,DD_CTAF_BOOST,DD_CTAF_GROUP_DELAY,DD_TRAIN_FILTER
+7-161
+
+----- 第 364 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_CTAF_BOOST,DBST
+Description
+SetstheCTAF(ContinuousTimeAnalogFilter)parameter,boost.
+CommandSyntax
+DD_CTAF_BOOST<boost>
+<boost>:=gain(indB)inrange0.0–13.0dB
+QuerySyntax
+DD_CTAF_BOOST?
+ResponseFormat
+DD_CTAF_BOOST<boost>
+RelatedCommands
+DD_CTAF_FC,DD_CTAF_3DB,DD_CTAF_GROUP_DELAY,DD_TRAIN_FILTER
+7-162
+
+----- 第 365 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_CTAF_FC,DDFC
+Description
+SetstheCTAF(ContinuousTimeAnalogFilter)parameter,cut-offfrequencyfc.
+CommandSyntax
+DD_CTAF_FC<fc>
+<fc>:=frequencyinrange0.1to1.0* samplingfreq.
+QuerySyntax
+DD_CTAF_FC?
+ResponseFormat
+DD_CTAF_FC<fc>
+RelatedCommands
+DD_CTAF_3DB,DD_CTAF_BOOST,DD_CTAF_GROUP_DELAY,DD_TRAIN_FILTER
+7-163
+
+----- 第 366 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_CTAF_GROUP_DELAY,DFGD
+Description
+SetstheCTAF(ContinuousTimeAnalogFilter)parameter,groupdelay.
+CommandSyntax
+DD_CTAF_GROUP_DELAY<gdpercent>
+<gdpercent>:=valueinrange- 30.0%to+30.0%
+QuerySyntax
+DD_CTAF_GROUP_DELAY?
+ResponseFormat
+DD_CTAF_GROUP_DELAY<gdpercent>
+RelatedCommands
+DD_TRAIN_FILTER,DD_CTAF_FCDD_CTAF_3DB,DD_CTAF_BOOST
+7-164
+
+----- 第 367 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_ENCODING,DENC
+Description
+Allowsselectionofthedata-encodingratioforlocatingthebytesbybyteoffset.
+CommandSyntax
+DD_ENCODING<m>,<n>
+<m>:=integerinrange1 to32
+<n>:=integerinrange<m>to32
+QuerySyntax
+DD_ENCODING?
+ResponseFormat
+DD_ENCODING<m>,<n>
+RelatedCommands
+DD_BYTE_OFFSET
+7-165
+
+----- 第 368 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_ERR_INFO?,DERI?
+Description
+Returnsthemeasuredvalueassociatedwiththelasterrorpositionselected,andacodespecifyingwhat
+thevaluecontains.
+QuerySyntax
+DD_ERR_INFO?
+ResponseFormat
+Shownwithshortheader,thedefaultqueryresponsestate:
+DERI<code>,<value>
+Thefirstnumberisthecode,thesecondisthevalue.Themeaning ofthecodeis:
+0=invalid,neverselectedanerrorpositionyet
+1=SAMfromchannelemulationwithoutreference(alwaysgreaterthan0)
+2=RunLengthLimitviolationfromchannelemulation,thevalueisthenumberofbitcellswithouta
+magnetictransition.
+3=AnalogDistance(normalized,proportionaltoVoltssquared)fromanalogcompare
+4=SAMfromchannelemulationwithreference(canbenegative,ifadifferentpathshouldhavebeen
+taken)
+Example
+DERI?mightreturn"DERI1,1.7683".
+RelatedCommands
+DD_NUM_ERRORS,DD_FIND_ERRO,DD_ERR_NUM
+7-166
+
+----- 第 369 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_ERR_NUM,DERR
+Description
+Displaysthesectionofwaveformcontainingthespecifiederrornumber.
+CommandSyntax
+DD_ERR_NUM<errnum>
+<errnum>:=integerinrange1 to#errorsfound
+Iftherearenoerrors,anyinvocationproduceserrorstatus.An<errnum>greaterthan#errorsfound
+producesanerror.
+RelatedCommands
+DD_FIND_ERROR,DD_ERR_INFO,DD_NUM_ERRORS
+7-167
+
+----- 第 370 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_FIND_BITCELL?,DFBIT?
+Description
+Looksattheheadsignalandattemptstodeterminethebit-celltime.Tobesuccessful,theusermusthave
+positionedtheAnalyzeRegionStartcursorinsidethesynchfieldorhavereadgatesetup.
+QuerySyntax
+DD_FIND_BITCELL?
+ResponseFormat
+DD_FIND_BITCELL<bool>
+<bool>:={0,1}
+1ifsuccessful;0ifnotsuccessful.
+RelatedCommands
+DD_ANALYZE_REGION_START,DD_ANALYZE_REGION_LENGTH,DD_BITCELL,DD_VCO_SYNCH_
+PATTERN
+7-168
+
+----- 第 371 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_FIND_ERROR,DFER
+Description
+CommandstheDDAtofinderrors.
+CommandSyntax
+DD_FIND_ERROR<bool>
+<bool>:={OFF,ON}
+QuerySyntax
+DD_FIND_ERROR?
+ResponseFormat
+DD_FIND_ERROR<bool>
+RelatedCommands
+DD_FIND_METHOD
+7-169
+
+----- 第 372 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_FIND_METHOD,DDFM
+Description
+Selectstheerror-findingmethod.
+CommandSyntax
+DD_FIND_METHOD<method>
+<method>:={ANALOG_COMPARE,ML_DISTANCE,ML_COMPARE}
+ML_DISTANCEemulatesaPRMLchannelwithoutareferencesignal,whereasML_COMPAREusesa
+reference.
+QuerySyntax
+DD_FIND_METHOD?
+ResponseFormat
+DD_FIND_METHOD<method>
+RelatedCommands
+DD_FIND_ERROR,DD_SAM_THRESH,DD_ANALOG_COMP_THRESH
+7-170
+
+----- 第 373 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_FIR,DFIR
+Description
+StoresthesetupthatwillbeusediftheFIRfilterisenabledforuseinthechannelemulation.
+CommandSyntax
+DD_FIR<num>,<coef_0>,<coef_1>,<coef_2>,.....,<coef_n+1>
+QuerySyntax
+DD_FIR?
+ResponseFormat
+DD_FIR<num>,<coef_0>,<coef_1>,<coef_2>,.....,<coef_n+1>
+Where<num>canbe1to21.Thesumofthecoefficientsmustbegreaterthan0.1.Ifthesumofthe
+coefficientsisgreaterthan1.0,thecoefficientswillbescaledsothattheysumto1.0.
+RelatedCommands
+DD_FIR_ENABLE
+7-171
+
+----- 第 374 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_FIR_ENABLE,DFEN
+Description
+Enable/disablestheFIRfilterforPRMLchannelemulation.ItisalwayspossibletodisabletheFIR.
+RequeststoenabletheFIRonlysucceedifthefollowingconditionsaretrue:
+l Numberofcoefficientsis>0and<21
+l Atleastoneofthecoefficientsisnon-zero
+TheseconditionswillbemetiftheDD_FIRcommandwaseverexecutedsuccessfully.Thesetup
+establishedbyDD_FIRisnotaffectedbyDD_FIR_ENABLE:theFIRfiltermaybeenabledanddisabled
+withouthavingtoreestablishthesetup.
+CommandSyntax
+DD_FIR_ENABLE<bool>
+<bool>:={YES,NO}
+QuerySyntax
+DD_FIR_ENABLE?
+ResponseFormat
+DD_FIR_ENABLE<bool>
+RelatedCommands
+DD_FIR
+7-172
+
+----- 第 375 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_HEADSIGNAL_CHANNEL,DHSC
+Description
+Specifiestheheadsignalsourcechannelormemoryforchannelemulationandservoanalysis.
+CommandSyntax
+DD_HEADSIGNAL_CHANNEL<channel>
+<channel>:={NONE,C1toCn, M1toMn}
+QuerySyntax
+DD_HEADSIGNAL_CHANNEL?
+ResponseFormat
+DD_HEADSIGNAL_CHANNEL<channel>
+RelatedCommands
+DD_SIGNAL_INPUT
+7-173
+
+----- 第 376 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_IGNORE_SAMPLES,DIGS
+Description
+Definesthenumberofsamples tobeignoredattheReadGatesignalendforchannelemulationand
+analogcompare.
+CommandSyntax
+DD_IGNORE_SAMPLES<samples>
+<samples>:=integerinrange0 to999.
+QuerySyntax
+DD_IGNORE_SAMPLES?
+ResponseFormat
+DD_IGNORE_SAMPLES<samples>
+RelatedCommands
+DD_READGATE_CHANNEL
+7-174
+
+----- 第 377 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_ML_MIN_SPACING,DRLM
+Description
+Whenchannelemulationisactive,thissetstheminimumallowedspacingoftransitions.Minimum
+allowedspacingoftransitionsaffectsPR4,EPR4andE2PR4.
+CommandSyntax
+DD_ML_MIN_SPACING<d>
+<d>:=integerinrange0 to2
+0meansadjacenttransitionsareallowed;1meanstheremustbeatleastonenon-transitionbetween
+eachtransition;2isonlyvalidforE2PR4.
+QuerySyntax
+DD_ML_MIN_SPACING?
+ResponseFormat
+DD_ML_MIN_SPACING<d>
+RelatedCommands
+DD_FIND_ERROR,DD_ML_RUN_LENGTH_LIMIT
+7-175
+
+----- 第 378 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_ML_RUN_LENGTH_LIMIT,DRLE
+Description
+Limitstherunlength,thenumberof“0”valuesinarowforthehead/analogsignalwhenchannel
+emulationisactive.
+CommandSyntax
+DD_ML_RUN_LENGTH_LIMIT<k>
+<k>:=integerintherange0 to99.
+Maximumallowedrunofnon-transitions.Ifzero,thenRLLcheckingisdisabled.
+QuerySyntax
+DD_ML_RUN_LENGTH_LIMIT?
+ResponseFormat
+DD_ML_RUN_LENGTH_LIMIT<k>
+RelatedCommands
+DD_FIND_ERROR,DD_ML_MIN_SPACING
+7-176
+
+----- 第 379 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_NUM_ERRORS?,DNER?
+Description
+Returnsthenumberoferrorsfound.
+QuerySyntax
+DD_NUM_ERRORS?
+ResponseFormat
+DD_NUM_ERRORS<errorcount>
+<errorcount>:= numberoferrorsfound
+RelatedCommands
+DD_FIND_EROR,DD_ERR_NUM,DD_ERR_INFO,DD_NUM_ERRORS
+7-177
+
+----- 第 380 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_OVERLAP_REF,DOVL
+Description
+This commandsets astatevariable which determines whetherByteOffset(whenjumpingtoa"Worst
+SAM#"oranNRZmismatchposition)orotherdisk-driverelatedfeaturesre-establishtheoverlapofthe
+referencesignalwhenevertheymovetheheadtrace.Tore-establishoverlap,theycalculatecorrelation
+overawindowaroundtheexpectedmatchposition,andoverlapthewaveformatthesamplewherethe
+correlationishighest.Thesizeofthewindowislimitedtothewidthoftheheadtracedisplayortoafixed
+numberofbytes,whicheverissmaller.Ifthewaveformisgreatlydifferentwithinthewindow,themost
+correlatedpositionmaynotbemeaningful,andthewaveformswillnotappearoverlapped.Thisshouldbe
+clearonthedisplay.
+ThecommandDD_OVERLAP_REFONdoesnotcausethereferencetobedisplayed.Thenextchangeof
+ByteOffset,etc,causesthereferencetobedisplayed,correctlyoverlapped.
+ThecommandDD_OVERLAP_REFOFFdoesnotcausethereferencetracetobeturnedoff.Itmaybe
+turnedoff,orrepositionedasdesiredbytheuser.SubsequentchangestoByteOffset,etc,donotmove
+thereferenceanddonotcauseittobedisplayed.
+CommandSyntax
+DD_OVERLAP_REF<bool>
+<bool>:= {OFF,ON}
+QuerySyntax
+DD_OVERLAP_REF?
+ResponseFormat
+DD_OVERLAP_REF<bool>
+7-178
+
+----- 第 381 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_PES_ANALYSIS,DPA
+Description
+StartsorabortsPES analysis.Thequeryreturnsstatusoftheanalysis.
+CommandSyntax
+DD_PES_ANALYSIS<command>
+<command>:={START,ABORT}
+QuerySyntax
+DD_PES_ANALYSIS?
+ResponseFormat
+DD_PES_ANALYSIS<state>
+<state>:=1 = running,0 = stopped
+RelatedCommands
+DD_PES_DATA,DD_PES_SETUP
+7-179
+
+----- 第 382 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_PES_DATA?,DPD?
+Description
+ReadsoutresultsofPESAnalysis.
+QuerySyntax
+DD_PES_DATA?[<sortorder>]
+<sort_order>:={WEDGE,RRO,IRO,MAX,MIN,SIGMA}
+<sort_order>isanoptionalparameterthatspecifieshowdataissortedonoutput.Datacanbesortedby:
+WEDGE,RRO(RepetitiveRunout),IRO(InstantaneousRunout),MAX(MaximumRunout),MIN(Minimum
+Runout),orSIGMA(RunoutStandardDeviation).
+ResponseFormat
+DD_PES_DATA?“<wedge_1>,<IRO_1>,<RRO_1>,<MAX_1>,<MIN_1>,<SIGMA_1>,…,<wedge_N>,…”
+RelatedCommands
+DD_PES_ANALYSIS,DD_PES_SETUP,DD_PES-SUMMARY_DATA
+7-180
+
+----- 第 383 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_PES_SUMMARY_DATA?,DPSD?
+Description
+SummarizesPESAnalysisresults.Returnsaverageandsigma(RunoutStandardDeviation)ofallwedge
+RROs(RepetitiveRunouts),aswellastheaverageofsigmaforeach wedge’sRRO.
+Note:IRO=instantaneousrunout,fromoneobservationofthePESsignal;RRO=repeatablerun
+out,theaverageofmultipleIROvaluesatthesameposition.
+QuerySyntax
+DD_PES_SUMMARY_DATA?
+ResponseFormat
+DD_PES_SUMMARY_DATA?<avgRO>,<sigmaRO>,<avgSigma>
+<avgRO>: = Averageofallwedges’RROs
+<sigmaRO>: = Sigmaofallwedges’RROsin% oftrackseparation
+<avgSigma>: = Averagesigmaofallwedges'RROs
+<avgRO>istheaveragedistanceoftheheadfromthetrack,asa percentageoftrackseparation.
+<sigmaRO>Reflectsthewidthofthedistribution ofallRROvaluesfromallwedges.Ifthetrackiscircular
+andtheheadstill,thisshouldbezero.
+<avgSigma>reflectsthewidthof thedistributionofIROvaluesthatcontributed tothatwedge’sRRO.
+Thisvalue,alsogivenasapercentageoftrackseparation,isincreasedbynon-repeatablerunout.
+RelatedCommands
+DD_PES_ANALYSIS,DD_PES_DATA,DD_PES_SETUP
+7-181
+
+----- 第 384 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_READ_GATE_POLARITY,DRGP
+Description
+Selectsthepolarityofthereadgatesignal.
+CommandSyntax
+DD_READ_GATE_POLARITY<polarity>
+<polarity>:={POS,NEG}
+QuerySyntax
+DD_READ_GATE_POLARITY?
+ResponseFormat
+DD_READ_GATE_POLARITY<polarity>
+RelatedCommands
+DD_READGATE_CHANNEL,DD_SIGNAL_INPUT
+7-182
+
+----- 第 385 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_READCLOCK_CHANNEL,DRCC
+Description
+SpecifiestheinputchanneltowhichReadClockisconnectedorthememoryinwhichitisstored.
+CommandSyntax
+DD_READCLOCK_CHANNEL<channel>
+<channel>:={NONE,C1toCn, M1toMn}
+QuerySyntax
+DD_READCLOCK_CHANNEL?
+ResponseFormat
+DD_READCLOCK_CHANNEL<channel>
+RelatedCommands
+DD_SIGNAL_INPUT
+7-183
+
+----- 第 386 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_READGATE_CHANNEL,DRGC
+Description
+SpecifiestheinputchanneltowhichReadGateisconnectedorthememoryinwhichitisstored.
+CommandSyntax
+DD_READGATE_CHANNEL<channel>
+<channel>:={NONE,C1toCn, M1toMn}
+QuerySyntax
+DD_READGATE_CHANNEL?
+ResponseFormat
+DD_READGATE_CHANNEL<channel>
+RelatedCommands
+DD_SIGNAL_INPUT,DD_READ_GATE_POLARITY
+7-184
+
+----- 第 387 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_RESET_AVERAGE,DRAV
+Description
+Resetstheaverageddataandallsweeps;clearshistogramsandparameters;allowsthestartofafresh
+analysis.
+CommandSyntax
+DD_RESET_AVERAGE
+7-185
+
+----- 第 388 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_SAM_THRESH,DST
+Description
+SetstheSAMthresholdvalueforchannelemulation.
+CommandSyntax
+DD_SAM_THRESH<threshold>
+<threshold>:=float(rangedependsonsignaltype)
+ChannelemulationerrorthresholdisinunitsofSequencedAmplitudeMargin(SAM).Theminimum
+thresholdis0.0channelemulationwithoutreferenceand–1.0forchannelemulationwithreference.
+Maximumallowedthresholdsare:
+SignalType MaximumSAMThreshold
+PR 42.00
+EPR 41.00
+E2PR 41.11
+QuerySyntax
+DD_SAM_THRESH?
+ResponseFormat
+DD_SAM_THRESH<threshold>
+RelatedCommands
+DD_FIND_ERROR,DD_FIND_METHOD
+7-186
+
+----- 第 389 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_SAMPLE_PHASE,DSPH
+Description
+AdjuststhephasebetweentheDDFAPLLsamplepointsandanexternalclockreference(whenRCLKis
+connected).
+CommandSyntax
+DD_SAMPLE_PHASE<phase>
+<phase>:=degreesintherange-180to+180,wherethebitcelltimeis360degrees
+QuerySyntax
+DD_SAMPLE_PHASE?
+ResponseFormat
+DD_SAMPLE_PHASE<phase>
+RelatedCommands
+DD_READCLOCK_CHANNEL,DD_SIGNAL_INPUT,DD_SHOW_SAMPLE_TIMES
+7-187
+
+----- 第 390 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_SHOW_FILTERED,DSF
+Description
+TheDD_SHOW_FILTEREDcommandenablesanddisablesthefilteringoftheheadsignal. Whenenabled,
+thefilteredversionwillbedisplayedinthenextopenfunctiontrace(Fn).
+CommandSyntax
+DD_SHOW_FILTERED<bool>
+<bool>:={OFF,ON}
+QuerySyntax
+DD_SHOW_FILTERED?
+ResponseFormat
+DD_SHOW_FILTERED<bool>
+RelatedCommands
+DD_TRAIN_FILTER
+7-188
+
+----- 第 391 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_SHOW_LEVELS,DSLV
+Description
+DisplaysthelevelmarkersindicatingtheViterbilevelsoftheMLsampleswhenchannelemulationis
+active.
+CommandSyntax
+DD_SHOW_LEVELS<bool>
+<bool>:={OFF,ON}
+QuerySyntax
+DD_SHOW_LEVELS?
+ResponseFormat
+DD_SHOW_LEVELS<bool>
+RelatedCommands
+DD_FIND_ERROR,DD_FIND_METHOD
+7-189
+
+----- 第 392 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_SHOW_ML,DSML
+Description
+Displays/hidesMLmarkers,cursorsindicatingthetimesandlevelsoftheViterbidetectorMLsamples,
+whichareavailablewhenchannelemulationorNRZcompareisenabled.
+CommandSyntax
+DD_SHOW_ML<bool>
+<bool>:={OFF,ON}
+QuerySyntax
+DD_SHOW_ML?
+ResponseFormat
+DD_SHOW_ML<bool>
+RelatedCommands
+DD_FIND_ERROR,DD_FIND_METHOD
+7-190
+
+----- 第 393 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_SHOW_SAMPLE_TIMES,DSST
+Description
+Showsvertical-linecursorsonthegridateachsampletimecorrespondingtothereadclock.
+CommandSyntax
+DD_SHOW_SAMPLE_TIMES<bool>
+<bool>:={OFF,ON}
+QuerySyntax
+DD_SHOW_SAMPLE_TIMES?
+ResponseFormat
+DD_SHOW_SAMPLE_TIMES<bool>
+RelatedCommands
+DD_SIGNAL_INPUT,DD_READCLOCK_CHANNEL,DD_SAMPLE_PHASE
+7-191
+
+----- 第 394 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_SIGNAL_INPUT,DDSI
+Description
+SendsorreadsouttheassociationofasourcewithaparticularDiskDrivesignal.Thissignalcanbeused
+bydiskdrivetriggers,servoanalysis,analogcompare,andchannelemulation.
+CommandSyntax
+DD_SIGNAL_INPUT<signal_name>,<source>[,<polarity>]
+<signal_name>:={HEAD,READ_GATE,READ_CLOCK,INDEX,SERVO_GATE,
+SECTOR_PULSE,PES,ON_TRACK,WRITE_GATE}
+<source>:={None,C1toCn, EX,M1toMn}
+<polarity>:={POS,NEG}
+HEADandPEShavenopolarity.
+EXsourceisnotvalidforHEAD,READ_GATEorREAD_CLOCKsignals.
+M1throughMnnotvalidforSERVO_GATE,SECTOR_PULSE,PES,ON_TRACKorWRITE_GATE.
+QuerySyntax
+DD_SIGNAL_INPUT?
+ResponseFormat
+DD_SIGNAL_INPUT<signal_name>,<source>[,<polarity>]
+RelatedCommands
+DD_HEADSIGNAL_CHANNEL,DD_READGATE_CHANNEL,DD_READCLOCK_CHANNEL,
+DD_READ_GATE_POLARITY
+7-192
+
+----- 第 395 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_SIGNAL_TYPE,DSIG
+Description
+SpecifiesPeakDetectoraparticularPRMLformatfortheheadsignal.
+CommandSyntax
+DD_SIGNAL_TYPE<sigtype>
+<sigtype>:={PEAK,PR4,EPR4,EEPR4}
+QuerySyntax
+DD_SIGNAL_TYPE?
+ResponseFormat
+DD_SIGNAL_TYPE<sigtype>
+7-193
+
+----- 第 396 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_START_AVERAGING,DSAV
+Description
+Changesthestateofthe“Avg.Samples”switchontheGraphmenu.Whensettoyes,allsubsequent
+acquisitionswillbeaveragedandnoiseanalysiscalculationswillbecarriedon.
+CommandSyntax
+DD_START_AVERAGING<bool>
+<bool>:={YES,NO}
+QuerySyntax
+DD_START_AVERAGING?
+ResponseFormat
+DD_START_AVERAGING<bool>
+7-194
+
+----- 第 397 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_STORE_REFERENCE,DSTR
+Description
+StorestheheadsignaltooneoftheDDA’savailablememoriesforanalogcompareandchannelemulation
+withreference.
+CommandSyntax
+DD_STORE_REFERENCE
+RelatedCommands
+DD_FIND_ERROR,DD_OVERLAP_REF
+7-195
+
+----- 第 398 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_TRAIN_FILTER?,DTF?
+Description
+CommandstheDiskDriveAnalyzertodeterminereasonablevaluesforeachfilterparameter.Ahead
+signalabletobeanalyzedisrequiredonwhichtotrainthefilter.
+QuerySyntax
+DD_TRAIN_FILTER?
+ResponseFormat
+DD_TRAIN_FILTER<success>
+<success>: = 0 or1
+RelatedCommands
+DD_CTAF_3DB,DD_CTAF_BOOST,DD_CTAF_FC,DD_CTAF_GROUP_DELAY
+7-196
+
+----- 第 399 页 -----
+
+Part7:IEEE488.2CommandReference
+DD_VCO_SYNCH_PATTERN,DVSP
+Description
+Definesthenumberofbitsperhalf-periodinthesynchronizationfield.
+CommandSyntax
+DD_VCO_SYNCH_PATTERN<pattern>
+<pattern>:=integerintherange1–4 indicatingtypeofVCOsynchpattern(1T,2T, 
+etc.)
+QuerySyntax
+DD_VCO_SYNCH_PATTERN?
+ResponseFormat
+DD_VCO_SYNCH_PATTERN<pattern>
+RelatedComamnds
+DD_VCO_SYNCH_TO_DATA,DD_FIND_BITCELL
+7-197
+
+----- 第 400 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+DD_VCOSYNCH_TO_DATA,DVTD
+Description
+SpecifiesthenumberofbytesontheanalogheadsignalwaveformbetweentheendoftheVCOsyncfield
+andtheactualdata.
+CommandSyntax
+DD_VCOSYNCH_TO_DATA<numbytes>
+<numbytes>:=integerintherange1 to32
+QuerySyntax
+DD_VCOSYNCH_TO_DATA?
+ResponseFormat
+DD_VCOSYNCH_TO_DATA<numbytes>
+RelatedCommands
+DD_VCO_SYNCH_PATTERN,DD_BYTE_OFFSET
+7-198
+
+----- 第 401 页 -----
+
+Part7:IEEE488.2CommandReference
+ET-PMT(Option)CommandsandQueries
+CUSTOM_OPTIONS?,CU_OPT?
+Description
+TheCU_OPT?queryidentifiesET-PMToptionscurrentlyenabledduetothepresenceofaPP100.These
+optionscanalsobeenabledbythenormaloptionkeymechanism.Ifso,theyarereportedbythe*OPT?
+queryinsteadofCU_OPT?.TheresponsetoCU_OPT?consistsofaseriesofresponsefieldslistingallthe
+optionsenabledduetothepresenceofaPP100.
+QuerySyntax
+CU_OPT?
+ResponseFormat
+<option_1>,[<option_n>]
+<option_n>:={MT01,MT02}
+Theparameter<option_n>isforcompatibilitywitholderoscilloscopes.
+RelatedCommands
+CUSTOM_APPLICATION,MT_FAIL_ACTIONS,MT_OPC?,MT_PF_COUNTERS?,MT_SELECT_TEST,MT_
+SYMBOL?
+7-199
+
+----- 第 402 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+CUSTOM_APPLICATION,CUAP
+Description
+TheCUSTOM_APPLICATIONcommandtogglestheoscilloscopeapplicationbetweenET-PMTMask
+Testermodeandstandardoscilloscopemode.
+TheCUSTOM_APPLICATIONqueryreturnsthecurrentsetting.
+CommandSyntax
+CUAP<state>
+<state>:=[OFF,MASK_TESTER]
+Forcompatibilitywitholderoscilloscopes,eitherargumentisacceptable.
+QuerySyntax
+CUAP?
+ResponseFormat
+CUAP<state>
+RelatedCommands
+CUSTOM_OPTIONS?,MT_FAIL_ACTIONS,MT_OPC?,MT_PF_COUNTERS?,MT_SELECT_TEST,MT_
+SYMBOL?
+7-200
+
+----- 第 403 页 -----
+
+Part7:IEEE488.2CommandReference
+MT_FAIL_ACTION,MTFA
+Description
+ThiscommandsetstheET-PMTmasktestactionstooccurwheneverawaveformdoesnotmeetthe
+passcriteria.
+Thequeryformofthiscommandreturnsthecurrentactionsettings.
+CommandSyntax
+MTFA<action>,[...,<action>]
+<action>:={STOP,STORE,DUMP,BEEP,PULSE}
+QuerySyntax
+MTFA?
+ResponseFormat
+MTFA<action>[,...,<action>]
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_OPC?,MT_PF_COUNTERS?,MT_SELECT_TEST,MT_
+SYMBOL?
+7-201
+
+----- 第 404 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+MT_OFFSET,MTOF
+Description
+TheMT_OFFSETcommandsetstheET-PMTmaskoffsetvalueforSTM-1E,STS-3Eand139M.
+TheMT_OFFSETqueryreturnstheoffsetvalue.
+CommandSyntax
+MTOF<offset_value>
+<offset_value>:=-50mVto+50mV
+QuerySyntax
+MTOF?
+ResponseFormat
+MTOF<offset_value>mV
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_OPC?,MT_PF_COUNTERS?,MT_SELECT_TEST,MT_
+SYMBOL?
+7-202
+
+----- 第 405 页 -----
+
+Part7:IEEE488.2CommandReference
+MT_OPC?,MTOP?
+Description
+ThisqueryreturnsthestateofthelastET-PMToperation.Itsfunctionalityissimilartothe*OPC?
+(operationcomplete)query.
+QuerySyntax
+MTOP?
+ResponseFormat
+MTOP<state>
+<state>:={0,1}
+where1signifies"complete."
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_FAIL_ACTIONS,MT_PF_COUNTERS?,MT_SELECT_
+TEST,MT_SYMBOL?
+7-203
+
+----- 第 406 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+MT_PF_COUNTERS?,MTPC?
+Description
+Thisqueryreturnsthenumberofpassedwaveformsoutofthetotalnumbertestedandthepercentfail
+rateforthelastET-PMTmasktest.
+QuerySyntax
+MTPC?
+ResponseFormat
+MT_PF_COUNTERSPASS,<value>,OF,<value>,FAIL_RATE,<percentvalue>
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_FAIL_ACTIONS,MT_OPC?,MT_SELECT_TEST,MT_
+SYMBOL?
+7-204
+
+----- 第 407 页 -----
+
+Part7:IEEE488.2CommandReference
+MT_SELECT_TEST,MTST
+Description
+TheMT_SELECT_TESTcommandselectstheET-PMTsignal/testtype,andperformsAUTOALIGNor
+HORIZONTALALIGNactionsautomaticallyonthesignal.
+MT_SELECT_TESTqueryreturnsthecurrenttestsettings.
+CommandSyntax
+MTST<test_name>,<channel>,<averaging>
+<test_name>:={NO_TEST,E1TP,E1COAX,E2,E3,E4,STM1E,DS1,DS3,STS1,STS3E}
+<channel>:={C1,C2,C3,C4}
+<averaging>:={0to128}
+QuerySyntax
+MTST?
+ResponseFormat
+MTST<test_name>,<channel>,<averaging>
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_FAIL_ACTIONS,MT_OPC?,MT_PF_COUNTERS?,MT_
+SYMBOL?
+7-205
+
+----- 第 408 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+MT_SYMBOL?,MTSY?
+Description
+ForSTM-1E,STS-3Eand139Mtests,returnsthe1or0symbol.
+ForDS1,DS3andSTS1,returnsthePOSorNEGpulse.
+QuerySyntax
+MTSY?
+ResponseFormat
+MTSY<bit_value>
+<bit_value>:=1 or0,POSorNEG
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_FAIL_ACTIONS,MT_OPC?,MT_PF_COUNTERS?,MT_
+SELECT_TEST
+7-206
+
+----- 第 409 页 -----
+
+Part7:IEEE488.2CommandReference
+MT_TEST_STATE,MTTS
+Description
+ThecommandcontrolstheET-PMTtestexecution:RUN/STOPorPAUSE/CONTINUE.
+ThequeryreturnsthecurrentET-PMTteststate.
+CommandSyntax
+MT_TEST_STATE<test_state>
+<test_state>:={RUN,STOP,CONTINUE,PAUSE}
+QuerySyntax
+MTTS?
+ResponseFormat
+MTTS<test_state>
+<test_state>:={RUN,STOP,CONTINUE,PAUSE}
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_FAIL_ACTIONS,MT_OPC?,MT_PF_COUNTERS?,MT_
+SYMBOL?
+7-207
+
+----- 第 410 页 -----
+
+MAUIOscilloscopesRemoteControlandAutomationManual
+MT_VERTICAL_ALIGN,MTVA
+Description
+PerformsoffsetalignmentforET-PMTmasksSTM-1E,STS-3Eand139M.
+CommandSyntax
+MT_VERTICAL_ALIGN
+RelatedCommands
+CUSTOM_APPLICATION,CUSTOM_OPTIONS?,MT_FAIL_ACTIONS,MT_OPC?,MT_PF_COUNTERS?,MT_
+SYMBOL?
+7-208
+
+----- 第 411 页 -----
+
