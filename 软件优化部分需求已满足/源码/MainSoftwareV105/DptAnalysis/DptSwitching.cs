@@ -26,6 +26,9 @@ namespace MainSoftwareV100
             public double CrosstalkVmax;          //对管Vge正向尖峰 V（无对管通道时为0）
             public double CrosstalkVmin;          //对管Vge负向尖峰 V
             public string Message = "";           //提取过程说明/异常提示
+            //2026-10-31 逐参数有效状态：含参数名表示该参数不可信/未求得，界面应显示"--"而不是0
+            public readonly System.Collections.Generic.HashSet<string> Invalid =
+                new System.Collections.Generic.HashSet<string>();
         }
 
         //内部：Vge脉冲沿位置
@@ -40,9 +43,11 @@ namespace MainSoftwareV100
         public static Result Analyze(double[] vge, double[] vce, double[] ic, double dt, double[] other = null)
         {
             Result r = new Result();
-            int n = vge.Length;
-            if (n < 100 || vce.Length != n || ic.Length != n)
+            int n = vge == null ? 0 : vge.Length;
+            if (n < 100 || vce == null || ic == null || vce.Length != n || ic.Length != n)
             { r.Message = "数据长度不足或三通道长度不一致"; return r; }
+            if (!(dt > 0) || double.IsNaN(dt) || double.IsInfinity(dt))
+            { r.Message = "采样间隔无效（dt≤0/NaN/∞），拒绝提取，请检查波形来源"; return r; }
 
             double[] t = DptMath.TimeAxis(n, dt, 0);
 
@@ -93,8 +98,10 @@ namespace MainSoftwareV100
             {
                 r.TdOn = Math.Max(0, (ti10on.Value - tv10.Value)) * dt * 1e9;
                 if (ti90on != null) r.Tr = (ti90on.Value - ti10on.Value) * dt * 1e9;
+                else { r.Invalid.Add("Tr"); r.Invalid.Add("Ton"); }
                 r.Ton = r.TdOn + r.Tr;
             }
+            else { r.Invalid.Add("TdOn"); r.Invalid.Add("Tr"); r.Invalid.Add("Ton"); }
 
             //========== ⑤ 关断时间参数 + Tz 拖尾（IEC 60747-9）==========
             double? tv90 = DptMath.CrossingIndex(vgeS, v90, false, off0);            //Vge降90%
@@ -110,44 +117,60 @@ namespace MainSoftwareV100
                     double? ti02 = DptMath.CrossingIndex(icS, i02, false, (int)Math.Ceiling(ti10off.Value) + 1);
                     if (ti02 != null) r.Tz = (ti02.Value - ti10off.Value) * dt * 1e9;
                 }
+                else { r.Invalid.Add("Tf"); r.Invalid.Add("Toff"); }
                 r.Toff = r.TdOff + r.Tf;
             }
+            else { r.Invalid.Add("TdOff"); r.Invalid.Add("Tf"); r.Invalid.Add("Toff"); }
 
             //========== ⑥ 斜率（10%~90%，kV/us 与 A/us）==========
             double? dvon = DptMath.SlopeBetween(vceS, dt, on0, on1,
                 DptMath.ThresholdValue(vceLo, vceHi, 0.90), DptMath.ThresholdValue(vceLo, vceHi, 0.10), false);
             if (dvon != null) r.DvDtOn = dvon.Value / 1e3;          //V/us → kV/us
+            else r.Invalid.Add("DvDtOn");
             double? dvoff = DptMath.SlopeBetween(vceS, dt, off0, off1,
                 DptMath.ThresholdValue(vceLo, vceHi, 0.10), DptMath.ThresholdValue(vceLo, vceHi, 0.90), true);
             if (dvoff != null) r.DvDtOff = dvoff.Value / 1e3;
+            else r.Invalid.Add("DvDtOff");
             double? dion = DptMath.SlopeBetween(icS, dt, on0, on1, i10, i90, true);
             if (dion != null) r.DiDtOn = dion.Value;
+            else r.Invalid.Add("DiDtOn");
             double? dioff = DptMath.SlopeBetween(icS, dt, off0, off1, i90, i10, false);
             if (dioff != null) r.DiDtOff = dioff.Value;
+            else r.Invalid.Add("DiDtOff");
 
-            //========== ⑦ 能量（IEC 60747-9：∫Vce·Ic dt，梯形法）==========
+            //========== ⑦ 能量（IEC 60747-9：∫Vce·Ic dt，分数端点梯形法）==========
+            //2026-10-31 修复：原实现把已插值的穿越点强转(int)再积到整数端点，且找不到终点
+            //时静默积到窗尾，能量被系统性高估。现改用 IntegrateFrac 按插值点精确积分，
+            //终点在窗内找不到时把该能量标记为无效（Invalid），不再给错数。
             double[] p = new double[n];
             for (int i = 0; i < n; i++) p[i] = vce[i] * ic[i];
-            //Eon：Vge升10% → Vce降到 Lo+2%×span
+            //Eon：Vge升10%（插值点）→ Vce降到 Lo+2%×span（插值点），搜索限在开通窗内
             if (tv10 != null)
             {
-                int end = on1;
                 double vEnd = vceLo + 0.02 * vceSpan;
-                for (int i = (int)tv10.Value; i <= on1; i++) { if (vceS[i] <= vEnd) { end = i; break; } }
-                r.Eon = DptMath.Integrate(t, p, (int)tv10.Value, end) * 1e6;    //J→uJ
+                double? endOn = DptMath.CrossingIndex(vceS, vEnd, false, (int)Math.Ceiling(tv10.Value) + 1, on1);
+                if (endOn != null && endOn.Value > tv10.Value)
+                    r.Eon = DptMath.IntegrateFrac(t, p, tv10.Value, endOn.Value) * 1e6;    //J→uJ
+                else
+                    r.Invalid.Add("Eon");
             }
-            //Eoff：Vge降90% → Ic降到2% Icm
+            else r.Invalid.Add("Eon");
+            //Eoff：Vge降90%（插值点）→ Ic降到2% Icm（插值点），搜索限在关断窗内
             if (tv90 != null)
             {
-                int end = off1;
-                for (int i = (int)tv90.Value; i <= off1; i++) { if (icS[i] <= i02) { end = i; break; } }
-                r.Eoff = DptMath.Integrate(t, p, (int)tv90.Value, end) * 1e6;
+                double? endOff = DptMath.CrossingIndex(icS, i02, false, (int)Math.Ceiling(tv90.Value) + 1, off1);
+                if (endOff != null && endOff.Value > tv90.Value)
+                    r.Eoff = DptMath.IntegrateFrac(t, p, tv90.Value, endOff.Value) * 1e6;
+                else
+                    r.Invalid.Add("Eoff");
             }
+            else r.Invalid.Add("Eoff");
 
             //========== ⑧ 过冲/杂散电感/峰值功率（DPT口径）==========
             r.Vdsm = MaxAbs(vce, off0, off1);
             r.DeltaVce = Math.Max(0, r.Vdsm - vceHi);
             if (r.DiDtOff > 0) r.Ls = r.DeltaVce / r.DiDtOff * 1000;   //nH = V/(A/us)×1000
+            else r.Invalid.Add("Ls");   //Ls依赖di/dt_off，斜率无效则杂散电感也不可信
             double pmaxW = 0;
             for (int i = off0; i <= off1; i++) pmaxW = Math.Max(pmaxW, Math.Abs(p[i]));
             for (int i = on0; i <= on1; i++) pmaxW = Math.Max(pmaxW, Math.Abs(p[i]));
@@ -163,6 +186,8 @@ namespace MainSoftwareV100
             }
 
             r.Message = "提取完成（" + (tv10 != null && tv90 != null ? "双脉冲" : "部分沿缺失") + "）";
+            if (r.Invalid.Count > 0)
+                r.Message += "；" + string.Join("/", r.Invalid) + " 终点未找到，已标记无效";
             return r;
         }
 

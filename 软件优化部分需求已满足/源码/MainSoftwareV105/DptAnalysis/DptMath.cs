@@ -43,20 +43,22 @@ namespace MainSoftwareV100
 
         //========== 滤波 ==========
 
-        /// <summary>滑动平均平滑（等价uniform_filter1d），window为奇数采样点。</summary>
+        /// <summary>滑动平均平滑（对称窗、边缘截断），window为奇数采样点。
+        /// 2026-10-31 修复：原滑动和只累加"过去"半个窗口（恒为 h+1 个元素），
+        /// 分母却按完整对称窗 2h+1 算，稳定区输出被压低 (h+1)/(2h+1)（窗3→2/3）。
+        /// 改为前缀和实现：分子分母都按 [i-h, i+h] 截断窗计算，恒定信号输出恒为原值。</summary>
         public static double[] Smooth(double[] y, int window)
         {
             if (window < 3) return (double[])y.Clone();
             if (window % 2 == 0) window++;
             int n = y.Length, h = window / 2;
+            double[] pre = new double[n + 1];
+            for (int i = 0; i < n; i++) pre[i + 1] = pre[i] + y[i];
             double[] r = new double[n];
-            double sum = 0;
             for (int i = 0; i < n; i++)
             {
-                sum += y[i];
-                if (i - h - 1 >= 0) sum -= y[i - h - 1];
-                int cnt = Math.Min(i + h, n - 1) - Math.Max(0, i - h) + 1;
-                r[i] = sum / cnt;
+                int lo = Math.Max(0, i - h), hi = Math.Min(n - 1, i + h);
+                r[i] = (pre[hi + 1] - pre[lo]) / (hi - lo + 1);
             }
             return r;
         }
@@ -75,9 +77,10 @@ namespace MainSoftwareV100
         /// rising=true找上升穿越，false找下降穿越；startIdx指定从哪个点开始搜。
         /// 找不到返回null。
         /// </summary>
-        public static double? CrossingIndex(double[] y, double threshold, bool rising, int startIdx = 0)
+        public static double? CrossingIndex(double[] y, double threshold, bool rising, int startIdx = 0, int endIdx = int.MaxValue)
         {
-            for (int i = Math.Max(1, startIdx); i < y.Length; i++)
+            int last = Math.Min(y.Length - 1, endIdx);
+            for (int i = Math.Max(1, startIdx); i <= last; i++)
             {
                 bool cross = rising ? (y[i - 1] <= threshold && y[i] > threshold)
                                     : (y[i - 1] >= threshold && y[i] < threshold);
@@ -103,6 +106,48 @@ namespace MainSoftwareV100
             for (int i = i0 + 1; i <= i1; i++)
                 sum += 0.5 * (p[i - 1] + p[i]) * (t[i] - t[i - 1]);
             return sum;
+        }
+
+        /// <summary>分数端点梯形积分：a/b 为带小数的采样索引（线性插值穿越点的坐标），
+        /// 端点处按 p 的线性插值补部分区间，避免把已插值的穿越点强转整数造成的端点误差。
+        /// a/b 为整数时与 Integrate 完全一致；t 需单调递增（如 TimeAxis 产物）。</summary>
+        public static double IntegrateFrac(double[] t, double[] p, double a, double b)
+        {
+            int n = t.Length;
+            if (n < 2 || b <= a) return 0;
+            a = Math.Max(0, a); b = Math.Min(n - 1.0, b);
+            if (b <= a) return 0;
+            //前缀积分 F(x)=∫₀ˣ p dt（p 按线性插值，x 可带小数）。
+            //任意小数索引处的线性插值取值
+            System.Func<double, double> val = x =>
+            {
+                int i = (int)Math.Floor(x);
+                if (i < 0) return p[0];
+                if (i >= n - 1) return p[n - 1];
+                double f = x - i;
+                return p[i] * (1 - f) + p[i + 1] * f;
+            };
+            double tval(double x)   //时间轴同样按线性插值取
+            {
+                int i = (int)Math.Floor(x);
+                if (i < 0) return t[0];
+                if (i >= n - 1) return t[n - 1];
+                double f = x - i;
+                return t[i] * (1 - f) + t[i + 1] * f;
+            }
+            System.Func<double, double> prefix = x =>
+            {
+                if (x <= 0) return 0;
+                if (x > n - 1) x = n - 1;
+                int k = (int)Math.Floor(x);
+                double full = 0;
+                for (int j = 1; j <= k; j++)
+                    full += 0.5 * (p[j - 1] + p[j]) * (t[j] - t[j - 1]);
+                if (x > k)
+                    full += 0.5 * (p[k] + val(x)) * (tval(x) - t[k]);
+                return full;
+            };
+            return prefix(b) - prefix(a);
         }
 
         /// <summary>
